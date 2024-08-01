@@ -15,7 +15,7 @@ Pod::Spec.new do |spec|
   #  summary should be tweet-length, and the description more in depth.
   #
 
-  spec.name          = "TagWorks"
+  spec.name          = "TagWorks-SDK-iOS"
   spec.version       = "1.1.0"
   spec.summary       = "TagWorks SDK for iOS"
   spec.swift_version = "5.0"

@@ -18,7 +18,7 @@ public final class Dimension: NSObject, Codable {
     let value: String
     
     /// fact
-    let intValue: Int
+    let intValue: Double
     
     /// type
     var type: Int = generalType
@@ -27,7 +27,7 @@ public final class Dimension: NSObject, Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.index = try container.decode(Int.self, forKey: .index)
         self.value = try container.decode(String.self, forKey: .value)
-        self.intValue = try container.decode(Int.self, forKey: .intValue)
+        self.intValue = try container.decode(Double.self, forKey: .intValue)
         self.type = try container.decode(Int.self, forKey: .type)
     }
 
@@ -37,7 +37,7 @@ public final class Dimension: NSObject, Codable {
     ///   - index: 사용자 정의 디멘전의 index
     ///   - intValue: 사용자 정의 디멘전의 fact value
     ///   - stringValue: 사용자 정의 디멘전의 string value
-    @objc public init(WithType type: Int = generalType, index: Int, stringValue: String, intValue: Int = 0) {
+    @objc public init(WithType type: Int = generalType, index: Int, stringValue: String, intValue: Double = 0) {
         self.type = type
         self.index = index
         self.intValue = intValue

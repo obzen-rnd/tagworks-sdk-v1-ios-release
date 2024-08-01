@@ -387,7 +387,7 @@ extension TagWorks {
     ///   - value: 추가할 디멘전 value
 //    @objc public func setCommonDimension(index: Int, value: String){
 //        setCommonDimension(dimension: Dimension(index: index, value: value))
-    @objc public func setCommonDimension(type: Int, index: Int, stringValue: String, intValue: Int) {
+    @objc public func setCommonDimension(type: Int, index: Int, stringValue: String, intValue: Double) {
         setCommonDimension(dimension: Dimension(WithType: type, index: index, stringValue: stringValue, intValue: intValue))
     }
     
