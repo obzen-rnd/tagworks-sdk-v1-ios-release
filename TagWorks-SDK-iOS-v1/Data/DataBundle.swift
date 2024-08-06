@@ -48,6 +48,10 @@ import Foundation
     /// 초기화 - End
     ///
     
+//    @objc public func getStandardTagValueString(_ value: Int) -> String {
+//        
+//    }
+    
     
     ///
     /// 파라미터 추가

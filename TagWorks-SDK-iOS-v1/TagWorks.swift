@@ -8,7 +8,7 @@
 import Foundation
 
 /// TagWorks 클래스는 SDK 모듈내에서 가장 최상위에 존재하는 클래스입니다.
-final public class TagWorks: NSObject {
+@objc final public class TagWorks: NSObject {
     
     // MARK: - 싱글톤 객체 생성 및 반환
     @objc static public let sharedInstance = TagWorks()
@@ -116,6 +116,9 @@ final public class TagWorks: NSObject {
 //    }
     
     private var dispatchTimer: Timer?
+    
+    ///
+    @objc public let webViewInterface: WebInterface = WebInterface()
 
     
     // MARK: - 클래스 객체 함수
@@ -126,17 +129,20 @@ final public class TagWorks: NSObject {
     ///   - baseUrl: 수집 로그 발송을 위한 서버 URL
     ///   - userAgent: 수집 대상의 userAgent 객체 String
 //    public func setEnvironment(siteId: String, baseUrl: URL, userAgent: String?) {
-    public func setInstanceConfig(siteId: String, 
-                                  baseUrl: URL,
-                                  dispatchInterval: TimeInterval,
-                                  userAgent: String? = nil) {
+    @objc public func setInstanceConfig(siteId: String,
+                                        baseUrl: URL,
+                                        dispatchInterval: TimeInterval,
+                                        userAgent: String? = nil) {
         self.siteId = siteId
         self.dispatchInterval = dispatchInterval
         self.queue = DefaultQueue()
         self.dispatcher = DefaultDispatcher(serializer: EventSerializer(), baseUrl: baseUrl, userAgent: userAgent)
         self.tagWorksBase = TagWorksBase(suitName: "\(siteId)\(baseUrl.absoluteString)")
-        self.contentUrl = URL(string: "APP://\(AppInfo.getApplicationInfo().bundleIdentifier ?? "")")
+//        self.contentUrl = URL(string: "APP://\(AppInfo.getApplicationInfo().bundleIdentifier ?? "")")
+        self.contentUrl = URL(string: "http://\(AppInfo.getApplicationInfo().bundleIdentifier ?? "")")
         startDispatchTimer()
+        
+        self.webViewInterface.delegate = self
     }
     
     /// 이벤트 로그 발생 주기 타이머를 시작합니다.
@@ -147,7 +153,7 @@ final public class TagWorks: NSObject {
             }
             return
         }
-        guard dispatchInterval > 0  else { return }
+        guard dispatchInterval >= 0  else { return }
         if let dispatchTimer = dispatchTimer {
             dispatchTimer.invalidate()
             self.dispatchTimer = nil
@@ -246,7 +252,7 @@ final public class TagWorks: NSObject {
 extension TagWorks {
     
     /// Dictionary 형태의 DataBundle로 파라미터들을 받기 위해 새로 구현 - Added by Kevin 2024.07.22
-    public func logEvent(_ type: String, bundle: DataBundle) {
+    @objc public func logEvent(_ type: String, bundle: DataBundle) {
         var eventTagName: String = ""
         var eventTagParamTitle: String?
         var eventTagParamPagePath: String?
@@ -300,7 +306,7 @@ extension TagWorks {
             }
             
 //            currentContentUrlPath = self.contentUrl?.appendingPathComponent(pagePath)
-            let event = Event(tagWorks: self, eventType: eventTagName, pageTitle: title, customUserPath: eventTagParamCustomPath, dimensions: eventTagParamDimenstions)
+            let event = Event(tagWorks: self, eventType: eventTagName, pageTitle: title, searchKeyword: eventTagParamKeyword, customUserPath: eventTagParamCustomPath, dimensions: eventTagParamDimenstions)
             addQueue(event: event)
             
         } else {
@@ -315,7 +321,7 @@ extension TagWorks {
                 let event = Event(tagWorks: self, eventType: eventTagName, pageTitle: eventTagParamTitle, searchKeyword: keyword, customUserPath: eventTagParamCustomPath, dimensions: eventTagParamDimenstions)
                 addQueue(event: event)
             } else {
-                let event = Event(tagWorks: self, eventType: eventTagName, pageTitle: eventTagParamTitle, customUserPath: eventTagParamCustomPath, dimensions: eventTagParamDimenstions)
+                let event = Event(tagWorks: self, eventType: eventTagName, pageTitle: eventTagParamTitle, searchKeyword: eventTagParamKeyword, customUserPath: eventTagParamCustomPath, dimensions: eventTagParamDimenstions)
                 addQueue(event: event)
             }
         }
@@ -383,12 +389,14 @@ extension TagWorks {
     /// 수집 로그의 공용 디멘전을 지정합니다.
     /// * 이미 동일한 인덱스에 지정된 디멘전이 있는 경우 삭제하고 저장됩니다.
     /// - Parameters:
+    ///   - type: 추가할 디멘전 type
     ///   - index: 추가할 디멘전 index
-    ///   - value: 추가할 디멘전 value
+    ///   - stringValue: 추가할 디멘전 value (d - String 타입)
+    ///   - numValue: 추가할 디멘전 value (f - Double 타입)
 //    @objc public func setCommonDimension(index: Int, value: String){
 //        setCommonDimension(dimension: Dimension(index: index, value: value))
-    @objc public func setCommonDimension(type: Int, index: Int, stringValue: String, intValue: Double) {
-        setCommonDimension(dimension: Dimension(WithType: type, index: index, stringValue: stringValue, intValue: intValue))
+    @objc public func setCommonDimension(type: Int, index: Int, stringValue: String, numValue: Double) {
+        setCommonDimension(dimension: Dimension(WithType: type, index: index, stringValue: stringValue, numValue: numValue))
     }
     
     /// 수집 로그의 공용 디멘전을 제거합니다.
@@ -402,8 +410,8 @@ extension TagWorks {
 }
 
 extension TagWorks {
-    static public let EVENT_TYPE_PAGE: String          = "EVENT_TYPE_PAGE"
-    static public let EVENT_TYPE_USER_EVENT: String    = "EVENT_TYPE_USER_EVENT"
+    @objc static public let EVENT_TYPE_PAGE: String          = "EVENT_TYPE_PAGE"
+    @objc static public let EVENT_TYPE_USER_EVENT: String    = "EVENT_TYPE_USER_EVENT"
 
     /// 필수 파라미터 정의
     /// 1. EVENT_TYPE_PAGE
@@ -416,4 +424,21 @@ extension TagWorks {
     ///  - # EVENT_TAG_NAME 이 EventTag.search.description 인 경우,
     ///   -> EVENT_TAG_PARAM_KEYWORD
     ///
+}
+
+/// WebView Interface
+extension TagWorks: WebInterfaceDelegate {
+    
+    func isEqualSiteId(idsite: String) -> Bool {
+        if self.siteId == idsite {
+            return true
+        }
+        
+        return false
+    }
+    
+    func addWebViewEvent(event: Event) {
+        addQueue(event: event)
+    }
+    
 }

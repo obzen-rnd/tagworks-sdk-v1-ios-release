@@ -25,6 +25,28 @@ import Foundation
     }
 }
 
+
+/// Objective-C
+///// Objective-C에서 사용할 EventTag Class
+@objc public class StandardEventTag: NSObject {
+//    static public func EventTagString(eventTag: EventTag) -> String {
+//        switch eventTag {
+//        case .click:    return "Click"
+//        case .search:   return "Search"
+//        case .pageView: return "PageView"
+//        case .scroll:   return "Scroll"
+//        }
+//    }
+    @objc static public func toString(eventTag: EventTag) -> String {
+        switch eventTag {
+        case .click:    return "Click"
+        case .search:   return "Search"
+        case .pageView: return "PageView"
+        case .scroll:   return "Scroll"
+        }
+    }
+}
+
 ///
 extension TagWorksBase {
     

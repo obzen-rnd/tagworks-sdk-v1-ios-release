@@ -18,7 +18,7 @@ public final class Dimension: NSObject, Codable {
     let value: String
     
     /// fact
-    let intValue: Double
+    let numValue: Double
     
     /// type
     var type: Int = generalType
@@ -27,21 +27,37 @@ public final class Dimension: NSObject, Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.index = try container.decode(Int.self, forKey: .index)
         self.value = try container.decode(String.self, forKey: .value)
-        self.intValue = try container.decode(Double.self, forKey: .intValue)
+        self.numValue = try container.decode(Double.self, forKey: .numValue)
         self.type = try container.decode(Int.self, forKey: .type)
     }
 
     /// 사용자 정의 디멘전의 기본 생성자입니다.
     /// - Parameters:
-    ///   - WithType: 사용자 정의 디멘전의 Type (general, fact)
+    ///   - type: 사용자 정의 디멘전의 Type (general, fact)
     ///   - index: 사용자 정의 디멘전의 index
-    ///   - intValue: 사용자 정의 디멘전의 fact value
+    ///   - numValue: 사용자 정의 디멘전의 fact value
     ///   - stringValue: 사용자 정의 디멘전의 string value
-    @objc public init(WithType type: Int = generalType, index: Int, stringValue: String, intValue: Double = 0) {
+    @objc public init(WithType type: Int = generalType, index: Int, stringValue: String, numValue: Double = 0) {
         self.type = type
         self.index = index
-        self.intValue = intValue
+        self.numValue = numValue
         self.value = stringValue
+        super.init()
+    }
+    
+    @objc public init(index: Int, stringValue: String) {
+        self.type = Dimension.generalType
+        self.index = index
+        self.numValue = 0
+        self.value = stringValue
+        super.init()
+    }
+    
+    @objc public init(index: Int, numValue: Double = 0) {
+        self.type = Dimension.factType
+        self.index = index
+        self.numValue = numValue
+        self.value = ""
         super.init()
     }
     

@@ -44,9 +44,9 @@ fileprivate extension Event {
         eventCommonItems.append(URLQueryItem(name: EventParams.clientDateTime, value: CommonUtil.Formatter.iso8601DateFormatter.string(from: clientDateTime)))
         eventCommonItems.append(URLQueryItem(name: EventParams.triggerType, value: eventType))
 
-        if visitorId != nil {
+//        if visitorId != nil {
             eventCommonItems.append(URLQueryItem(name: EventParams.visitorId, value: visitorId))
-        }
+//        }
         if pageTitle != nil {
             eventCommonItems.append(URLQueryItem(name: EventParams.pageTitle, value: pageTitle))
         }
@@ -63,7 +63,7 @@ fileprivate extension Event {
             if $0.type == Dimension.generalType {
                 URLQueryItem(name: EventParams.customDimensionD + "\($0.index)", value: $0.value)
             } else {
-                URLQueryItem(name: EventParams.customDimensionF + "\($0.index)", value: String($0.intValue))
+                URLQueryItem(name: EventParams.customDimensionF + "\($0.index)", value: String($0.numValue))
             }
         }
         let eventsAsQueryItems = eventCommonItems + customDimensionItems
@@ -78,6 +78,20 @@ fileprivate extension Event {
     /// URLQuery 파라미터를 저장하는 컬렉션입니다.
     var queryItems: [URLQueryItem] {
         get {
+            if let e_c = eventCategory {
+                return [
+                    URLQueryItem(name: URLQueryParams.siteId, value: siteId),
+                    URLQueryItem(name: URLQueryParams.userId, value: userId),
+                    URLQueryItem(name: URLQueryParams.url, value: url?.absoluteString),
+                    URLQueryItem(name: URLQueryParams.urlReferer, value: urlReferer?.absoluteString),
+                    URLQueryItem(name: URLQueryParams.language, value: language.addingPercentEncoding(withAllowedCharacters: .alphanumerics)),
+                    URLQueryItem(name: URLQueryParams.screenSize, value: String(format: "%1.0fx%1.0f", screenResolution.width, screenResolution.height)),
+                    URLQueryItem(name: URLQueryParams.event, value: e_c),
+                    /// App의 웹뷰에서 발송할때 deviceType을 전송하지 않는 경우, 하나의 이벤트로 인식하기 때문에 필히 추가
+                    URLQueryItem(name: EventParams.deviceType, value: "app")
+                ]
+            }
+            
             return [
                 URLQueryItem(name: URLQueryParams.siteId, value: siteId),
                 // URLQueryItem(name: URLQueryParams.visitorId, value: visitorId),

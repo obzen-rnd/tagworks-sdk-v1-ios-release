@@ -53,6 +53,12 @@ public struct Event: Codable {
     
     /// 사용자 정의 디멘전 컬렉션
     let dimensions: [Dimension]
+    
+    
+    ///================================================
+    /// 웹뷰로부터 받은 파라미터를 통해 이벤트를 생성하기 위한 변수들
+    
+    let eventCategory: String?      // e_c
 }
 
 extension Event {
@@ -74,9 +80,16 @@ extension Event {
                 pageTitle: String? = nil,
                 searchKeyword: String? = nil,
                 customUserPath: String? = nil,
-                dimensions: [Dimension] = []) {
+                dimensions: [Dimension] = [],
+                eventCategory: String? = nil,
+                siteId: String? = nil) {
         self.uuid = UUID()
-        self.siteId = tagWorks.siteId ?? ""
+//        self.siteId = tagWorks.siteId ?? ""
+        if let tagWorksSiteid = tagWorks.siteId {
+            self.siteId = siteId ?? tagWorksSiteid
+        } else {
+            self.siteId = siteId ?? ""
+        }
         self.visitorId = tagWorks.visitorId
         self.userId = tagWorks.userId
         self.url = url ?? tagWorks.currentContentUrlPath
@@ -88,5 +101,6 @@ extension Event {
         self.searchKeyword = searchKeyword
         self.customUserPath = customUserPath
         self.dimensions = tagWorks.dimensions + dimensions
+        self.eventCategory = eventCategory
     }
 }
