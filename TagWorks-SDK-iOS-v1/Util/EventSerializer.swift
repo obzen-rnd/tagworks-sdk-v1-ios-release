@@ -58,6 +58,8 @@ fileprivate extension Event {
         }
 
         eventCommonItems.append(URLQueryItem(name: EventParams.deviceType, value: "app"))
+        eventCommonItems.append(URLQueryItem(name: EventParams.appVersion, value: TagWorks.sharedInstance.appVersion ?? AppInfo.getBundleShortVersion()))
+        eventCommonItems.append(URLQueryItem(name: EventParams.appName, value: TagWorks.sharedInstance.appName ?? AppInfo.getBundleName()))
 
         let customDimensionItems = dimensions.map {
             if $0.type == Dimension.generalType {
@@ -75,10 +77,26 @@ fileprivate extension Event {
         }.joined(separator: "∞")
     }
     
+    private func serializeAppInfo() -> String {
+        var eventCommonItems: [URLQueryItem] = []
+        eventCommonItems.append(URLQueryItem(name: EventParams.deviceType, value: "app"))
+        eventCommonItems.append(URLQueryItem(name: EventParams.appVersion, value: TagWorks.sharedInstance.appVersion ?? AppInfo.getBundleShortVersion()))
+        eventCommonItems.append(URLQueryItem(name: EventParams.appName, value: TagWorks.sharedInstance.appName ?? AppInfo.getBundleName()))
+        
+        let eventsAsQueryItems = eventCommonItems
+        let serializedEvents = eventsAsQueryItems.reduce(into: [String:String]()) {
+            $0[$1.name] = $1.value
+        }
+        return serializedEvents.map{
+            "\($0.key)≡\($0.value)"
+        }.joined(separator: "∞")
+    }
+    
     /// URLQuery 파라미터를 저장하는 컬렉션입니다.
     var queryItems: [URLQueryItem] {
         get {
             if let e_c = eventCategory {
+                let eventString = e_c + "∞" + serializeAppInfo()
                 return [
                     URLQueryItem(name: URLQueryParams.siteId, value: siteId),
                     URLQueryItem(name: URLQueryParams.userId, value: userId),
@@ -86,9 +104,9 @@ fileprivate extension Event {
                     URLQueryItem(name: URLQueryParams.urlReferer, value: urlReferer?.absoluteString),
                     URLQueryItem(name: URLQueryParams.language, value: language.addingPercentEncoding(withAllowedCharacters: .alphanumerics)),
                     URLQueryItem(name: URLQueryParams.screenSize, value: String(format: "%1.0fx%1.0f", screenResolution.width, screenResolution.height)),
-                    URLQueryItem(name: URLQueryParams.event, value: e_c),
-                    /// App의 웹뷰에서 발송할때 deviceType을 전송하지 않는 경우, 하나의 이벤트로 인식하기 때문에 필히 추가
-                    URLQueryItem(name: EventParams.deviceType, value: "app")
+                    // 웹뷰에서 호출이 되었을 경우, e_c 값 맨 뒤에 deviceType, AppVersion과 AppName을 덧붙인다.
+                    // App의 웹뷰에서 발송할때 deviceType을 전송하지 않는 경우, 하나의 이벤트로 인식하기 때문에 필히 추가
+                    URLQueryItem(name: URLQueryParams.event, value: eventString)
                 ]
             }
             

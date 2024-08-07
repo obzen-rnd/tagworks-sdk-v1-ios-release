@@ -18,6 +18,7 @@ protocol WebInterfaceDelegate: AnyObject {
     public let messageHandlerName = "TagWorksJSInterfaces"
     
     weak var delegate: WebInterfaceDelegate?
+    weak var printDelegate: WebInterfaceDelegate?
     
     public override init() {
         super.init()
@@ -40,18 +41,12 @@ protocol WebInterfaceDelegate: AnyObject {
         print(message.name)
         print(message.body)
         if message.name == messageHandlerName {
+            
+            // UI에서 출력하기 위한 용도
+            NotificationCenter.default.post(name:NSNotification.Name("TagWorks-WebInterface"), object:message.body, userInfo:nil)
+            
             // parameter 파싱 후 event 생성
             if let dics: [String: Any] = message.body as? Dictionary {
-//                var tagId: String?
-//                var userId: String?
-//                var url: String?
-//                var urlRef: String?
-//                var eventType: String?
-//                var pageTitle: String?
-//                var searchKeyword: String?
-//                var customUserPath: String?
-////                var dimensions: [Dictionary<String, String>]?
-//                var dimensions: String?
                 var idSite: String?
                 var eventCategory: String?
                 var url: String?
@@ -75,7 +70,7 @@ protocol WebInterfaceDelegate: AnyObject {
                 if let siteid = idSite, let delegate = self.delegate {
                     // App siteid와 웹뷰의 siteid를 비교하여, 다를 경우 로그만 출력..
                     if !delegate.isEqualSiteId(idsite: siteid) {
-                        DefaultLogger(minLevel: .warning).info("WebView siteid is Not Equal App siteid!!")
+                        DefaultLogger(minLevel: .warning).info("WebView siteid is not equal App siteid!!")
                     }
                     
                     if let url = url, let urlref = urlRef {

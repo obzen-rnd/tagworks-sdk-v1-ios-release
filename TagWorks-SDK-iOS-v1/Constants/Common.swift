@@ -84,6 +84,8 @@ extension Event {
         static let customDimensionF = "cstm_f"
         static let pageTitle        = "epgtl_nm"
         static let deviceType       = "obz_dvc_type"
+        static let appVersion       = "obz_app_vsn"
+        static let appName          = "obz_app_nm"
     }
 }
 

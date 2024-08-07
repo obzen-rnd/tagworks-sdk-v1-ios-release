@@ -44,7 +44,7 @@ extension AppInfo {
     
     /// 앱 고유명을 반환합니다.
     /// - Returns: 앱 고유명
-    private static func getBundleName() -> String? {
+    internal static func getBundleName() -> String? {
         return Bundle.main.infoDictionary?["CFBundleName"] as? String
     }
     
@@ -62,7 +62,7 @@ extension AppInfo {
     
     /// 앱 ShortVersion을 반환합니다.
     /// - Returns: 앱 ShortVersion
-    private static func getBundleShortVersion() -> String? {
+    internal static func getBundleShortVersion() -> String? {
         return Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
     }
 }

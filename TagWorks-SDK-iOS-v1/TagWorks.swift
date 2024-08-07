@@ -81,6 +81,14 @@ import Foundation
         }
     }
     
+    /// 수집되는 사용자의 App Version입니다.
+    /// - 값이 없을 경우에는 내부적으로 Short Version을 사용합니다.
+    @objc public var appVersion: String?
+    
+    /// 수집되는 사용자의 App 이름입니다.
+    /// - 값이 없을 경우에는 내부적으로 Display Bundle Name을 사용합니다.
+    @objc public var appName: String?
+    
     // 필수 설정값 end
     //-----------------------------------------
     
@@ -132,14 +140,18 @@ import Foundation
     @objc public func setInstanceConfig(siteId: String,
                                         baseUrl: URL,
                                         dispatchInterval: TimeInterval,
-                                        userAgent: String? = nil) {
+                                        userAgent: String? = nil,
+                                        appVersion: String? = nil,
+                                        appName: String? = nil) {
         self.siteId = siteId
         self.dispatchInterval = dispatchInterval
         self.queue = DefaultQueue()
         self.dispatcher = DefaultDispatcher(serializer: EventSerializer(), baseUrl: baseUrl, userAgent: userAgent)
+        self.appVersion = appVersion
+        self.appName = appName
         self.tagWorksBase = TagWorksBase(suitName: "\(siteId)\(baseUrl.absoluteString)")
-//        self.contentUrl = URL(string: "APP://\(AppInfo.getApplicationInfo().bundleIdentifier ?? "")")
-        self.contentUrl = URL(string: "http://\(AppInfo.getApplicationInfo().bundleIdentifier ?? "")")
+        self.contentUrl = URL(string: "APP://\(AppInfo.getApplicationInfo().bundleIdentifier ?? "")")
+//        self.contentUrl = URL(string: "http://\(AppInfo.getApplicationInfo().bundleIdentifier ?? "")")
         startDispatchTimer()
         
         self.webViewInterface.delegate = self
