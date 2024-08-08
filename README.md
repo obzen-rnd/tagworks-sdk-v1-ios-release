@@ -27,7 +27,7 @@ touch Podfile
 
 ```bash
 target '[Project Name]' do
-    pod 'TagWorks-SDK-iOS', '1.1.1'
+    pod 'TagWorks-SDK-iOS', 'release 최신 버전'
 end
 ```
 
@@ -122,7 +122,6 @@ TagWorks.sharedInstance.setInstanceConfig(siteId: "00,AAAAAAAA",
 
 // CocoaPod이나 릴리즈 프레임워크 파일로 추가한 경우
 #import <TagWorks_SDK_iOS_v1/TagWorks_SDK_iOS_v1-Swift.h>
-#import "WebInterfaceViewController.h"
 
 // TagWorks instance 설정
 TagWorks *tagWorksInstance = TagWorks.sharedInstance;
@@ -419,6 +418,7 @@ Dimension *cDim02 = [[Dimension alloc] initWithIndex:2 numValue:100];
 let config = WKWebViewConfiguration()
 config.userContentController = TagWorks.sharedInstnace.webViewInterface.getContentController()
 webView = WKWebView(frame: view.bounds, configuration: config)
+self.webViewContainerView.addSubView(webView)
 ```
 
 <br>
