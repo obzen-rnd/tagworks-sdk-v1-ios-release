@@ -29,16 +29,20 @@ public struct DeviceInfo {
     /// 디바이스 OS 커널 Version
     public let deviceDarwinVersion: String?
     
+    /// 다바이스 언어
+    public let deviceLanguage: String?
+    
     
     /// 수집되는 디바이스의 정보 구조체를 반환합니다.
     /// - Returns: 디바이스 구조체
     public static func getDeviceInfo() -> DeviceInfo {
         return DeviceInfo(devicePlatform: getDevicePlatform(),
-                      deviceOperatingSystem: getDeviceOperatingSystem(),
-                      deviceOperatingSystemVersion: getDeviceOperatingSystemVersion(),
-                      deviceScreenSize: getDeviceScreenSize(),
-                      deviceNativeScreenSize: getDeviceNativeScreenSize(),
-                      deviceDarwinVersion: getDeviceDarwinVersion())
+                          deviceOperatingSystem: getDeviceOperatingSystem(),
+                          deviceOperatingSystemVersion: getDeviceOperatingSystemVersion(),
+                          deviceScreenSize: getDeviceScreenSize(),
+                          deviceNativeScreenSize: getDeviceNativeScreenSize(),
+                          deviceDarwinVersion: getDeviceDarwinVersion(),
+                          deviceLanguage: Locale.current.languageCode)
     }
 }
 

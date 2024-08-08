@@ -18,7 +18,6 @@ protocol WebInterfaceDelegate: AnyObject {
     public let messageHandlerName = "TagWorksJSInterfaces"
     
     weak var delegate: WebInterfaceDelegate?
-    weak var printDelegate: WebInterfaceDelegate?
     
     public override init() {
         super.init()

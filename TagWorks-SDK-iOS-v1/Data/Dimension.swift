@@ -71,7 +71,7 @@ extension Dimension {
     
     /// 입력받는 Dimension의 Type을 정의
     /// Codable Protocol을 준수하기 위해 static 일반 변수로 정의 후 사용토록 함.
-    static public let generalType: Int  = 1
-    static public let factType: Int     = 2
+    @objc static public let generalType: Int  = 1
+    @objc static public let factType: Int     = 2
     
 }

@@ -31,7 +31,7 @@ public struct Event: Codable {
     let urlReferer: URL?
     
     /// 수집 대상자의 언어
-    let language: String
+    let language: String?
     
     /// 수집 대상자의 디바이스 스크린 사이즈
     var screenResolution: CGSize = DeviceInfo.getDeviceInfo().deviceScreenSize
@@ -94,7 +94,8 @@ extension Event {
         self.userId = tagWorks.userId
         self.url = url ?? tagWorks.currentContentUrlPath
         self.urlReferer = urlReferer
-        self.language = Locale.httpAcceptLanguage
+//        self.language = Locale.httpAcceptLanguage
+        self.language = DeviceInfo.getDeviceInfo().deviceLanguage
         self.clientDateTime = Date()
         self.eventType = eventType
         self.pageTitle = pageTitle
