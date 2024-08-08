@@ -116,7 +116,7 @@ import Foundation
     /// * 값을 0으로 지정하는 경우 이벤트 수집 즉시 발송됩니다.
     /// * 값을 0이하로 지정하는 경우 이벤트 로그 발송을 자동으로 수행하지 않습니다.
     ///     - dispatch() 함수를 이용하여 수동으로 발송해야 합니다.
-    @objc public var dispatchInterval: TimeInterval = 10.0
+    @objc public var dispatchInterval: TimeInterval = 5.0
 //    {
 //        didSet {
 //            startDispatchTimer()
