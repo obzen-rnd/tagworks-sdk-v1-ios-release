@@ -27,7 +27,7 @@ touch Podfile
 
 ```bash
 target '[Project Name]' do
-    pod 'TagWorks-SDK-iOS', '1.1.0'
+    pod 'TagWorks-SDK-iOS', '1.1.1'
 end
 ```
 
@@ -89,6 +89,8 @@ pod install --repo-update
 | baseUrl          | string | null   | 행동 정보 데이터 수집 서버 url 주소                          |
 | dispatchInterval | long   | 5      | 행동 정보 데이터 발송 주기(초 단위, 0 으로 지정시 즉시 발송) |
 | userAgent        | string | null   | user Agent 정보, 설정할 경우 설정된 값으로 전달              |
+| appVersion       | string | null   | Application 버전 정보, 설정하지 않을 경우 short version 전송 |
+| appName          | string | null   | Application 이름, 설정하지 않을 경우 bundle name 전송        |
 
 <br>
 
@@ -105,14 +107,32 @@ pod install --repo-update
 TagWorks.sharedInstance.setInstanceConfig(siteId: "00,AAAAAAAA",
                                           baseUrl: URL(string: "http://obzen.com/obzenTagWorks")!,
                                           dispatchInterval: 5,
-                                          userAgent: nil)
+                                          userAgent: nil,
+                                          appVersion: "1.1.0",
+                                          appName: "obzen App")
 ```
 
 <br>
 
 > Objective-C
 
-```
+```c
+// SPM으로 라이브러리 추가한 경우
+@import TagWorks_SDK_iOS_v1;
+
+// CocoaPod이나 릴리즈 프레임워크 파일로 추가한 경우
+#import <TagWorks_SDK_iOS_v1/TagWorks_SDK_iOS_v1-Swift.h>
+#import "WebInterfaceViewController.h"
+
+// TagWorks instance 설정
+TagWorks *tagWorksInstance = TagWorks.sharedInstance;
+
+[tagWorksInstance setInstanceConfigWithSiteId:@"00,AAAAAAAA"
+                                      baseUrl:[NSURL URLWithString:@"http://obzen.com/obzenTagWorks"]
+                             dispatchInterval:5
+                                    userAgent:nil
+                                   appVersion:@"1.1.0"
+                                      appName:@"obzen APp"];
 
 ```
 
@@ -146,8 +166,15 @@ TagWorks.sharedInstance.contentUrl = URL(string: "http://obzen.com/")
 
 > Objective-C
 
-```swift
+```c
+// 수집 대상자 고객 식별자 지정
+[tagWorksInstance setUserId:@"user id"];
 
+// 고객이 설정한 개인정보 수집 여부에 따라 수집 여부 지정
+[tagWorksInstance setIsOptedOut:false];
+
+// page url 주소 - 설정하지 않을 경우 기본값 지정 - APP://com.obzen.TagWorks-SDK-iOS
+[tagWorksInstance setContentUrl:[NSURL URLWithString:@"http://obzen.com/"]];
 ```
 
 ## 데이터 구성
@@ -168,9 +195,8 @@ TagWorks.sharedInstance.contentUrl = URL(string: "http://obzen.com/")
 let dim01 = Dimension(index: 1, stringValue: "구매")
 
 // Dimension - Numeric Type
-// WithType 지정하지 않을 경우 Default : Dimension.generalType (문자형 - Double type)
+// WithType 지정하지 않을 경우 Default : Dimension.generalType (숫자형 - Double type)
 let dim02 = Dimension(WithType: Dimension.factType, index: 2, stringValue: "", numValue: 100.123)
-
 let dim03 = Dimension(WithType: Dimension.generalType, index: 3, stringValue: "해외주식")
 ```
 
@@ -178,8 +204,14 @@ let dim03 = Dimension(WithType: Dimension.generalType, index: 3, stringValue: "�
 
 > Objective-C
 
-```swift
+```c
+// Dimension - String Type
+Dimension *dim01 = [[Dimension alloc] initWithIndex:1 stringValue:@"구매"];
 
+// Dimension - Numeric Type
+// stringValue 사용할 경우 문자형, numValue 사용할 경우 숫자형
+Dimension *dim02 = [[Dimension alloc] initWithIndex:2 numValue:100.123];
+Dimension *dim03 = [[Dimension alloc] initWithIndex:3 stringValue:"해외주식"];
 ```
 
 ### 공용 Dimension
@@ -206,8 +238,15 @@ TagWorks.sharedInstance.setCommonDimension(type: Dimension.factType, index: 4, s
 
 > Objective-C
 
-```swift
+```c
+Dimension *dim01 = [[Dimension alloc] initWithIndex:1 stringValue:@"구매"];
+Dimension *dim02 = [[Dimension alloc] initWithIndex:2 numValue:100];
+Dimension *dim03 = [[Dimension alloc] initWithIndex:3 stringValue:"해외주식"];
 
+[tagWorksInstance setCommonDimensionWithDimension:dim01];
+[tagWorksInstance setCommonDimensionWithDimension:dim02];
+[tagWorksInstance setCommonDimensionWithDimension:dim03];
+[tagWorksInstance setCommonDimensionWithType:Dimension.factType index:4 stringValue:@"" numValue:100];
 ```
 
 ### DataBundle 객체
@@ -280,8 +319,28 @@ bundle03.putString(DataBundle.EVENT_TAG_NAME, "사용자 정의 이벤트명")
 
 > Objective-C
 
-```swift
+```c
+DataBundle *bundle = [[DataBundle alloc] init];
 
+[bundle putString: DataBundle.EVENT_TAG_NAME value: [StandardEventTag toStringWithEventTag:EventTagPageView]];
+[bundle putString: DataBundle.EVENT_TAG_PARAM_TITLE value:@"상품구매"];
+[bundle putString: DataBundle.EVENT_TAG_PARAM_PAGE_PATH value:@"/home/Shopping/bag"];
+[bundle putString: DataBundle.EVENT_TAG_PARAM_KEYWORD value:@"search keyword!"];
+[bundle putString: DataBundle.EVENT_TAG_PARAM_CUSTOM_PATH value:@"/product/buy"];
+
+Dimension *cDim01 = [[Dimension alloc] initWithIndex:1 stringValue:@"구매"];
+Dimension *cDim02 = [[Dimension alloc] initWithIndex:2 numValue:100];
+
+// bundle 객체에 Dimension 추가
+[bundle putDimensions: [NSArray arrayWithObjects:cDim01, cDim02, nil]];
+
+// bundle 객체 자체를 이용하여 initialize 가능
+DataBundle *bundle02 = [[DataBundle alloc] init:bundle];
+[bundle02 putString: DataBundle.EVENT_TAG_PARAM_TITLE value:@"상품판매"];
+
+// 사용자 정의 이벤트 설정
+DataBundle *bundle03 = [[DataBundle alloc] init:bundle];
+[bundle03 putString: DataBundle.EVENT_TAG_NAME value:@"사용자 정의 이벤트명"];
 ```
 
 <br>
@@ -309,6 +368,8 @@ TagWorks.sharedInstance.logEvent(TagWorks.EVENT_TYPE_PAGE, bundle: bundle)
 
 let cDim01 = Dimension(index: 1, stringValue: "구매")
 let cDim02 = Dimension(WithType: Dimension.factType, index: 2, stringValue: "", numValue: 100)
+
+// bundle 객체에 Dimension 추가
 bundle.putDimensions([cDim01, cDim02])
 
 bundle.putString(DataBundle.EVENT_TAG_NAME, EventTag.click.description)
@@ -321,8 +382,26 @@ TagWorks.sharedInstance.logEvent(TagWorks.EVENT_TYPE_USER_EVENT, bundle: bundle)
 
 > Objective-C
 
-```swift
+```c
+DataBundle *bundle = [[DataBundle alloc] init];
 
+[bundle putString: DataBundle.EVENT_TAG_NAME value: [StandardEventTag toStringWithEventTag:EventTagPageView]];
+[bundle putString: DataBundle.EVENT_TAG_PARAM_TITLE value:@"상품구매"];
+[bundle putString: DataBundle.EVENT_TAG_PARAM_PAGE_PATH value:@"/home/Shopping/bag"];
+[bundle putString: DataBundle.EVENT_TAG_PARAM_CUSTOM_PATH value:@"/product/buy"];
+
+// 스크린뷰 전송
+[tagWorksInstance logEvent:TagWorks.EVENT_TYPE_PAGE bundle:bundle];
+
+Dimension *cDim01 = [[Dimension alloc] initWithIndex:1 stringValue:@"구매"];
+Dimension *cDim02 = [[Dimension alloc] initWithIndex:2 numValue:100];
+
+// bundle 객체에 Dimension 추가
+[bundle putDimensions: [NSArray arrayWithObjects:cDim01, cDim02, nil]];
+[bundle putString: DataBundle.EVENT_TAG_NAME value: [StandardEventTag toStringWithEventTag:EventTagClick]];
+
+// 이벤트 전송
+[tagWorksInstance logEvent:TagWorks.EVENT_TYPE_USER_EVENT bundle:bundle];
 ```
 
 ## Web View 연동
@@ -338,7 +417,7 @@ TagWorks.sharedInstance.logEvent(TagWorks.EVENT_TYPE_USER_EVENT, bundle: bundle)
 ```swift
 // Web View 설정
 let config = WKWebViewConfiguration()
-config.userContentController = TagWorks.webInterface.getContentController()
+config.userContentController = TagWorks.sharedInstnace.webViewInterface.getContentController()
 webView = WKWebView(frame: view.bounds, configuration: config)
 ```
 
@@ -346,6 +425,11 @@ webView = WKWebView(frame: view.bounds, configuration: config)
 
 > Objective-C
 
-```swift
+```c
+// Web View 설정
+WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc] init];
+config.userContentController = [[[TagWorks sharedInstance] webViewInterface] getContentController];
 
+WKWebView *webView = [[WKWebView alloc] initWithFrame:CGRectZero configuration:config];
+[self.webViewContainerView addSubview:webView];
 ```
