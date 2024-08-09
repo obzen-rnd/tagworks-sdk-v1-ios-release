@@ -111,12 +111,17 @@ import Foundation
     /// 현재 이벤트 로그 발송중 여부입니다.
     private(set) var isDispatching = false
     
+    /// 이벤트 발송 주기 사용 여부입니다.
+    /// false로 셋팅한 경우, 이벤트 즉시 발송
+    /// true로 셋팅한 경우, 타이머를 이용한 발송
+    @objc public var isUseInterval = false
+    
     /// 이벤트 로그의 발송 주기 입니다. (단위 : 초)
     /// * 발송 주기의 기본값은 10 입니다.
     /// * 값을 0으로 지정하는 경우 이벤트 수집 즉시 발송됩니다.
     /// * 값을 0이하로 지정하는 경우 이벤트 로그 발송을 자동으로 수행하지 않습니다.
     ///     - dispatch() 함수를 이용하여 수동으로 발송해야 합니다.
-    @objc public var dispatchInterval: TimeInterval = 5.0
+    @objc public var dispatchInterval: TimeInterval = 0.0
 //    {
 //        didSet {
 //            startDispatchTimer()
@@ -139,11 +144,13 @@ import Foundation
 //    public func setEnvironment(siteId: String, baseUrl: URL, userAgent: String?) {
     @objc public func setInstanceConfig(siteId: String,
                                         baseUrl: URL,
+                                        isUseInterval: Bool,
                                         dispatchInterval: TimeInterval,
                                         userAgent: String? = nil,
                                         appVersion: String? = nil,
                                         appName: String? = nil) {
         self.siteId = siteId
+        self.isUseInterval = isUseInterval
         self.dispatchInterval = dispatchInterval
         self.queue = DefaultQueue()
         self.dispatcher = DefaultDispatcher(serializer: EventSerializer(), baseUrl: baseUrl, userAgent: userAgent)
@@ -152,7 +159,9 @@ import Foundation
         self.tagWorksBase = TagWorksBase(suitName: "\(siteId)\(baseUrl.absoluteString)")
         self.contentUrl = URL(string: "APP://\(AppInfo.getApplicationInfo().bundleIdentifier ?? "")")
 //        self.contentUrl = URL(string: "http://\(AppInfo.getApplicationInfo().bundleIdentifier ?? "")")
-        startDispatchTimer()
+        if isUseInterval {
+            startDispatchTimer()
+        }
         
         self.webViewInterface.delegate = self
     }
@@ -182,6 +191,21 @@ import Foundation
     }
     
     /// ## 이벤트 발송 관련 함수 ##
+    
+    /// 현재 Queue에 저장되어 있는 이벤트 구조체를 즉시 발송합니다. (수동 처리) - 타이머 사용 안함.
+    internal func dispatchAtOnce(event: Event) {
+        guard let dispatcher = self.dispatcher else { return }
+        DispatchQueue.main.async {
+            dispatcher.send(events: [event], success: { [weak self] in
+                guard let self = self else { return }
+                print("send - \(event)")
+            }, failure: { [weak self] error in
+                guard let self = self else { return }
+                self.isDispatching = false
+                self.logger.warning("Failed dispatching events with error \(error)")
+            })
+        }
+    }
     
     /// 현재 Queue에 저장되어 있는 이벤트 구조체를 즉시 발송합니다. (수동 처리)
     @objc public func dispatch() {
@@ -319,7 +343,11 @@ extension TagWorks {
             
 //            currentContentUrlPath = self.contentUrl?.appendingPathComponent(pagePath)
             let event = Event(tagWorks: self, eventType: eventTagName, pageTitle: title, searchKeyword: eventTagParamKeyword, customUserPath: eventTagParamCustomPath, dimensions: eventTagParamDimenstions)
-            addQueue(event: event)
+            if self.isUseInterval {
+                addQueue(event: event)
+            } else {
+                dispatchAtOnce(event: event);
+            }
             
         } else {
 //            let searchKeyword: String
@@ -331,10 +359,18 @@ extension TagWorks {
                 }
 //                searchKeyword = keyword
                 let event = Event(tagWorks: self, eventType: eventTagName, pageTitle: eventTagParamTitle, searchKeyword: keyword, customUserPath: eventTagParamCustomPath, dimensions: eventTagParamDimenstions)
-                addQueue(event: event)
+                if self.isUseInterval {
+                    addQueue(event: event)
+                } else {
+                    dispatchAtOnce(event: event);
+                }
             } else {
                 let event = Event(tagWorks: self, eventType: eventTagName, pageTitle: eventTagParamTitle, searchKeyword: eventTagParamKeyword, customUserPath: eventTagParamCustomPath, dimensions: eventTagParamDimenstions)
-                addQueue(event: event)
+                if self.isUseInterval {
+                    addQueue(event: event)
+                } else {
+                    dispatchAtOnce(event: event);
+                }
             }
         }
     }
@@ -450,7 +486,10 @@ extension TagWorks: WebInterfaceDelegate {
     }
     
     func addWebViewEvent(event: Event) {
-        addQueue(event: event)
+        if self.isUseInterval {
+            addQueue(event: event)
+        } else {
+            dispatchAtOnce(event: event);
+        }
     }
-    
 }
