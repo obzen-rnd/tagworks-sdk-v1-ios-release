@@ -27,7 +27,7 @@ touch Podfile
 
 ```bash
 target '[Project Name]' do
-    pod 'TagWorks-SDK-iOS', '1.1.1'
+    pod 'TagWorks-SDK-iOS', 'release 최신 버전'
 end
 ```
 
@@ -96,6 +96,7 @@ pod install --repo-update
 
 -   **siteId** 및 **baseUrl** 을 설정하지 않는 경우 SDK 초기화 과정에서 오류가 발생합니다.
 -   **dispatchInterval** 은 큐에 저장된 행동 정보 데이터를 지정한 초만큼 발송하기 때문에, 지정한 시간 사이에 어플리케이션이 종료되는 경우 발송 할 수 없으니 적절한 시간으로 지정해야 합니다.
+-   이러한 경우를 대비하기 위하여 sceneWillResignActive 함수 내부(어플리케이션이 background 상태로 진입하는 부분)에서 dispatch() 메서드 호출을 권장합니다.
 -   **TagWorks.sharedInstance** 객체를 통하여 Singleton Instance를 제공합니다.
 
 <br>
@@ -110,6 +111,12 @@ TagWorks.sharedInstance.setInstanceConfig(siteId: "00,AAAAAAAA",
                                           userAgent: nil,
                                           appVersion: "1.1.0",
                                           appName: "obzen App")
+
+// SceneDelegate class 내부
+func sceneWillResignActive(_ scene: UIScene) {
+    // 어플리케이션이 background 상태 진입시 이벤트 큐에 남아있는 데이터 모두 전송
+    TagWorks.sharedInstance.dispatch()
+}
 ```
 
 <br>
@@ -122,7 +129,6 @@ TagWorks.sharedInstance.setInstanceConfig(siteId: "00,AAAAAAAA",
 
 // CocoaPod이나 릴리즈 프레임워크 파일로 추가한 경우
 #import <TagWorks_SDK_iOS_v1/TagWorks_SDK_iOS_v1-Swift.h>
-#import "WebInterfaceViewController.h"
 
 // TagWorks instance 설정
 TagWorks *tagWorksInstance = TagWorks.sharedInstance;
@@ -134,6 +140,12 @@ TagWorks *tagWorksInstance = TagWorks.sharedInstance;
                                    appVersion:@"1.1.0"
                                       appName:@"obzen APp"];
 
+// SceneDelegate class 내부
+- (void) sceneWillResignActive:(UIScene *)scene {
+    // 어플리케이션이 background 상태 진입시 이벤트 큐에 남아있는 데이터 모두 전송
+    TagWorks *tagWorksInstance = TagWorks.sharedInstance;
+    [tagWorksInstance dispatch];
+}
 ```
 
 ## 사용자 설정
@@ -419,6 +431,7 @@ Dimension *cDim02 = [[Dimension alloc] initWithIndex:2 numValue:100];
 let config = WKWebViewConfiguration()
 config.userContentController = TagWorks.sharedInstnace.webViewInterface.getContentController()
 webView = WKWebView(frame: view.bounds, configuration: config)
+self.webViewContainerView.addSubView(webView)
 ```
 
 <br>
