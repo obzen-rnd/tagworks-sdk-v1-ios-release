@@ -80,6 +80,13 @@ import Foundation
         eventDimensions.append(contentsOf: dimensions)
     }
     
+    /// 이벤트 디멘전을 가져옵니다.
+    /// - Parameters:
+    ///  - WithType: 디멘전 type
+    ///  - index: 디멘전 index
+    @objc public func getDimension(WithType type: Int, index: Int) -> Dimension? {
+        return self.eventDimensions.filter {$0.index == index && $0.type == type}.first
+    }
     
     
 //    /// 이벤트에 필요한 파라미터 항목들 중에 해당 키 항목을 제거

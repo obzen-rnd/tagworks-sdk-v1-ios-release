@@ -426,6 +426,7 @@ extension TagWorks {
 
 // MARK: - 공용 디멘전
 extension TagWorks {
+    
     /// 수집 로그의 공용 디멘전을 지정합니다.
     /// * 이미 동일한 인덱스에 지정된 디멘전이 있는 경우 삭제하고 저장됩니다.
     /// - Parameter dimension: 추가할 디멘전 객체
@@ -448,12 +449,22 @@ extension TagWorks {
     }
     
     /// 수집 로그의 공용 디멘전을 제거합니다.
-    /// - Parameter index: 삭제할 디멘전 index
-    @objc public func removeCommonDimension(WithType type: Int, index: Int){
+    /// - Parameters:
+    ///  - WithType: 디멘전 type
+    ///  - index: 디멘전 index
+    @objc public func removeCommonDimension(WithType type: Int, index: Int) {
         self.dimensions.removeAll(where: {$0.index == index && $0.type == type})
 //        self.dimensions = self.dimensions.filter({
 //            dimension in (dimension.type != type && dimension.index != index)
 //        })
+    }
+    
+    /// 수집 로그의 공용 디멘전을 가져옵니다.
+    /// - Parameters:
+    ///  - WithType: 디멘전 type
+    ///  - index: 디멘전 index
+    @objc public func getCommonDimension(WithType type: Int, index: Int) -> Dimension? {
+        return self.dimensions.filter {$0.index == index && $0.type == type}.first
     }
 }
 
