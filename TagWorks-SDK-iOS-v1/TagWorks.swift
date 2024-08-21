@@ -504,3 +504,10 @@ extension TagWorks: WebInterfaceDelegate {
         }
     }
 }
+
+/// Campaign Interface
+/// 1차 - Scheme를 통해 유입되는 경로를 urlref 항목 셋팅을 통해 이벤트 발송
+/// 2차 - Defferred Deep Link까지 구현하여 설치 경로까지 이벤트 발송
+extension TagWorks {
+    
+}

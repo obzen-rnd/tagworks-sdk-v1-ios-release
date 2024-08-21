@@ -56,6 +56,8 @@ extension TagWorksBase {
         static let visitorId    = "TagWorksVisitorIdKey"
         static let optOut       = "TagWorksOptOutKey"
     }
+    
+    static private let CAMPAIGN_SCHEME = "OBZEN_CAMPAIGN"
 }
 
 extension Event {

@@ -12,16 +12,16 @@ import Foundation
 public final class Dimension: NSObject, Codable {
     
     /// 사용자 정의 디멘전의 index
-    let index: Int
+    public let index: Int
     
     /// 사용자 정의 디멘전의 value
-    let value: String
+    public let value: String
     
     /// fact
-    let numValue: Double
+    public let numValue: Double
     
     /// type
-    var type: Int = generalType
+    public var type: Int = generalType
     
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
