@@ -83,18 +83,20 @@ pod install --repo-update
 
 ## 초기화
 
-| 옵션             | 타입   | 기본값 | 설명                                                         |
-| ---------------- | ------ | ------ | ------------------------------------------------------------ |
-| siteId           | string | null   | 행동 정보 수집 대상 사이트 식별자                            |
-| baseUrl          | string | null   | 행동 정보 데이터 수집 서버 url 주소                          |
-| dispatchInterval | long   | 5      | 행동 정보 데이터 발송 주기(초 단위, 0 으로 지정시 즉시 발송) |
-| userAgent        | string | null   | user Agent 정보, 설정할 경우 설정된 값으로 전달              |
-| appVersion       | string | null   | Application 버전 정보, 설정하지 않을 경우 short version 전송 |
-| appName          | string | null   | Application 이름, 설정하지 않을 경우 bundle name 전송        |
+| 옵션             | 타입    | 기본값 | 설명                                                                                 |
+| ---------------- | ------- | ------ | ------------------------------------------------------------------------------------ |
+| siteId           | string  | null   | 행동 정보 수집 대상 사이트 식별자                                                    |
+| baseUrl          | string  | null   | 행동 정보 데이터 수집 서버 url 주소                                                  |
+| isUseIntervals   | boolean | false  | interval 사용 여부, false 일 경우 dispatchInterval 값이 무시되고 항상 즉시 발송된다. |
+| dispatchInterval | long    | 5      | 행동 정보 데이터 발송 주기(초 단위, 0 으로 지정시 즉시 발송)                         |
+| userAgent        | string  | null   | user Agent 정보, 설정할 경우 설정된 값으로 전달                                      |
+| appVersion       | string  | null   | Application 버전 정보, 설정하지 않을 경우 short version 전송                         |
+| appName          | string  | null   | Application 이름, 설정하지 않을 경우 bundle name 전송                                |
 
 <br>
 
 -   **siteId** 및 **baseUrl** 을 설정하지 않는 경우 SDK 초기화 과정에서 오류가 발생합니다.
+-   **isUseIntervals** 값을 false로 설정할 경우에는 dispatchInterval 값이 무시되고 항상 즉시 발송됩니다. true로 설정할 경우에는 dispatchInterval값에 지정된 초를 주기로 데이터를 발송합니다.
 -   **dispatchInterval** 은 큐에 저장된 행동 정보 데이터를 지정한 초만큼 발송하기 때문에, 지정한 시간 사이에 어플리케이션이 종료되는 경우 발송 할 수 없으니 적절한 시간으로 지정해야 합니다.
 -   이러한 경우를 대비하기 위하여 sceneWillResignActive 함수 내부(어플리케이션이 background 상태로 진입하는 부분)에서 dispatch() 메서드 호출을 권장합니다.
 -   **TagWorks.sharedInstance** 객체를 통하여 Singleton Instance를 제공합니다.
@@ -107,6 +109,7 @@ pod install --repo-update
 // TagWorks instance 설정
 TagWorks.sharedInstance.setInstanceConfig(siteId: "00,AAAAAAAA",
                                           baseUrl: URL(string: "http://obzen.com/obzenTagWorks")!,
+                                          isUseIntervals: false,
                                           dispatchInterval: 5,
                                           userAgent: nil,
                                           appVersion: "1.1.0",
@@ -135,6 +138,7 @@ TagWorks *tagWorksInstance = TagWorks.sharedInstance;
 
 [tagWorksInstance setInstanceConfigWithSiteId:@"00,AAAAAAAA"
                                       baseUrl:[NSURL URLWithString:@"http://obzen.com/obzenTagWorks"]
+                               isUseIntervals:false
                              dispatchInterval:5
                                     userAgent:nil
                                    appVersion:@"1.1.0"
@@ -240,10 +244,17 @@ let cDim01 = Dimension(index: 1, stringValue: "구매")
 let cDim02 = Dimension(WithType: Dimension.factType, index: 2, stringValue: "", numValue: 100)
 let cDim03 = Dimension(WithType: Dimension.generalType, index: 3, stringValue: "해외주식")
 
+// set
 TagWorks.sharedInstance.setCommonDimension(dimension: cDim01)
 TagWorks.sharedInstance.setCommonDimension(dimension: cDim02)
 TagWorks.sharedInstance.setCommonDimension(dimension: cDim03)
 TagWorks.sharedInstance.setCommonDimension(type: Dimension.factType, index: 4, stringValue: "", numValue: 100)
+
+// get - Dimension 객체 return
+let cDim001 = TagWorks.sharedInstance.getCommonDimension(WithTYpe: Dimension.generalType, index: 1)
+let cDim002 = TagWorks.sharedInstance.getCommonDimension(WithTYpe: Dimension.factType, index: 2)
+
+let cDim001Val = cDim001?.value
 ```
 
 <br>
@@ -255,10 +266,17 @@ Dimension *dim01 = [[Dimension alloc] initWithIndex:1 stringValue:@"구매"];
 Dimension *dim02 = [[Dimension alloc] initWithIndex:2 numValue:100];
 Dimension *dim03 = [[Dimension alloc] initWithIndex:3 stringValue:"해외주식"];
 
+// set
 [tagWorksInstance setCommonDimensionWithDimension:dim01];
 [tagWorksInstance setCommonDimensionWithDimension:dim02];
 [tagWorksInstance setCommonDimensionWithDimension:dim03];
 [tagWorksInstance setCommonDimensionWithType:Dimension.factType index:4 stringValue:@"" numValue:100];
+
+// get
+Dimension *dim001 = [tagWorksInstance getCommonDimensionWithType: Dimension.generalType index:1];
+Dimension *dim002 = [tagWorksInstance getCommonDimensionWithType: Dimension.factType index:2];
+
+NSString *valu = [dim001 value];
 ```
 
 ### DataBundle 객체
