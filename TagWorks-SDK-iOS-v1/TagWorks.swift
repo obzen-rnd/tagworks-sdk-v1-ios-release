@@ -510,4 +510,17 @@ extension TagWorks: WebInterfaceDelegate {
 /// 2차 - Defferred Deep Link까지 구현하여 설치 경로까지 이벤트 발송
 extension TagWorks {
     
+    @objc public func sendReferrerEvent(openURL: URL) {
+        
+        let eventType = EventTag.referrer.description
+        let urlref = openURL
+        
+        let campaignEvent = Event(tagWorks: self, urlReferer: urlref, eventType: eventType)
+        if self.isUseIntervals {
+            addQueue(event: campaignEvent)
+        } else {
+            dispatchAtOnce(event: campaignEvent);
+        }
+    }
+    
 }

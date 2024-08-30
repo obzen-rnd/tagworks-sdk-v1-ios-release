@@ -111,7 +111,7 @@ final public class KeychainStorage {
     }
     
     private func create() -> String? {
-        let UUIDString = UUID().uuidString
+        let UUIDString = UUID().uuidString.lowercased()
         var status: OSStatus = SecItemAdd(queryForCreate(UUIDString: UUIDString) as CFDictionary, nil)
         if verifyStatusAndStoreLastError(status: status) {
             return UUIDString

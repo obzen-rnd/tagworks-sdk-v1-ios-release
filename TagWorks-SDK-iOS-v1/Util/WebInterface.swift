@@ -66,20 +66,23 @@ protocol WebInterfaceDelegate: AnyObject {
                     urlRef = dics["urlref"] as? String
                 }
                 
-                if let siteid = idSite, let delegate = self.delegate {
-                    // App siteid와 웹뷰의 siteid를 비교하여, 다를 경우 로그만 출력..
-                    if !delegate.isEqualSiteId(idsite: siteid) {
-                        DefaultLogger(minLevel: .warning).info("WebView siteid is not equal App siteid!!")
-                    }
+                if let delegate = self.delegate {
+//                    // App siteid와 웹뷰의 siteid를 비교하여, 다를 경우 로그만 출력..
+//                    if !delegate.isEqualSiteId(idsite: siteid) {
+//                        DefaultLogger(minLevel: .warning).info("WebView siteid is not equal App siteid!!")
+//                    }
+                    
+                    // 앱 웹뷰와 웹브라우저 구분을 하기 위해 idsite 값은 app의 idsite 값으로 대체
+                    let appSiteId = TagWorks.sharedInstance.siteId
                     
                     if let url = url, let urlref = urlRef {
-                        let webViewEvent = Event(tagWorks: delegate as! TagWorks, url: URL(string: url), urlReferer: URL(string: urlref), eventType: "", eventCategory: eventCategory, siteId: idSite)
+                        let webViewEvent = Event(tagWorks: delegate as! TagWorks, url: URL(string: url), urlReferer: URL(string: urlref), eventType: "", eventCategory: eventCategory, siteId: appSiteId)
                         delegate.addWebViewEvent(event: webViewEvent)
                     } else if let url = url {
-                        let webViewEvent = Event(tagWorks: delegate as! TagWorks, url: URL(string: url), eventType: "", eventCategory: eventCategory, siteId: idSite)
+                        let webViewEvent = Event(tagWorks: delegate as! TagWorks, url: URL(string: url), eventType: "", eventCategory: eventCategory, siteId: appSiteId)
                         delegate.addWebViewEvent(event: webViewEvent)
                     } else {
-                        let webViewEvent = Event(tagWorks: delegate as! TagWorks, eventType: "", eventCategory: eventCategory, siteId: idSite)
+                        let webViewEvent = Event(tagWorks: delegate as! TagWorks, eventType: "", eventCategory: eventCategory, siteId: appSiteId)
                         delegate.addWebViewEvent(event: webViewEvent)
                     }
                 }

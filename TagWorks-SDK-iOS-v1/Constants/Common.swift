@@ -14,6 +14,7 @@ import Foundation
     case search     = 20
     case pageView   = 30
     case scroll     = 40
+    case referrer   = 50
     
     public var description: String {
         switch self {
@@ -21,6 +22,7 @@ import Foundation
         case .search:   return "Search"
         case .pageView: return "PageView"
         case .scroll:   return "Scroll"
+        case .referrer: return "Referrer"
         }
     }
 }
@@ -43,6 +45,7 @@ import Foundation
         case .search:   return "Search"
         case .pageView: return "PageView"
         case .scroll:   return "Scroll"
+        case .referrer: return "Referrer"
         }
     }
 }
@@ -56,9 +59,14 @@ extension TagWorksBase {
         static let visitorId    = "TagWorksVisitorIdKey"
         static let optOut       = "TagWorksOptOutKey"
     }
-    
-    static private let CAMPAIGN_SCHEME = "OBZEN_CAMPAIGN"
 }
+
+///
+extension TagWorks {
+//    static private let CAMPAIGN_SCHEME = "OBZEN_CAMPAIGN"
+    static public let CAMPAIGN_SCHEME = "obzencampaign"
+}
+
 
 extension Event {
     
