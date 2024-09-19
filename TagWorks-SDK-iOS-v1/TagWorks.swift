@@ -216,7 +216,9 @@ import Foundation
         guard let queue = self.queue, queue.size > 0 else {
             print("Dispatch queue is empty.")
             logger.info("No need to dispatch. Dispatch queue is empty.")
-            startDispatchTimer()
+            if isUseIntervals {
+                startDispatchTimer()
+            }
             return
         }
         logger.info("Start dispatching events")
@@ -239,7 +241,9 @@ import Foundation
             guard events.count > 0 else {
                 print("events count zero!!")
                 self.isDispatching = false
-                self.startDispatchTimer()
+                if isUseIntervals {
+                    self.startDispatchTimer()
+                }
                 self.logger.info("Finished dispatching events")
                 return
             }
@@ -257,7 +261,9 @@ import Foundation
             }, failure: { [weak self] error in
                 guard let self = self else { return }
                 self.isDispatching = false
-                self.startDispatchTimer()
+                if isUseIntervals {
+                    self.startDispatchTimer()
+                }
                 self.logger.warning("Failed dispatching events with error \(error)")
             })
         }
@@ -287,8 +293,20 @@ import Foundation
 // MARK: - 수집 이벤트
 extension TagWorks {
     
+    @objc public func isInitialize() -> Bool {
+        if self.siteId != nil && self.contentUrl != nil {
+            return true
+        }
+        return false
+    }
+    
     /// Dictionary 형태의 DataBundle로 파라미터들을 받기 위해 새로 구현 - Added by Kevin 2024.07.22
-    @objc public func logEvent(_ type: String, bundle: DataBundle) {
+    @objc public func logEvent(_ type: String, bundle: DataBundle) -> Bool {
+        
+        if !isInitialize() {
+            return false
+        }
+        
         var eventTagName: String = ""
         var eventTagParamTitle: String?
         var eventTagParamPagePath: String?
@@ -325,7 +343,7 @@ extension TagWorks {
         // 모든 이벤트의 주체가 되는 이벤트 이름이 없는 경우, 에러를 리턴..
         if eventTagName == "" {
             logger.info("Required parameter error. - EVENT_TAG_NAME")
-            return
+            return false
         }
         if let pagePath = eventTagParamPagePath {
             currentContentUrlPath = self.contentUrl?.appendingPathComponent(pagePath)
@@ -338,7 +356,7 @@ extension TagWorks {
 //            guard let pagePath = eventTagParamPagePath, let title = eventTagParamTitle else {
             guard (eventTagParamPagePath != nil), let title = eventTagParamTitle else {
                 logger.info("Required parameter error. - EVENT_TAG_PARAM_PAGE_PATH, EVENT_TAG_PARAM_TITLE")
-                return
+                return false
             }
             
 //            currentContentUrlPath = self.contentUrl?.appendingPathComponent(pagePath)
@@ -355,7 +373,7 @@ extension TagWorks {
             if eventTagName == EventTag.search.description {
                 guard let keyword = eventTagParamKeyword else {
                     logger.info("Required parameter error. - EVENT_TAG_PARAM_KEYWORD")
-                    return
+                    return false
                 }
 //                searchKeyword = keyword
                 let event = Event(tagWorks: self, eventType: eventTagName, pageTitle: eventTagParamTitle, searchKeyword: keyword, customUserPath: eventTagParamCustomPath, dimensions: eventTagParamDimenstions)
@@ -373,6 +391,7 @@ extension TagWorks {
                 }
             }
         }
+        return true
     }
     
 //    /// 사용자 지정 이벤트를 수집합니다.

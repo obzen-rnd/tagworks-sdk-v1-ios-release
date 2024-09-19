@@ -7,6 +7,7 @@
 
 import Foundation
 import WebKit
+import WebKit.WKScriptMessageHandler
 
 protocol WebInterfaceDelegate: AnyObject {
     func isEqualSiteId(idsite: String) -> Bool
@@ -30,6 +31,11 @@ protocol WebInterfaceDelegate: AnyObject {
         let contentController = WKUserContentController()
         contentController.add(self, name: messageHandlerName)
         return contentController
+    }
+    
+    /// WKWebView의 WKWebViewConfiguration에서 사용할 WKUserContentController 객체를 전달받아 Script Interface 연결
+    @objc public func addTagworksWebInterface(_ contentController: WKUserContentController) {
+        contentController.add(self, name: messageHandlerName)
     }
     
     /// WKScriptMessgeHandler Protocol
