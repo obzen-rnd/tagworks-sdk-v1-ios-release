@@ -439,6 +439,7 @@ Dimension *cDim02 = [[Dimension alloc] initWithIndex:2 numValue:100];
 -   Web / App 연동을 위한 interface 를 제공합니다.
 -   앱에서 Tag Manager Code Snippet 이 포함된 웹뷰를 실행하면, 웹뷰에서 발생된 이벤트는 SDK를 통하여 앱으로 전송됩니다.
 -   WKWebViewConfiguration 설정 이외의 다른 설정은 필요하지 않습니다.
+-   **만약 프로젝트에서 Precompiled Header를 사용할 경우, #import <WebKit/WebKit.h> 위치를 TagWorks 프레임워크 헤더 선언하는 위치 위에 선언 후 빌드해야 합니다.**
 
 <br>
 
