@@ -5,9 +5,8 @@
 //  Created by Digital on 7/24/24.
 //
 
-import Foundation
+import UIKit
 import WebKit
-import WebKit.WKScriptMessageHandler
 
 protocol WebInterfaceDelegate: AnyObject {
     func isEqualSiteId(idsite: String) -> Bool

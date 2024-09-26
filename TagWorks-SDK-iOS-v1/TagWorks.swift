@@ -121,7 +121,7 @@ import Foundation
     /// * 값을 0으로 지정하는 경우 이벤트 수집 즉시 발송됩니다.
     /// * 값을 0이하로 지정하는 경우 이벤트 로그 발송을 자동으로 수행하지 않습니다.
     ///     - dispatch() 함수를 이용하여 수동으로 발송해야 합니다.
-    @objc public var dispatchInterval: TimeInterval = 0.0
+    @objc public var dispatchInterval: TimeInterval = 5.0
 //    {
 //        didSet {
 //            startDispatchTimer()
@@ -151,7 +151,7 @@ import Foundation
                                         appName: String? = nil) {
         self.siteId = siteId
         self.isUseIntervals = isUseIntervals
-        self.dispatchInterval = dispatchInterval
+        self.dispatchInterval = dispatchInterval <= 5 ? 5 : dispatchInterval
         self.queue = DefaultQueue()
         self.dispatcher = DefaultDispatcher(serializer: EventSerializer(), baseUrl: baseUrl, userAgent: userAgent)
         self.appVersion = appVersion
@@ -168,6 +168,7 @@ import Foundation
     
     /// 이벤트 로그 발생 주기 타이머를 시작합니다.
     private func startDispatchTimer() {
+        print("startDispatchTimer!!")
         guard Thread.isMainThread else {
             DispatchQueue.main.sync {
                 self.startDispatchTimer()
@@ -193,8 +194,12 @@ import Foundation
     /// ## 이벤트 발송 관련 함수 ##
     
     /// 현재 Queue에 저장되어 있는 이벤트 구조체를 즉시 발송합니다. (수동 처리) - 타이머 사용 안함.
-    internal func dispatchAtOnce(event: Event) {
-        guard let dispatcher = self.dispatcher else { return }
+    internal func dispatchAtOnce(event: Event) -> Bool {
+        guard !isOptedOut else {
+            return false
+        }
+        
+        guard let dispatcher = self.dispatcher else { return false }
         DispatchQueue.main.async {
             dispatcher.send(events: [event], success: { [weak self] in
                 guard let self = self else { return }
@@ -205,13 +210,18 @@ import Foundation
                 self.logger.warning("Failed dispatching events with error \(error)")
             })
         }
+        return true
     }
     
     /// 현재 Queue에 저장되어 있는 이벤트 구조체를 즉시 발송합니다. (수동 처리)
-    @objc public func dispatch() {
+    @objc public func dispatch() -> Bool {
+        guard !isOptedOut else {
+            return false
+        }
+        
         guard !isDispatching else {
             logger.verbose("is already dispatching.")
-            return
+            return false
         }
         guard let queue = self.queue, queue.size > 0 else {
             print("Dispatch queue is empty.")
@@ -219,11 +229,12 @@ import Foundation
             if isUseIntervals {
                 startDispatchTimer()
             }
-            return
+            return false
         }
         logger.info("Start dispatching events")
         isDispatching = true
         dispatchBatch()
+        return true
     }
     
     /// 현재 Queue에 저장되어 있는 이벤트 로그를 발송합니다.
@@ -364,7 +375,9 @@ extension TagWorks {
             if self.isUseIntervals {
                 addQueue(event: event)
             } else {
-                dispatchAtOnce(event: event);
+                if !dispatchAtOnce(event: event) {
+                    logger.debug("dispatchAtOnce is Failed.")
+                }
             }
             
         } else {
@@ -380,14 +393,18 @@ extension TagWorks {
                 if self.isUseIntervals {
                     addQueue(event: event)
                 } else {
-                    dispatchAtOnce(event: event);
+                    if !dispatchAtOnce(event: event) {
+                        logger.debug("dispatchAtOnce is Failed.")
+                    }
                 }
             } else {
                 let event = Event(tagWorks: self, eventType: eventTagName, pageTitle: eventTagParamTitle, searchKeyword: eventTagParamKeyword, customUserPath: eventTagParamCustomPath, dimensions: eventTagParamDimenstions)
                 if self.isUseIntervals {
                     addQueue(event: event)
                 } else {
-                    dispatchAtOnce(event: event);
+                    if !dispatchAtOnce(event: event) {
+                        logger.debug("dispatchAtOnce is Failed.")
+                    }
                 }
             }
         }
@@ -487,6 +504,7 @@ extension TagWorks {
     }
 }
 
+// MARK: 이벤트 타입 Define
 extension TagWorks {
     @objc static public let EVENT_TYPE_PAGE: String          = "EVENT_TYPE_PAGE"
     @objc static public let EVENT_TYPE_USER_EVENT: String    = "EVENT_TYPE_USER_EVENT"
