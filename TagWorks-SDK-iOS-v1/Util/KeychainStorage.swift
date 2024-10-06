@@ -104,7 +104,7 @@ final public class KeychainStorage {
     }
     
     private func verifyStatusAndStoreLastError(status: OSStatus) -> Bool {
-        var isSuccess = (status == noErr)
+        let isSuccess = (status == noErr)
         if isSuccess { return true }
         self.lastErrorStatus = status
         return false
@@ -112,7 +112,7 @@ final public class KeychainStorage {
     
     private func create() -> String? {
         let UUIDString = UUID().uuidString.lowercased()
-        var status: OSStatus = SecItemAdd(queryForCreate(UUIDString: UUIDString) as CFDictionary, nil)
+        let status: OSStatus = SecItemAdd(queryForCreate(UUIDString: UUIDString) as CFDictionary, nil)
         if verifyStatusAndStoreLastError(status: status) {
             return UUIDString
         }

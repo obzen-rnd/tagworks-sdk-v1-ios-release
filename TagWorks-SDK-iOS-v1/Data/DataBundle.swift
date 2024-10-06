@@ -13,11 +13,11 @@ import Foundation
 @objc extension DataBundle {
     /// Event 항목 정의
     /// Event Key
-    static public let EVENT_TAG_NAME: String               = "OBZEN_EVENT_NAME"            // pageView, click...
+    static public let EVENT_TAG_NAME: String               = "OBZEN_EVENT_NAME"                 // pageView, click...
     static public let EVENT_TAG_PARAM_TITLE: String        = "EVENT_TAG_PARAM_TITLE"
     static public let EVENT_TAG_PARAM_PAGE_PATH: String    = "EVENT_TAG_PARAM_PAGE_PATH"
     static public let EVENT_TAG_PARAM_KEYWORD: String      = "EVENT_TAG_PARAM_KEYWORD"
-    static public let EVENT_TAG_PARAM_CUSTOM_PATH: String  = "EVENT_TAG_PARAM_CUSTOM_PATH"
+    static public let EVENT_TAG_PARAM_CUSTOM_PATH: String  = "EVENT_TAG_PARAM_CUSTOM_PATH"      // 분석용(논리적인 그룹을 만들어 분석 용도로 사용 - 예를 들면 구매 페이지의 모든 하위 페이지를 '구매'로 묶어서 확인)
 //  static public let EVENT_TAG_PARAM_DIMENSIONS: String   = "EVENT_TAG_PARAM_DIMENSIONS"
 }
 
@@ -48,16 +48,12 @@ import Foundation
     /// 초기화 - End
     ///
     
-//    @objc public func getStandardTagValueString(_ value: Int) -> String {
-//        
-//    }
-    
     
     ///
     /// 파라미터 추가
     /// 이벤트에 필요한 파라미터 항목들을, Key, Value의 String 형태로 Dictionary에 추가
     ///
-    @objc (putString:value:)
+    @objc(putString:value:)
     public func putString(_ key: String, _ value: String) {
         dataDictionary[key] = value
     }

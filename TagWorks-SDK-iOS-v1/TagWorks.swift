@@ -130,7 +130,7 @@ import Foundation
     
     private var dispatchTimer: Timer?
     
-    ///
+    /// 웹뷰로부터 자바스크립트로 웹뷰 이벤트를 전달받아 처리하는 클래스 객체
     @objc public let webViewInterface: WebInterface = WebInterface()
 
     
@@ -159,6 +159,37 @@ import Foundation
         self.tagWorksBase = TagWorksBase(suitName: "\(siteId)\(baseUrl.absoluteString)")
         self.contentUrl = URL(string: "APP://\(AppInfo.getApplicationInfo().bundleIdentifier ?? "")")
 //        self.contentUrl = URL(string: "http://\(AppInfo.getApplicationInfo().bundleIdentifier ?? "")")
+        if isUseIntervals {
+            startDispatchTimer()
+        }
+        
+        self.webViewInterface.delegate = self
+    }
+    
+    /// 이벤트 전송에 필요한 필수 항목 입력
+    ///  1.1.10 버전 이후 추가 - 파라미터에 sesstionTimeOut 값 추가
+    /// - Parameters:
+    ///   - siteId: 수집 대상이 되는 사이트(고객사) 식별자
+    ///   - baseUrl: 수집 로그 발송을 위한 서버 URL
+    ///   - userAgent: 수집 대상의 userAgent 객체 String
+//    public func setEnvironment(siteId: String, baseUrl: URL, userAgent: String?) {
+    @objc public func setInstanceConfig(siteId: String,
+                                        baseUrl: URL,
+                                        isUseIntervals: Bool,
+                                        dispatchInterval: TimeInterval,
+                                        sessionTimeOut: TimeInterval = 5.0,
+                                        userAgent: String? = nil,
+                                        appVersion: String? = nil,
+                                        appName: String? = nil) {
+        self.siteId = siteId
+        self.isUseIntervals = isUseIntervals
+        self.dispatchInterval = dispatchInterval <= 5 ? 5 : dispatchInterval
+        self.queue = DefaultQueue()
+        self.dispatcher = DefaultDispatcher(serializer: EventSerializer(), timeOut: sessionTimeOut, baseUrl: baseUrl, userAgent: userAgent)
+        self.appVersion = appVersion
+        self.appName = appName
+        self.tagWorksBase = TagWorksBase(suitName: "\(siteId)\(baseUrl.absoluteString)")
+        self.contentUrl = URL(string: "APP://\(AppInfo.getApplicationInfo().bundleIdentifier ?? "")")
         if isUseIntervals {
             startDispatchTimer()
         }
@@ -537,7 +568,7 @@ extension TagWorks: WebInterfaceDelegate {
         if self.isUseIntervals {
             addQueue(event: event)
         } else {
-            dispatchAtOnce(event: event);
+            _ = dispatchAtOnce(event: event);
         }
     }
 }
@@ -556,7 +587,7 @@ extension TagWorks {
         if self.isUseIntervals {
             addQueue(event: campaignEvent)
         } else {
-            dispatchAtOnce(event: campaignEvent);
+            _ = dispatchAtOnce(event: campaignEvent);
         }
     }
     
