@@ -10,7 +10,7 @@ import Foundation
 /// 태그 이벤트 트리거를 열거합니다.
 /// EVENT_TAG_NAME 키 사용에 들어갈 Standard Tag 값
 @objc public enum EventTag: Int {
-    case PAGE_View  = 10
+    case PAGE_VIEW  = 10
     case CLICK      = 20
     case SCROLL     = 30
     case DOWNLOAD   = 40
@@ -22,7 +22,7 @@ import Foundation
     
     public var description: String {
         switch self {
-        case .PAGE_View: return "PageView"
+        case .PAGE_VIEW: return "PageView"
         case .CLICK:     return "Click"
         case .SCROLL:    return "Scroll"
         case .DOWNLOAD:  return "Search"
@@ -40,7 +40,7 @@ import Foundation
 @objc public class StandardEventTag: NSObject {
     @objc static public func toString(eventTag: EventTag) -> String {
         switch eventTag {
-        case .PAGE_View: return "PageView"
+        case .PAGE_VIEW: return "PageView"
         case .CLICK:     return "Click"
         case .SCROLL:    return "Scroll"
         case .DOWNLOAD:  return "Search"

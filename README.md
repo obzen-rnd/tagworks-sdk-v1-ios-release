@@ -325,7 +325,7 @@ double cDim001Val2 = cDim002.numValue;  // 숫자형 값
 let bundle = DataBundle()
 
 // 이벤트 이름 - Standard 이벤트 or 사용자 정의 이벤트명
-bundle.putString(DataBundle.EVENT_TAG_NAME, EventTag.PAGE_View.description)
+bundle.putString(DataBundle.EVENT_TAG_NAME, EventTag.PAGE_VIEW.description)
 // 화면(뷰) 타이틀
 bundle.putString(DataBundle.EVENT_TAG_PARAM_TITLE, "계좌관리")
 // 화면 경로
@@ -362,7 +362,7 @@ bundle03.putString(DataBundle.EVENT_TAG_NAME, "사용자 정의 이벤트명")
 DataBundle *bundle = [[DataBundle alloc] init];
 
 // 이벤트 이름 - Standard 이벤트 or 사용자 정의 이벤트명
-[bundle putString: DataBundle.EVENT_TAG_NAME value: [StandardEventTag toStringWithEventTag:EventTagPAGE_View]];
+[bundle putString: DataBundle.EVENT_TAG_NAME value: [StandardEventTag toStringWithEventTag:EventTagPAGE_VIEW]];
 // 화면(뷰) 타이틀
 [bundle putString: DataBundle.EVENT_TAG_PARAM_TITLE value:@"계좌관리"];
 // 화면 경로
@@ -403,7 +403,7 @@ DataBundle *bundle03 = [[DataBundle alloc] init:bundle];
 ```swift
 let bundle = DataBundle()
 
-bundle.putString(DataBundle.EVENT_TAG_NAME, EventTag.PAGE_View.description)
+bundle.putString(DataBundle.EVENT_TAG_NAME, EventTag.PAGE_VIEW.description)
 bundle.putString(DataBundle.EVENT_TAG_PARAM_TITLE, "계좌관리")
 bundle.putString(DataBundle.EVENT_TAG_PARAM_PAGE_PATH, "/home/bank/Account_Management")
 bundle.putString(DataBundle.EVENT_TAG_CUSTOM_PATH, "/bank/Account")
@@ -431,7 +431,7 @@ TagWorks.sharedInstance.logEvent(TagWorks.EVENT_TYPE_USER_EVENT, bundle: bundle)
 ```objc
 DataBundle *bundle = [[DataBundle alloc] init];
 
-[bundle putString: DataBundle.EVENT_TAG_NAME value: [StandardEventTag toStringWithEventTag:EventTagPAGE_View]];
+[bundle putString: DataBundle.EVENT_TAG_NAME value: [StandardEventTag toStringWithEventTag:EventTagPAGE_VIEW]];
 [bundle putString: DataBundle.EVENT_TAG_PARAM_TITLE value:@"계좌관리"];
 [bundle putString: DataBundle.EVENT_TAG_PARAM_PAGE_PATH value:@"/home/bank/Account_Management"];
 [bundle putString: DataBundle.EVENT_TAG_PARAM_CUSTOM_PATH value:@"/bank/Account"];
