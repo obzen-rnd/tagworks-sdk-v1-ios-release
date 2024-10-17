@@ -54,6 +54,8 @@ public struct Event: Codable {
     /// 사용자 정의 디멘전 컬렉션
     let dimensions: [Dimension]
     
+    /// 사용자 에러 메세지
+    let errorMsg: String?
     
     ///================================================
     /// 웹뷰로부터 받은 파라미터를 통해 이벤트를 생성하기 위한 변수들
@@ -82,7 +84,8 @@ extension Event {
                 customUserPath: String? = nil,
                 dimensions: [Dimension] = [],
                 eventCategory: String? = nil,
-                siteId: String? = nil) {
+                siteId: String? = nil,
+                errorMsg: String? = nil) {
         self.uuid = UUID()
 //        self.siteId = tagWorks.siteId ?? ""
         if let tagWorksSiteid = tagWorks.siteId {
@@ -103,5 +106,6 @@ extension Event {
         self.customUserPath = customUserPath
         self.dimensions = tagWorks.dimensions + dimensions
         self.eventCategory = eventCategory
+        self.errorMsg = errorMsg
     }
 }

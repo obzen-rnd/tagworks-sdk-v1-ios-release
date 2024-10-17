@@ -1,6 +1,6 @@
-<img src="https://capsule-render.vercel.app/api?type=Waving&color=E4405F&height=150&section=header&text=TagWorks-SDK-iOS&fontSize=45" />
+<img src="https://capsule-render.vercel.app/api?type=Waving&color=04FFF0&height=150&section=header&text=TagWorks-SDK-iOS&fontSize=45" />
 
-![Generic badge](https://img.shields.io/badge/TagWorks_iOS_SDK-v1.1.0-green.svg)
+![Generic badge](https://img.shields.io/badge/TagWorks_iOS_SDK-v1.1.11-green.svg)
 ![Generic badge](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Generic badge](https://img.shields.io/badge/Platform-iOS-red.svg)
 ![Generic badge](https://img.shields.io/badge/support-swift-yellow.svg)
@@ -83,34 +83,38 @@ pod install --repo-update
 
 ## 초기화
 
-| 옵션             | 타입    | 기본값 | 설명                                                                                 |
-| ---------------- | ------- | ------ | ------------------------------------------------------------------------------------ |
+| 옵션             | 타입    | 기본값 | 설명                                                                              |
+| ---------------- | ------- | ------ | ---------------------------------------------------------------------------------                                    |
 | siteId           | string  | null   | 행동 정보 수집 대상 사이트 식별자                                                    |
-| baseUrl          | string  | null   | 행동 정보 데이터 수집 서버 url 주소                                                  |
-| isUseIntervals   | boolean | false  | interval 사용 여부, false 일 경우 dispatchInterval 값이 무시되고 항상 즉시 발송된다. |
-| dispatchInterval | long    | 5      | 행동 정보 데이터 발송 주기(초 단위, 0 으로 지정시 즉시 발송)                         |
+| baseUrl          | string  | null   | 행동 정보 데이터 수집 서버 url 주소                                                 |
+| isUseIntervals   | boolean | false  | interval 사용 여부, false 일 경우 dispatchInterval 값이 무시되고 항상 즉시 발송된다.     |
+| dispatchInterval | long    | 5      | 행동 정보 데이터 발송 주기 (최소 5초 설정), 초단위                                      |
+| sessionTimeOut   | long    | 5      | 행동 정보 데이터 수집 서버의 http 응답 대기 최대 시간 (second)                          |
 | userAgent        | string  | null   | user Agent 정보, 설정할 경우 설정된 값으로 전달                                      |
 | appVersion       | string  | null   | Application 버전 정보, 설정하지 않을 경우 short version 전송                         |
-| appName          | string  | null   | Application 이름, 설정하지 않을 경우 bundle name 전송                                |
+| appName          | string  | null   | Application 이름, 설정하지 않을 경우 bundle name 전송                               |
 
 <br>
 
 -   **siteId** 및 **baseUrl** 을 설정하지 않는 경우 SDK 초기화 과정에서 오류가 발생합니다.
--   **isUseIntervals** 값을 false로 설정할 경우에는 dispatchInterval 값이 무시되고 항상 즉시 발송됩니다. true로 설정할 경우에는 dispatchInterval값에 지정된 초를 주기로 데이터를 발송합니다.
+-   **isUseIntervals** 값을 false로 설정할 경우에는 dispatchInterval 값이 무시되고 항상 즉시 발송됩니다. <br>true로 설정할 경우에는 dispatchInterval 값에 지정된 초를 주기로 데이터를 발송합니다.
 -   **dispatchInterval** 은 큐에 저장된 행동 정보 데이터를 지정한 초만큼 발송하기 때문에, 지정한 시간 사이에 어플리케이션이 종료되는 경우 발송 할 수 없으니 적절한 시간으로 지정해야 합니다.
 -   이러한 경우를 대비하기 위하여 sceneWillResignActive 함수 내부(어플리케이션이 background 상태로 진입하는 부분)에서 dispatch() 메서드 호출을 권장합니다.
--   **TagWorks.sharedInstance** 객체를 통하여 Singleton Instance를 제공합니다.
+-   **TagWorks.sharedInstance** 객체를 통하여 Singleton Instance를 제공하며, 전역에서 호출 가능합니다.
 
 <br>
 
 > Swift
 
 ```swift
+import TagWorks_SDK_iOS_v1
+
 // TagWorks instance 설정
 TagWorks.sharedInstance.setInstanceConfig(siteId: "00,AAAAAAAA",
                                           baseUrl: URL(string: "http://obzen.com/obzenTagWorks")!,
                                           isUseIntervals: false,
                                           dispatchInterval: 5,
+                                          sessionTimeOut: 5,
                                           userAgent: nil,
                                           appVersion: "1.1.0",
                                           appName: "obzen App")
@@ -126,7 +130,7 @@ func sceneWillResignActive(_ scene: UIScene) {
 
 > Objective-C
 
-```c
+```objc
 // SPM으로 라이브러리 추가한 경우
 @import TagWorks_SDK_iOS_v1;
 
@@ -135,14 +139,14 @@ func sceneWillResignActive(_ scene: UIScene) {
 
 // TagWorks instance 설정
 TagWorks *tagWorksInstance = TagWorks.sharedInstance;
-
 [tagWorksInstance setInstanceConfigWithSiteId:@"00,AAAAAAAA"
                                       baseUrl:[NSURL URLWithString:@"http://obzen.com/obzenTagWorks"]
                                isUseIntervals:false
                              dispatchInterval:5
+                               sessionTimeOut:5
                                     userAgent:nil
                                    appVersion:@"1.1.0"
-                                      appName:@"obzen APp"];
+                                      appName:@"obzen APP"];
 
 // SceneDelegate class 내부
 - (void) sceneWillResignActive:(UIScene *)scene {
@@ -154,11 +158,11 @@ TagWorks *tagWorksInstance = TagWorks.sharedInstance;
 
 ## 사용자 설정
 
-| 옵션       | 타입   | 기본값      | 설명                                                          |
+| 옵션        | 타입    | 기본값        | 설명                                                          |
 | ---------- | ------ | ----------- | ------------------------------------------------------------- |
 | userId     | string | null        | 수집 대상 고객 식별자 (사용자 계정)                           |
 | isOptedOut | string | false       | 행동 정보 데이터 수집 여부 (true로 설정할 경우 수집하지 않음) |
-| contentUrl | string | 패키지 주소 | 행동 정보 page Url 주소 (ex) APP://com.obzen.TagWorks-SDK-iOS |
+| contentUrl | string | 패키지 주소    | 행동 정보 page Url 주소 (ex) APP://com.obzen.TagWorks-SDK-iOS |
 
 <br>
 
@@ -182,7 +186,7 @@ TagWorks.sharedInstance.contentUrl = URL(string: "http://obzen.com/")
 
 > Objective-C
 
-```c
+```objc
 // 수집 대상자 고객 식별자 지정
 [tagWorksInstance setUserId:@"user id"];
 
@@ -198,8 +202,8 @@ TagWorks.sharedInstance.contentUrl = URL(string: "http://obzen.com/")
 ### Dimension 객체
 
 -   Dimension은 사용자 상호작용 발생 시 수집하는 정보입니다.
--   문자형과 숫자형 두 개의 타입 중 원하는 타입을 선택하여 사용할 수 있습니다.
--   key & value 형태로 값을 지정할 수 있으며, key 부분에는 숫자형 index를 사용합니다.
+-   문자형과 숫자형 두 개의 타입 중 원하는 타입을 선택하여 사용할 수 있습니다. (숫자형은 수치데이터 정보를 이용한 통계 목적으로 사용 가능)
+-   key & value 형태로 값을 지정할 수 있으며, key 부분에는 <span style="color: #6ba455">숫자형 index</span>를 사용합니다.
     -   입력하는 index 값은 TagManager 제품에서 정의된 값으로 프로젝트 진행시 전달받을 수 있습니다.
 
 <br>
@@ -208,75 +212,74 @@ TagWorks.sharedInstance.contentUrl = URL(string: "http://obzen.com/")
 
 ```swift
 // Dimension - String Type
-let dim01 = Dimension(index: 1, stringValue: "구매")
+// stringValue 사용할 경우 문자형, numValue 사용할 경우 숫자형
+let dim01 = Dimension(index: 1, stringValue: "계좌조회")
+let dim02 = Dimension(WithType: Dimension.generalType, index: 2, stringValue: "잔금조회")
 
-// Dimension - Numeric Type
-// WithType 지정하지 않을 경우 Default : Dimension.generalType (숫자형 - Double type)
-let dim02 = Dimension(WithType: Dimension.factType, index: 2, stringValue: "", numValue: 100.123)
-let dim03 = Dimension(WithType: Dimension.generalType, index: 3, stringValue: "해외주식")
+// Dimension - Numeric Type (Double형)
+let dim03 = Dimension(index: 3, numValue: 50.0)
+let dim04 = Dimension(WithType: Dimension.factType, index: 4, stringValue: "", numValue: 123.123)
 ```
 
 <br>
 
 > Objective-C
 
-```c
+```objc
 // Dimension - String Type
-Dimension *dim01 = [[Dimension alloc] initWithIndex:1 stringValue:@"구매"];
-
-// Dimension - Numeric Type
 // stringValue 사용할 경우 문자형, numValue 사용할 경우 숫자형
-Dimension *dim02 = [[Dimension alloc] initWithIndex:2 numValue:100.123];
-Dimension *dim03 = [[Dimension alloc] initWithIndex:3 stringValue:"해외주식"];
+Dimension *dim01 = [[Dimension alloc] initWithIndex:1 stringValue:@"계좌조회"];
+Dimension *dim02 = [[Dimension alloc] initWithType:Dimension.generalType index:2 stringValue:@"잔금조회" numValue:0];
+
+// Dimension - Numeric Type (Double형)
+Dimension *dim03 = [[Dimension alloc] initWithIndex:3 numValue:50.0];
+Dimension *dim04 = [[Dimension alloc] initWithType:Dimension.factType index:4 stringValue:@"" numValue:123.123];
 ```
 
 ### 공용 Dimension
 
 -   공용 Dimension은 수집 로그 전송 시 공통적으로 전송해야 할 데이터를 설정하는 용도로 사용합니다.
 -   공용 Dimension에서 사용된 index에 다른 Dimension을 덮어쓰지 않는 이상 한 번 설정된 공용 Dimension은 계속 유지됩니다.
+-   setCommonDimension() 메서드를 사용하여 공용 Dimension 항목을 계속 추가할 수 있습니다.
 
 <br>
 
 > Swift
 
 ```swift
-let cDim01 = Dimension(index: 1, stringValue: "구매")
-let cDim02 = Dimension(WithType: Dimension.factType, index: 2, stringValue: "", numValue: 100)
-let cDim03 = Dimension(WithType: Dimension.generalType, index: 3, stringValue: "해외주식")
-
 // set
-TagWorks.sharedInstance.setCommonDimension(dimension: cDim01)
-TagWorks.sharedInstance.setCommonDimension(dimension: cDim02)
-TagWorks.sharedInstance.setCommonDimension(dimension: cDim03)
-TagWorks.sharedInstance.setCommonDimension(type: Dimension.factType, index: 4, stringValue: "", numValue: 100)
+let dim01 = Dimension(index: 1, stringValue: "계좌조회")
+TagWorks.sharedInstance.setCommonDimension(dimension: dim01)                            // 객체 전달
+TagWorks.sharedInstance.setCommonDimension(index: 2, numValue: 100.12)                  // 숫자형
+TagWorks.sharedInstance.setCommonDimension(index: 3, stringValue: "비밀번호관리")           // 문자형
+TagWorks.sharedInstance.setCommonDimension(type: Dimension.factType, index: 4, stringValue: "", numValue: 100.0) // 타입 지정
 
 // get - Dimension 객체 return
 let cDim001 = TagWorks.sharedInstance.getCommonDimension(WithTYpe: Dimension.generalType, index: 1)
 let cDim002 = TagWorks.sharedInstance.getCommonDimension(WithTYpe: Dimension.factType, index: 2)
 
-let cDim001Val = cDim001?.value
+let cDim001Val = cDim001?.value         // 문자형 값
+let cDim001Val2 = cDim002?.numValue     // 숫자형 값
 ```
 
 <br>
 
 > Objective-C
 
-```c
-Dimension *dim01 = [[Dimension alloc] initWithIndex:1 stringValue:@"구매"];
-Dimension *dim02 = [[Dimension alloc] initWithIndex:2 numValue:100];
-Dimension *dim03 = [[Dimension alloc] initWithIndex:3 stringValue:"해외주식"];
-
+```objc
 // set
-[tagWorksInstance setCommonDimensionWithDimension:dim01];
-[tagWorksInstance setCommonDimensionWithDimension:dim02];
-[tagWorksInstance setCommonDimensionWithDimension:dim03];
-[tagWorksInstance setCommonDimensionWithType:Dimension.factType index:4 stringValue:@"" numValue:100];
+Dimension *dim01 = [[Dimension alloc] initWithIndex:1 stringValue:@"계좌조회"];
+[tagWorksInstance setCommonDimensionWithDimension:dim01];                               // 객체 전달
+[tagWorksInstance setCommonDimensionWithIndex:2 numValue:100.12];                       // 숫자형
+[tagWorksInstance setCommonDimensionWithIndex:3 stringValue:@"비밀번호관리"];               // 문자형
+[tagWorksInstance setCommonDimensionWithType:Dimension.factType index:4 stringValue:@"" numValue:100.0];    // 타입 지정
 
 // get
-Dimension *dim001 = [tagWorksInstance getCommonDimensionWithType: Dimension.generalType index:1];
-Dimension *dim002 = [tagWorksInstance getCommonDimensionWithType: Dimension.factType index:2];
+Dimension *cDim001 = [tagWorksInstance getCommonDimensionWithType: Dimension.generalType index:1];
+Dimension *cDim002 = [tagWorksInstance getCommonDimensionWithType: Dimension.factType index:2];
 
-NSString *valu = [dim001 value];
+NSString *cDim001Val = cDim001.value;   // 문자형 값
+double cDim001Val2 = cDim002.numValue;  // 숫자형 값
 ```
 
 ### DataBundle 객체
@@ -290,24 +293,29 @@ NSString *valu = [dim001 value];
 
 #### DataBundle 객체의 key 값으로 사용 가능한 파라미터
 
-| 파라미터                  | 타입   | 설명                                     |
-| ------------------------- | ------ | ---------------------------------------- |
-| EVENT_TAG_NAME            | string | 이벤트 이름                              |
-| EVENT_TAG_PARAM_TITLE     | string | 화면 타이틀                              |
-| EVENT_TAG_PARAM_PAGE_PATH | string | 화면 경로                                |
-| EVENT_TAG_PARAM_KEYWORD   | string | 검색어                                   |
-| EVENT_TAG_CUSTOM_PATH     | string | 사용자 정의 경로 - 추가 분석을 위한 경로 |
+| 파라미터                        | 타입    | 설명                                      |
+| ----------------------------- | ------ | ---------------------------------------- |
+| EVENT_TAG_NAME                | string | 이벤트 이름                                 |
+| EVENT_TAG_PARAM_TITLE         | string | 화면 타이틀                                 |
+| EVENT_TAG_PARAM_PAGE_PATH     | string | 화면 경로                                  |
+| EVENT_TAG_PARAM_KEYWORD       | string | 검색어                                     |
+| EVENT_TAG_PARAM_CUSTOM_PATH   | string | 사용자 정의 경로 - 추가 분석을 위한 경로          |
+| EVENT_TAG_PARAM_ERROR_MSG     | string | 에러 메세지                                 |
 
 <br>
 
-#### EVENT_TAG_NAME 값에 사용할 수 있는 Standard 이벤트
+#### <span style="color: #6ba455">EVENT_TAG_NAME</span> 값에 사용할 수 있는 Standard 이벤트
 
-| EVENT_TAG_NAME | 설명               |
-| -------------- | ------------------ |
-| pageView       | 페이지뷰 이벤트    |
-| click          | 클릭 이벤트        |
-| scroll         | 화면 스크롤 이벤트 |
-| search         | 검색 이벤트        |
+| EVENT_TAG_NAME | 설명                  |
+| -------------- | -------------------- |
+| PAGE_VIEW      | 페이지뷰 이벤트          |
+| CLICK          | 클릭 이벤트             |
+| SCROLL         | 화면 스크롤 이벤트       |
+| DOWNLOAD       | 파일 다운로드 이벤트      |
+| OUT_LINK       | 링크 이동 이벤트        |
+| SEARCH         | 검색 이벤트            |
+| ERROR          | 오류 발생 이벤트        |
+| REFERRER       | 유입 경로 이벤트        |
 
 <br>
 
@@ -317,27 +325,28 @@ NSString *valu = [dim001 value];
 let bundle = DataBundle()
 
 // 이벤트 이름 - Standard 이벤트 or 사용자 정의 이벤트명
-bundle.putString(DataBundle.EVENT_TAG_NAME, EventTag.pageView.description)
-// 화면 타이틀
-bundle.putString(DataBundle.EVENT_TAG_PARAM_TITLE, "상품구매")
+bundle.putString(DataBundle.EVENT_TAG_NAME, EventTag.PAGE_View.description)
+// 화면(뷰) 타이틀
+bundle.putString(DataBundle.EVENT_TAG_PARAM_TITLE, "계좌관리")
 // 화면 경로
-bundle.putString(DataBundle.EVENT_TAG_PARAM_PAGE_PATH, "/home/shop/bag")
+bundle.putString(DataBundle.EVENT_TAG_PARAM_PAGE_PATH, "/home/bank/Account_Management")
 // 검색어
 bundle.putString(DataBundle.EVENT_TAG_PARAM_KEYWORD, "search keyword!")
 // 사용자 정의 url
-bundle.putString(DataBundle.EVENT_TAG_CUSTOM_PATH, "/product/buy")
+bundle.putString(DataBundle.EVENT_TAG_PARAM_CUSTOM_PATH, "/bank/Account")
+// 에러 메세지
+bundle.putString(DataBundle.EVENT_TAG_PARAM_ERROR_MSG, "Crash Exception Log or Message!")
 
-
-let cDim01 = Dimension(index: 1, stringValue: "구매")
-let cDim02 = Dimension(WithType: Dimension.factType, index: 2, stringValue: "", numValue: 100)
+let dim01 = Dimension(index: 1, stringValue: "이체")
+let dim02 = Dimension(WithType: Dimension.factType, index: 2, stringValue: "", numValue: 10000.0)
 
 // bundle 객체에 Dimension 추가
-bundle.putDimensions([cDim01, cDim02])
+bundle.putDimensions([dim01, dim02])
 
 
-// bundle 객체 자체를 이용하여 initialize 가능
+// 기본 DataBundle 객체를 사용하여 새로운 DataBundle 객체 생성 시 initialize가 가능하며, 기존 DataBundle 객체 내용 또한 수정 가능
 let bundle02 = DataBundle(bundle)
-bundle02.putString(DataBundle.EVENT_TAG_PARAM_TITLE, "상품판매")
+bundle02.putString(DataBundle.EVENT_TAG_PARAM_TITLE, "계좌이체")
 
 
 // 사용자 정의 이벤트 설정
@@ -349,24 +358,31 @@ bundle03.putString(DataBundle.EVENT_TAG_NAME, "사용자 정의 이벤트명")
 
 > Objective-C
 
-```c
+```objc
 DataBundle *bundle = [[DataBundle alloc] init];
 
-[bundle putString: DataBundle.EVENT_TAG_NAME value: [StandardEventTag toStringWithEventTag:EventTagPageView]];
-[bundle putString: DataBundle.EVENT_TAG_PARAM_TITLE value:@"상품구매"];
-[bundle putString: DataBundle.EVENT_TAG_PARAM_PAGE_PATH value:@"/home/Shopping/bag"];
+// 이벤트 이름 - Standard 이벤트 or 사용자 정의 이벤트명
+[bundle putString: DataBundle.EVENT_TAG_NAME value: [StandardEventTag toStringWithEventTag:EventTagPAGE_View]];
+// 화면(뷰) 타이틀
+[bundle putString: DataBundle.EVENT_TAG_PARAM_TITLE value:@"계좌관리"];
+// 화면 경로
+[bundle putString: DataBundle.EVENT_TAG_PARAM_PAGE_PATH value:@"/home/bank/Account_Management"];
+// 검색어
 [bundle putString: DataBundle.EVENT_TAG_PARAM_KEYWORD value:@"search keyword!"];
-[bundle putString: DataBundle.EVENT_TAG_PARAM_CUSTOM_PATH value:@"/product/buy"];
+// 사용자 정의 url
+[bundle putString: DataBundle.EVENT_TAG_PARAM_CUSTOM_PATH value:@"/bank/Account"];
+// 에러 메세지
+[bundle putString: DataBundle.EVENT_TAG_PARAM_ERROR_MSG value:@"Crash Exception!"];
 
-Dimension *cDim01 = [[Dimension alloc] initWithIndex:1 stringValue:@"구매"];
-Dimension *cDim02 = [[Dimension alloc] initWithIndex:2 numValue:100];
+Dimension *dim01 = [[Dimension alloc] initWithIndex:1 stringValue:@"이체"];       
+Dimension *dim02 = [[Dimension alloc] initWithType:Dimension.factType index:2 stringValue:@"" numValue:10000.0];
 
 // bundle 객체에 Dimension 추가
-[bundle putDimensions: [NSArray arrayWithObjects:cDim01, cDim02, nil]];
+[bundle putDimensions: [NSArray arrayWithObjects:dim01, dim02, nil]];
 
-// bundle 객체 자체를 이용하여 initialize 가능
+// 기본 DataBundle 객체를 사용하여 새로운 DataBundle 객체 생성 시 initialize가 가능하며, 기존 DataBundle 객체 내용 또한 수정 가능
 DataBundle *bundle02 = [[DataBundle alloc] init:bundle];
-[bundle02 putString: DataBundle.EVENT_TAG_PARAM_TITLE value:@"상품판매"];
+[bundle02 putString: DataBundle.EVENT_TAG_PARAM_TITLE value:@"계좌이체"];
 
 // 사용자 정의 이벤트 설정
 DataBundle *bundle03 = [[DataBundle alloc] init:bundle];
@@ -387,10 +403,10 @@ DataBundle *bundle03 = [[DataBundle alloc] init:bundle];
 ```swift
 let bundle = DataBundle()
 
-bundle.putString(DataBundle.EVENT_TAG_NAME, EventTag.pageView.description)
-bundle.putString(DataBundle.EVENT_TAG_PARAM_TITLE, "상품구매")
-bundle.putString(DataBundle.EVENT_TAG_PARAM_PAGE_PATH, "/home/shop/bag")
-bundle.putString(DataBundle.EVENT_TAG_CUSTOM_PATH, "/product/buy")
+bundle.putString(DataBundle.EVENT_TAG_NAME, EventTag.PAGE_View.description)
+bundle.putString(DataBundle.EVENT_TAG_PARAM_TITLE, "계좌관리")
+bundle.putString(DataBundle.EVENT_TAG_PARAM_PAGE_PATH, "/home/bank/Account_Management")
+bundle.putString(DataBundle.EVENT_TAG_CUSTOM_PATH, "/bank/Account")
 
 // 스크린뷰 전송
 TagWorks.sharedInstance.logEvent(TagWorks.EVENT_TYPE_PAGE, bundle: bundle)
@@ -412,23 +428,23 @@ TagWorks.sharedInstance.logEvent(TagWorks.EVENT_TYPE_USER_EVENT, bundle: bundle)
 
 > Objective-C
 
-```c
+```objc
 DataBundle *bundle = [[DataBundle alloc] init];
 
-[bundle putString: DataBundle.EVENT_TAG_NAME value: [StandardEventTag toStringWithEventTag:EventTagPageView]];
-[bundle putString: DataBundle.EVENT_TAG_PARAM_TITLE value:@"상품구매"];
-[bundle putString: DataBundle.EVENT_TAG_PARAM_PAGE_PATH value:@"/home/Shopping/bag"];
-[bundle putString: DataBundle.EVENT_TAG_PARAM_CUSTOM_PATH value:@"/product/buy"];
+[bundle putString: DataBundle.EVENT_TAG_NAME value: [StandardEventTag toStringWithEventTag:EventTagPAGE_View]];
+[bundle putString: DataBundle.EVENT_TAG_PARAM_TITLE value:@"계좌관리"];
+[bundle putString: DataBundle.EVENT_TAG_PARAM_PAGE_PATH value:@"/home/bank/Account_Management"];
+[bundle putString: DataBundle.EVENT_TAG_PARAM_CUSTOM_PATH value:@"/bank/Account"];
 
 // 스크린뷰 전송
 [tagWorksInstance logEvent:TagWorks.EVENT_TYPE_PAGE bundle:bundle];
 
-Dimension *cDim01 = [[Dimension alloc] initWithIndex:1 stringValue:@"구매"];
-Dimension *cDim02 = [[Dimension alloc] initWithIndex:2 numValue:100];
+Dimension *cDim01 = [[Dimension alloc] initWithIndex:1 stringValue:@"이체"];
+Dimension *cDim02 = [[Dimension alloc] initWithIndex:2 numValue:10000.0];
 
 // bundle 객체에 Dimension 추가
 [bundle putDimensions: [NSArray arrayWithObjects:cDim01, cDim02, nil]];
-[bundle putString: DataBundle.EVENT_TAG_NAME value: [StandardEventTag toStringWithEventTag:EventTagClick]];
+[bundle putString: DataBundle.EVENT_TAG_NAME value: [StandardEventTag toStringWithEventTag:EventTagCLICK]];
 
 // 이벤트 전송
 [tagWorksInstance logEvent:TagWorks.EVENT_TYPE_USER_EVENT bundle:bundle];
@@ -439,6 +455,8 @@ Dimension *cDim02 = [[Dimension alloc] initWithIndex:2 numValue:100];
 -   Web / App 연동을 위한 interface 를 제공합니다.
 -   앱에서 Tag Manager Code Snippet 이 포함된 웹뷰를 실행하면, 웹뷰에서 발생된 이벤트는 SDK를 통하여 앱으로 전송됩니다.
 -   WKWebViewConfiguration 설정 이외의 다른 설정은 필요하지 않습니다.
+-   로그인 시 사용자 맵핑을 위해 로그인 시점에 userId 설정하는 부분과 App에서 설정한 Dimension 값을 WebView에서 사용하기 위해 쿠키를<br>
+설정하는 부분에 있어 부분적인 대응 개발이 필요할 수 있습니다.
 -   **만약 프로젝트에서 Precompiled Header를 사용할 경우, #import <WebKit/WebKit.h> 위치를 TagWorks 프레임워크 헤더 선언하는 위치 위에 선언 후 빌드해야 합니다.**
 
 <br>
@@ -457,7 +475,7 @@ self.webViewContainerView.addSubView(webView)
 
 > Objective-C
 
-```c
+```objc
 // Web View 설정
 WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc] init];
 config.userContentController = [[[TagWorks sharedInstance] webViewInterface] getContentController];

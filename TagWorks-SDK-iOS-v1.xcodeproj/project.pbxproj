@@ -32,6 +32,7 @@
 		98CE853E2C50CDF500245400 /* TagWorksBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98CE852B2C50CDF500245400 /* TagWorksBase.swift */; };
 		98CE855A2C50F56000245400 /* WebInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98CE85592C50F56000245400 /* WebInterface.swift */; };
 		98CE859E2C523EFB00245400 /* KeychainStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98CE859D2C523EFB00245400 /* KeychainStorage.swift */; };
+		98E268EF2CC0D81600FF8F59 /* libswiftCore.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 98E268EE2CC0D81600FF8F59 /* libswiftCore.tbd */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -71,6 +72,7 @@
 		98CE852B2C50CDF500245400 /* TagWorksBase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TagWorksBase.swift; sourceTree = "<group>"; };
 		98CE85592C50F56000245400 /* WebInterface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebInterface.swift; sourceTree = "<group>"; };
 		98CE859D2C523EFB00245400 /* KeychainStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainStorage.swift; sourceTree = "<group>"; };
+		98E268EE2CC0D81600FF8F59 /* libswiftCore.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libswiftCore.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk/usr/lib/swift/libswiftCore.tbd; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,6 +80,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				98E268EF2CC0D81600FF8F59 /* libswiftCore.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -192,6 +195,7 @@
 		99C531338D873E1AA50B3D1B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				98E268EE2CC0D81600FF8F59 /* libswiftCore.tbd */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -477,7 +481,7 @@
 		98CE850F2C50CD7700245400 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -494,11 +498,10 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
-					/usr/lib/swift,
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.10;
+				MARKETING_VERSION = 1.1.11;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.obzen.TagWorks-SDK-iOS-v1";
@@ -515,7 +518,7 @@
 		98CE85102C50CD7700245400 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -532,11 +535,10 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
-					/usr/lib/swift,
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.10;
+				MARKETING_VERSION = 1.1.11;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.obzen.TagWorks-SDK-iOS-v1";

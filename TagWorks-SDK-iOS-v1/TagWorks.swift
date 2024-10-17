@@ -234,7 +234,7 @@ import Foundation
         DispatchQueue.main.async {
             dispatcher.send(events: [event], success: { [weak self] in
                 guard let self = self else { return }
-                print("send - \(event)")
+                print("dispatchAtOnce Send - \(event)")
             }, failure: { [weak self] error in
                 guard let self = self else { return }
                 self.isDispatching = false
@@ -292,7 +292,7 @@ import Foundation
             dispatcher.send(events: events, success: { [weak self] in
                 guard let self = self else { return }
                 DispatchQueue.main.async {
-                    print("send - \(events)")
+                    print("dispatchBatch Send - \(events)")
                     queue.remove(events: events, completion: {
                         self.logger.info("Dispatched batch of \(events.count) events.")
                         DispatchQueue.main.async {
@@ -355,6 +355,7 @@ extension TagWorks {
         var eventTagParamKeyword: String?
         var eventTagParamCustomPath: String?
         var eventTagParamDimenstions: [Dimension] = []
+        var eventTagParamErrorMsg: String?
         
         // 값 셋팅
         // dataDictionary
@@ -375,6 +376,8 @@ extension TagWorks {
             case DataBundle.EVENT_TAG_PARAM_CUSTOM_PATH:
                 eventTagParamCustomPath = value
                 continue
+            case DataBundle.EVENT_TAG_PARAM_ERROR_MSG:
+                eventTagParamErrorMsg = value
             default:
                 continue
             }
@@ -402,7 +405,7 @@ extension TagWorks {
             }
             
 //            currentContentUrlPath = self.contentUrl?.appendingPathComponent(pagePath)
-            let event = Event(tagWorks: self, eventType: eventTagName, pageTitle: title, searchKeyword: eventTagParamKeyword, customUserPath: eventTagParamCustomPath, dimensions: eventTagParamDimenstions)
+            let event = Event(tagWorks: self, eventType: eventTagName, pageTitle: title, searchKeyword: eventTagParamKeyword, customUserPath: eventTagParamCustomPath, dimensions: eventTagParamDimenstions, errorMsg: eventTagParamErrorMsg)
             if self.isUseIntervals {
                 addQueue(event: event)
             } else {
@@ -414,28 +417,33 @@ extension TagWorks {
         } else {
 //            let searchKeyword: String
             // Event Tag 값이 Standard Tag 값인 search 인 경우,
-            if eventTagName == EventTag.search.description {
-                guard let keyword = eventTagParamKeyword else {
+            if eventTagName == EventTag.SEARCH.description {
+                guard eventTagParamKeyword != nil else {
                     logger.info("Required parameter error. - EVENT_TAG_PARAM_KEYWORD")
                     return false
                 }
-//                searchKeyword = keyword
-                let event = Event(tagWorks: self, eventType: eventTagName, pageTitle: eventTagParamTitle, searchKeyword: keyword, customUserPath: eventTagParamCustomPath, dimensions: eventTagParamDimenstions)
-                if self.isUseIntervals {
-                    addQueue(event: event)
-                } else {
-                    if !dispatchAtOnce(event: event) {
-                        logger.debug("dispatchAtOnce is Failed.")
-                    }
+            } else if eventTagName == EventTag.ERROR.description {
+                guard eventTagParamErrorMsg != nil else {
+                    logger.info("Required parameter error. - EVENT_TAG_PARAM_ERROR_MESSAGE")
+                    return false
                 }
+            }
+//            else {
+//                let event = Event(tagWorks: self, eventType: eventTagName, pageTitle: eventTagParamTitle, searchKeyword: eventTagParamKeyword, customUserPath: eventTagParamCustomPath, dimensions: eventTagParamDimenstions)
+//                if self.isUseIntervals {
+//                    addQueue(event: event)
+//                } else {
+//                    if !dispatchAtOnce(event: event) {
+//                        logger.debug("dispatchAtOnce is Failed.")
+//                    }
+//                }
+//            }
+            let event = Event(tagWorks: self, eventType: eventTagName, pageTitle: eventTagParamTitle, searchKeyword: eventTagParamKeyword, customUserPath: eventTagParamCustomPath, dimensions: eventTagParamDimenstions, errorMsg: eventTagParamErrorMsg)
+            if self.isUseIntervals {
+                addQueue(event: event)
             } else {
-                let event = Event(tagWorks: self, eventType: eventTagName, pageTitle: eventTagParamTitle, searchKeyword: eventTagParamKeyword, customUserPath: eventTagParamCustomPath, dimensions: eventTagParamDimenstions)
-                if self.isUseIntervals {
-                    addQueue(event: event)
-                } else {
-                    if !dispatchAtOnce(event: event) {
-                        logger.debug("dispatchAtOnce is Failed.")
-                    }
+                if !dispatchAtOnce(event: event) {
+                    logger.debug("dispatchAtOnce is Failed.")
                 }
             }
         }
@@ -500,6 +508,24 @@ extension TagWorks {
     @objc public func setCommonDimension(dimension: Dimension){
         removeCommonDimension(WithType: dimension.type, index: dimension.index)
         self.dimensions.append(dimension)
+    }
+    
+    /// 수집 로그의 공용 디멘전을 지정합니다.
+    /// * 이미 동일한 인덱스에 지정된 디멘전이 있는 경우 삭제하고 저장됩니다.
+    /// - Parameters:
+    ///   - index: 추가할 디멘전 index
+    ///   - stringValue: 추가할 디멘전 value (d - String 타입)
+    @objc public func setCommonDimension(index: Int, stringValue: String) {
+        setCommonDimension(dimension: Dimension(WithType: Dimension.generalType, index: index, stringValue: stringValue, numValue: 0))
+    }
+    
+    /// 수집 로그의 공용 디멘전을 지정합니다.
+    /// * 이미 동일한 인덱스에 지정된 디멘전이 있는 경우 삭제하고 저장됩니다.
+    /// - Parameters:
+    ///   - index: 추가할 디멘전 index
+    ///   - numValue: 추가할 디멘전 value (f - Double 타입)
+    @objc public func setCommonDimension(index: Int, numValue: Double) {
+        setCommonDimension(dimension: Dimension(WithType: Dimension.factType, index: index, stringValue: "", numValue: numValue))
     }
     
     /// 수집 로그의 공용 디멘전을 지정합니다.
@@ -580,7 +606,7 @@ extension TagWorks {
     
     @objc public func sendReferrerEvent(openURL: URL) {
         
-        let eventType = EventTag.referrer.description
+        let eventType = EventTag.REFERRER.description
         let urlref = openURL
         
         let campaignEvent = Event(tagWorks: self, urlReferer: urlref, eventType: eventType)
@@ -590,5 +616,4 @@ extension TagWorks {
             _ = dispatchAtOnce(event: campaignEvent);
         }
     }
-    
 }

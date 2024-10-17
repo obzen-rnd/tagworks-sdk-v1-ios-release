@@ -56,6 +56,9 @@ fileprivate extension Event {
         if customUserPath != nil {
             eventCommonItems.append(URLQueryItem(name: EventParams.customUserPath, value: customUserPath))
         }
+        if errorMsg != nil {
+            eventCommonItems.append(URLQueryItem(name: EventParams.errorMessage, value: errorMsg))
+        }
 
         eventCommonItems.append(URLQueryItem(name: EventParams.deviceType, value: "app"))
         eventCommonItems.append(URLQueryItem(name: EventParams.appVersion, value: TagWorks.sharedInstance.appVersion ?? AppInfo.getBundleShortVersion()))
@@ -106,7 +109,7 @@ fileprivate extension Event {
                     URLQueryItem(name: URLQueryParams.screenSize, value: String(format: "%1.0fx%1.0f", screenResolution.width, screenResolution.height)),
                     // 웹뷰에서 호출이 되었을 경우, e_c 값 맨 뒤에 deviceType, AppVersion과 AppName을 덧붙인다.
                     // App의 웹뷰에서 발송할때 deviceType을 전송하지 않는 경우, 하나의 이벤트로 인식하기 때문에 필히 추가
-                    URLQueryItem(name: URLQueryParams.event, value: eventString.stringByAddingPercentEncoding)
+                    URLQueryItem(name: URLQueryParams.event, value: eventString.stringByAddingPercentEncoding),
                 ]
             }
             

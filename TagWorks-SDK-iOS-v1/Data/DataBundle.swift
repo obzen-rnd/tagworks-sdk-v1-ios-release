@@ -19,6 +19,7 @@ import Foundation
     static public let EVENT_TAG_PARAM_KEYWORD: String      = "EVENT_TAG_PARAM_KEYWORD"
     static public let EVENT_TAG_PARAM_CUSTOM_PATH: String  = "EVENT_TAG_PARAM_CUSTOM_PATH"      // 분석용(논리적인 그룹을 만들어 분석 용도로 사용 - 예를 들면 구매 페이지의 모든 하위 페이지를 '구매'로 묶어서 확인)
 //  static public let EVENT_TAG_PARAM_DIMENSIONS: String   = "EVENT_TAG_PARAM_DIMENSIONS"
+    static public let EVENT_TAG_PARAM_ERROR_MSG: String    = "EVENT_TAG_PARAM_ERROR_MSG"
 }
 
 /// 사용자 정의 이벤트 저장을 위한 클래스입니다.

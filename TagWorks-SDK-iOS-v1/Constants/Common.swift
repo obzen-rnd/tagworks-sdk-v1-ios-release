@@ -10,19 +10,26 @@ import Foundation
 /// 태그 이벤트 트리거를 열거합니다.
 /// EVENT_TAG_NAME 키 사용에 들어갈 Standard Tag 값
 @objc public enum EventTag: Int {
-    case click      = 10
-    case search     = 20
-    case pageView   = 30
-    case scroll     = 40
-    case referrer   = 50
+    case PAGE_View  = 10
+    case CLICK      = 20
+    case SCROLL     = 30
+    case DOWNLOAD   = 40
+    case OUT_LINK   = 50
+    case SEARCH     = 60
+    case ERROR      = 70
+    case REFERRER   = 80
+    
     
     public var description: String {
         switch self {
-        case .click:    return "Click"
-        case .search:   return "Search"
-        case .pageView: return "PageView"
-        case .scroll:   return "Scroll"
-        case .referrer: return "Referrer"
+        case .PAGE_View: return "PageView"
+        case .CLICK:     return "Click"
+        case .SCROLL:    return "Scroll"
+        case .DOWNLOAD:  return "Search"
+        case .OUT_LINK:  return "OutLink"
+        case .SEARCH:    return "Search"
+        case .ERROR:     return "Error"
+        case .REFERRER:  return "Referrer"
         }
     }
 }
@@ -31,21 +38,16 @@ import Foundation
 /// Objective-C
 ///// Objective-C에서 사용할 EventTag Class
 @objc public class StandardEventTag: NSObject {
-//    static public func EventTagString(eventTag: EventTag) -> String {
-//        switch eventTag {
-//        case .click:    return "Click"
-//        case .search:   return "Search"
-//        case .pageView: return "PageView"
-//        case .scroll:   return "Scroll"
-//        }
-//    }
     @objc static public func toString(eventTag: EventTag) -> String {
         switch eventTag {
-        case .click:    return "Click"
-        case .search:   return "Search"
-        case .pageView: return "PageView"
-        case .scroll:   return "Scroll"
-        case .referrer: return "Referrer"
+        case .PAGE_View: return "PageView"
+        case .CLICK:     return "Click"
+        case .SCROLL:    return "Scroll"
+        case .DOWNLOAD:  return "Search"
+        case .OUT_LINK:  return "OutLink"
+        case .SEARCH:    return "Search"
+        case .ERROR:     return "Error"
+        case .REFERRER:  return "Referrer"
         }
     }
 }
@@ -96,6 +98,7 @@ extension Event {
         static let deviceType       = "obz_dvc_type"
         static let appVersion       = "obz_app_vsn"
         static let appName          = "obz_app_nm"
+        static let errorMessage     = "obz_error"
     }
 }
 
