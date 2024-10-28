@@ -14,6 +14,7 @@ public final class DefaultDispatcher: Dispatcher {
     private let serializer: Serializer
     
     /// Http Request 타임아웃을 지정합니다.
+    /// Maximun 1분을 기준으로 설정.
     private let timeOut: TimeInterval
     
     /// Http Request 세션 객체입니다.
@@ -33,7 +34,7 @@ public final class DefaultDispatcher: Dispatcher {
     ///   - userAgent: UserAgent 정보
     public init(serializer: Serializer, timeOut: TimeInterval = 5.0, baseUrl: URL, userAgent: String? = nil) {
         self.serializer = serializer
-        self.timeOut = timeOut
+        self.timeOut = timeOut >= 60 ? 60 : timeOut
         self.session = URLSession.shared
         self.baseUrl = baseUrl
         self.userAgent = userAgent ?? UserAgent(appInfo: AppInfo.getApplicationInfo(), deviceInfo: DeviceInfo.getDeviceInfo()).userAgentString

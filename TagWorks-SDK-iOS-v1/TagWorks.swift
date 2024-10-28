@@ -199,7 +199,7 @@ import Foundation
     
     /// 이벤트 로그 발생 주기 타이머를 시작합니다.
     private func startDispatchTimer() {
-        print("startDispatchTimer!!")
+        print("[TagWorks] startDispatchTimer!!")
         guard Thread.isMainThread else {
             DispatchQueue.main.sync {
                 self.startDispatchTimer()
@@ -234,7 +234,7 @@ import Foundation
         DispatchQueue.main.async {
             dispatcher.send(events: [event], success: { [weak self] in
                 guard let self = self else { return }
-                print("dispatchAtOnce Send - \(event)")
+                print("[TagWorks] dispatchAtOnce Send - \(event)")
             }, failure: { [weak self] error in
                 guard let self = self else { return }
                 self.isDispatching = false
@@ -255,7 +255,7 @@ import Foundation
             return false
         }
         guard let queue = self.queue, queue.size > 0 else {
-            print("Dispatch queue is empty.")
+            print("[TagWorks] Dispatch queue is empty.")
             logger.info("No need to dispatch. Dispatch queue is empty.")
             if isUseIntervals {
                 startDispatchTimer()
@@ -270,7 +270,7 @@ import Foundation
     
     /// 현재 Queue에 저장되어 있는 이벤트 로그를 발송합니다.
     private func dispatchBatch() {
-        print("dispatchBatch start!!!")
+        print("[TagWorks] dispatchBatch start!!!")
         guard Thread.isMainThread else {
             DispatchQueue.main.sync {
                 self.dispatchBatch()
@@ -281,18 +281,19 @@ import Foundation
         queue.first(limit: numberOfEventsDispatchedAtOnce) { [weak self] events in
             guard let self = self else { return }
             guard events.count > 0 else {
-                print("events count zero!!")
+                print("[TagWorks] events count zero!!")
                 self.isDispatching = false
                 if isUseIntervals {
                     self.startDispatchTimer()
                 }
+                print("[TagWorks] Finish dispatching events")
                 self.logger.info("Finished dispatching events")
                 return
             }
             dispatcher.send(events: events, success: { [weak self] in
                 guard let self = self else { return }
                 DispatchQueue.main.async {
-                    print("dispatchBatch Send - \(events)")
+                    print("[TagWorks] dispatchBatch Send - \(events)")
                     queue.remove(events: events, completion: {
                         self.logger.info("Dispatched batch of \(events.count) events.")
                         DispatchQueue.main.async {
@@ -323,11 +324,12 @@ import Foundation
             return
         }
         guard !isOptedOut else { return }
+        print("[TagWorks] Added queue event!!")
         logger.verbose("Added queue event: \(event)")
         
         guard var queue = self.queue else { return }
         queue.enqueue(event: event)
-        print(queue.size)
+        print("[TagWorks] Queue Size : \(queue.size)")
     }
 }
 
