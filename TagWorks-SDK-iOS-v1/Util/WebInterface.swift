@@ -42,8 +42,8 @@ protocol WebInterfaceDelegate: AnyObject {
     /// 웹뷰에서만 쓰는 고유 Key 값 : tag_id (서버에서는 바이패스)
  
     public func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        print(message.name)
-        print(message.body)
+//        print(message.name)
+        print("👨🏻‍💻[TagWorks] WebInterface: \(message.body)")
         if message.name == messageHandlerName {
             
             // UI에서 출력하기 위한 용도

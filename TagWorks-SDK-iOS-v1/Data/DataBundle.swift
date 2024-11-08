@@ -85,6 +85,10 @@ import Foundation
         return self.eventDimensions.filter {$0.index == index && $0.type == type}.first
     }
     
+    @objc public func getDimensions() -> [Dimension] {
+        return self.eventDimensions
+    }
+    
     
 //    /// 이벤트에 필요한 파라미터 항목들 중에 해당 키 항목을 제거
 //    @objc public func delete(forKey key: String) {
@@ -99,9 +103,9 @@ import Foundation
         eventDimensions.removeAll(where: {$0.index == index && $0.type == type})
     }
         
-//    @objc public func deleteDimension(index: Int) {
-//        eventDimensions = eventDimensions.filter() { $0.index != index }
-//    }
+    @objc public func removeAllDimension() {
+        eventDimensions.removeAll()
+    }
 
     /// 이벤트에 필요한 파라미터 항목들이 비어 있는지 체크
     @objc public func isParameterEmpty() -> Bool {

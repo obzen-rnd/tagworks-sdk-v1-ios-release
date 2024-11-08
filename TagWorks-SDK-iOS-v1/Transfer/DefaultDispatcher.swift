@@ -34,7 +34,10 @@ public final class DefaultDispatcher: Dispatcher {
     ///   - userAgent: UserAgent 정보
     public init(serializer: Serializer, timeOut: TimeInterval = 5.0, baseUrl: URL, userAgent: String? = nil) {
         self.serializer = serializer
-        self.timeOut = timeOut >= 60 ? 60 : timeOut
+        var tOut = timeOut
+        if tOut <= 3.0 { tOut = 3.0 }
+        else if tOut >= 60.0 { tOut = 60.0 }
+        self.timeOut = tOut
         self.session = URLSession.shared
         self.baseUrl = baseUrl
         self.userAgent = userAgent ?? UserAgent(appInfo: AppInfo.getApplicationInfo(), deviceInfo: DeviceInfo.getDeviceInfo()).userAgentString
@@ -80,6 +83,12 @@ public final class DefaultDispatcher: Dispatcher {
     ///   - failure: http 송신 결과 실패
     private func send(request: URLRequest, success: @escaping ()->(), failure: @escaping (_ error: Error)->()) {
         let task = session.dataTask(with: request) { data, response, error in
+            
+            print("👨🏻‍💻[TagWorks] Response: \(data as Any), \(response.map(\.url) as Any), Error - \(error as Any)")
+            if let httpResponse = response as? HTTPURLResponse {
+                print("👨🏻‍💻[TagWorks] statusCode: \(httpResponse.statusCode)")
+            }
+            
             if let error = error {
                 failure(error)
             } else {

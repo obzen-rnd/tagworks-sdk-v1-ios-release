@@ -114,19 +114,19 @@ import Foundation
     /// 이벤트 발송 주기 사용 여부입니다.
     /// false로 셋팅한 경우, 이벤트 즉시 발송
     /// true로 셋팅한 경우, 타이머를 이용한 발송
-    @objc public var isUseIntervals = false
+    @objc private var isUseIntervals = false
     
     /// 이벤트 로그의 발송 주기 입니다. (단위 : 초)
     /// * 발송 주기의 기본값은 10 입니다.
     /// * 값을 0으로 지정하는 경우 이벤트 수집 즉시 발송됩니다.
     /// * 값을 0이하로 지정하는 경우 이벤트 로그 발송을 자동으로 수행하지 않습니다.
     ///     - dispatch() 함수를 이용하여 수동으로 발송해야 합니다.
-    @objc public var dispatchInterval: TimeInterval = 5.0
-//    {
-//        didSet {
-//            startDispatchTimer()
-//        }
-//    }
+    @objc private var dispatchInterval: TimeInterval = 5.0
+    
+    /// SDK 디버깅을 위한 로그 출력 플래그
+    /// 디폴트는 출력을 하지 않으나, 이슈 발생 시 true로 셋팅 하여 디버깅 로그를 통해 SDK 플로우를 디버깅
+    @objc public var isDebugLogPrint: Bool = false
+    
     
     private var dispatchTimer: Timer?
     
@@ -151,7 +151,13 @@ import Foundation
                                         appName: String? = nil) {
         self.siteId = siteId
         self.isUseIntervals = isUseIntervals
-        self.dispatchInterval = dispatchInterval <= 5 ? 5 : dispatchInterval
+        var interval = dispatchInterval
+        if interval <= 3 {
+            interval = 3
+        } else if interval >= 10 {
+            interval = 10
+        }
+        self.dispatchInterval = interval
         self.queue = DefaultQueue()
         self.dispatcher = DefaultDispatcher(serializer: EventSerializer(), baseUrl: baseUrl, userAgent: userAgent)
         self.appVersion = appVersion
@@ -183,7 +189,13 @@ import Foundation
                                         appName: String? = nil) {
         self.siteId = siteId
         self.isUseIntervals = isUseIntervals
-        self.dispatchInterval = dispatchInterval <= 5 ? 5 : dispatchInterval
+        var interval = dispatchInterval
+        if interval <= 3 {
+            interval = 3
+        } else if interval >= 10 {
+            interval = 10
+        }
+        self.dispatchInterval = interval
         self.queue = DefaultQueue()
         self.dispatcher = DefaultDispatcher(serializer: EventSerializer(), timeOut: sessionTimeOut, baseUrl: baseUrl, userAgent: userAgent)
         self.appVersion = appVersion
@@ -199,7 +211,7 @@ import Foundation
     
     /// 이벤트 로그 발생 주기 타이머를 시작합니다.
     private func startDispatchTimer() {
-        print("[TagWorks] startDispatchTimer!!")
+        print("👨🏻‍💻[TagWorks] startDispatchTimer!!")
         guard Thread.isMainThread else {
             DispatchQueue.main.sync {
                 self.startDispatchTimer()
@@ -234,7 +246,8 @@ import Foundation
         DispatchQueue.main.async {
             dispatcher.send(events: [event], success: { [weak self] in
                 guard let self = self else { return }
-                print("[TagWorks] dispatchAtOnce Send - \(event)")
+                print("👨🏻‍💻[TagWorks] dispatchAtOnce Send Success!! - \(event)")
+                self.isDispatching = false
             }, failure: { [weak self] error in
                 guard let self = self else { return }
                 self.isDispatching = false
@@ -251,11 +264,12 @@ import Foundation
         }
         
         guard !isDispatching else {
+            print("👨🏻‍💻[TagWorks] is already dispatching.")
             logger.verbose("is already dispatching.")
             return false
         }
         guard let queue = self.queue, queue.size > 0 else {
-            print("[TagWorks] Dispatch queue is empty.")
+            print("👨🏻‍💻[TagWorks] Dispatch queue is empty.")
             logger.info("No need to dispatch. Dispatch queue is empty.")
             if isUseIntervals {
                 startDispatchTimer()
@@ -270,7 +284,7 @@ import Foundation
     
     /// 현재 Queue에 저장되어 있는 이벤트 로그를 발송합니다.
     private func dispatchBatch() {
-        print("[TagWorks] dispatchBatch start!!!")
+        print("👨🏻‍💻[TagWorks] dispatchBatch start!!!")
         guard Thread.isMainThread else {
             DispatchQueue.main.sync {
                 self.dispatchBatch()
@@ -281,19 +295,19 @@ import Foundation
         queue.first(limit: numberOfEventsDispatchedAtOnce) { [weak self] events in
             guard let self = self else { return }
             guard events.count > 0 else {
-                print("[TagWorks] events count zero!!")
+                print("👨🏻‍💻[TagWorks] events count zero!!")
                 self.isDispatching = false
                 if isUseIntervals {
                     self.startDispatchTimer()
                 }
-                print("[TagWorks] Finish dispatching events")
+                print("👨🏻‍💻[TagWorks] Finish dispatching events")
                 self.logger.info("Finished dispatching events")
                 return
             }
             dispatcher.send(events: events, success: { [weak self] in
                 guard let self = self else { return }
                 DispatchQueue.main.async {
-                    print("[TagWorks] dispatchBatch Send - \(events)")
+                    print("👨🏻‍💻[TagWorks] dispatchBatch Send Success!! - \(events)")
                     queue.remove(events: events, completion: {
                         self.logger.info("Dispatched batch of \(events.count) events.")
                         DispatchQueue.main.async {
@@ -324,12 +338,12 @@ import Foundation
             return
         }
         guard !isOptedOut else { return }
-        print("[TagWorks] Added queue event!!")
+        print("👨🏻‍💻[TagWorks] Added queue event!!")
         logger.verbose("Added queue event: \(event)")
         
         guard var queue = self.queue else { return }
         queue.enqueue(event: event)
-        print("[TagWorks] Queue Size : \(queue.size)")
+        print("👨🏻‍💻[TagWorks] Queue Size : \(queue.size)")
     }
 }
 
@@ -504,6 +518,23 @@ extension TagWorks {
 // MARK: - 공용 디멘전
 extension TagWorks {
     
+    // 2. 디멘젼 전체를 삭제하는 인터페이스 필요
+    // 2.1 디멘젼 객체를 이용해 삭제하는 인터페이스 필요
+    // 3. 디멘젼 Array 변수를 리턴해주는 인터페이스 필요
+    
+    ///
+    /// 수집 로그의 공용 디멘전을 지정합니다.
+    /// * 이미 동일한 인덱스에 지정된 디멘전이 있는 경우 삭제하고 저장됩니다.
+    /// - Parameter dimensions: 추가할 디멘전 배열 객체
+    ///
+    @objc public func setCommonDimension(dimensions: [Dimension]) {
+        // 중복 항목을 제거한 후, array 추가
+        for dimension in dimensions {
+            removeCommonDimension(WithType: dimension.type, index: dimension.index)
+        }
+        self.dimensions.append(contentsOf: dimensions)
+    }
+    
     /// 수집 로그의 공용 디멘전을 지정합니다.
     /// * 이미 동일한 인덱스에 지정된 디멘전이 있는 경우 삭제하고 저장됩니다.
     /// - Parameter dimension: 추가할 디멘전 객체
@@ -554,12 +585,20 @@ extension TagWorks {
 //        })
     }
     
+    @objc public func removeAllCommonDimension() {
+        dimensions.removeAll()
+    }
+    
     /// 수집 로그의 공용 디멘전을 가져옵니다.
     /// - Parameters:
     ///  - WithType: 디멘전 type
     ///  - index: 디멘전 index
     @objc public func getCommonDimension(WithType type: Int, index: Int) -> Dimension? {
         return self.dimensions.filter {$0.index == index && $0.type == type}.first
+    }
+    
+    @objc public func getCommonDimensions() -> [Dimension] {
+        return self.dimensions
     }
 }
 
@@ -618,4 +657,9 @@ extension TagWorks {
             _ = dispatchAtOnce(event: campaignEvent);
         }
     }
+    
+//    // iOS의 광고식별자를 받아옵니다.
+//    @objc public func setIDFA(uuid: String) {
+//        
+//    }
 }

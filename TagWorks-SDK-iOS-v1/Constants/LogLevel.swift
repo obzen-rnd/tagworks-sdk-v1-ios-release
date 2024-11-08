@@ -7,12 +7,16 @@
 
 import Foundation
 
-/// 디버그 모드에서만 print() 출력되도록 설정..
-//func print(_ items: Any...) {
-//    #if DEBUG
-//        Swift.print(items[0])
-//    #endif
-//}
+/// 디버그 모드에서만 print() 출력되도록 설정하려 했으나 고객사 이슈 발생 시 대응이 어려워 플래그 설정
+func print(_ items: Any...) {
+    #if DEBUG
+        Swift.print(items[0])
+    #else
+        if TagWorks.sharedInstance.isDebugLogPrint {
+            Swift.print(items[0])
+        }
+    #endif
+}
 
 /// TagWorks Logger 의 로그 레벨을 열거합니다.
 @objc public enum LogLevel: Int {

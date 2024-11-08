@@ -29,7 +29,7 @@ final class EventSerializer: Serializer {
                 "\($0.key)=\($0.value)"
             }.joined(separator: "&")
         }
-        print(serializedEvents)
+        print("👨🏻‍💻[TagWorks] Event Json Data: \(serializedEvents)")
         let body = ["requests": serializedEvents.map({ "?\($0)" })]
         return try JSONSerialization.data(withJSONObject: body, options: [])
     }
@@ -106,6 +106,7 @@ fileprivate extension Event {
                     URLQueryItem(name: URLQueryParams.url, value: url?.absoluteString.stringByAddingPercentEncoding),
                     URLQueryItem(name: URLQueryParams.urlReferer, value: urlReferer?.absoluteString.stringByAddingPercentEncoding),
                     URLQueryItem(name: URLQueryParams.language, value: language?.addingPercentEncoding(withAllowedCharacters: .alphanumerics)?.stringByAddingPercentEncoding),
+                    URLQueryItem(name: URLQueryParams.clientDateTime, value: CommonUtil.Formatter.iso8601DateFormatter.string(from: clientDateTime)),
                     URLQueryItem(name: URLQueryParams.screenSize, value: String(format: "%1.0fx%1.0f", screenResolution.width, screenResolution.height)),
                     // 웹뷰에서 호출이 되었을 경우, e_c 값 맨 뒤에 deviceType, AppVersion과 AppName을 덧붙인다.
                     // App의 웹뷰에서 발송할때 deviceType을 전송하지 않는 경우, 하나의 이벤트로 인식하기 때문에 필히 추가
