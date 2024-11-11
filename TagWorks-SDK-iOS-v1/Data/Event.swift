@@ -97,7 +97,6 @@ extension Event {
         self.userId = tagWorks.userId
         self.url = url ?? tagWorks.currentContentUrlPath
         self.urlReferer = urlReferer
-//        self.language = Locale.httpAcceptLanguage
         self.language = DeviceInfo.getDeviceInfo().deviceLanguage
         self.clientDateTime = Date()
         self.eventType = eventType

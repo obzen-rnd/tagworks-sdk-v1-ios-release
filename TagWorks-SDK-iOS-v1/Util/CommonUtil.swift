@@ -47,6 +47,9 @@ extension String {
         let escapedString = self.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
         return escapedString
     }
+    func decodeUrl() -> String? {
+        return self.removingPercentEncoding
+    }
     
     /// 유입 경로 urlref 값으로 URL이 넘어가는데 URL 파라미터에 "&" 가 들어갈 수 있기 때문에 &도 인코딩이 필요하기에 허용 문자에서 예외시킴.
     /// '&' 를 제외한 URL 인코딩 사용 함수

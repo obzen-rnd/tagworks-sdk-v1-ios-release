@@ -163,7 +163,7 @@ import Foundation
         self.appVersion = appVersion
         self.appName = appName
         self.tagWorksBase = TagWorksBase(suitName: "\(siteId)\(baseUrl.absoluteString)")
-        self.contentUrl = URL(string: "APP://\(AppInfo.getApplicationInfo().bundleIdentifier ?? "")")
+        self.contentUrl = URL(string: "APP://\(AppInfo.getApplicationInfo().bundleIdentifier ?? "")/")
 //        self.contentUrl = URL(string: "http://\(AppInfo.getApplicationInfo().bundleIdentifier ?? "")")
         if isUseIntervals {
             startDispatchTimer()
@@ -201,7 +201,7 @@ import Foundation
         self.appVersion = appVersion
         self.appName = appName
         self.tagWorksBase = TagWorksBase(suitName: "\(siteId)\(baseUrl.absoluteString)")
-        self.contentUrl = URL(string: "APP://\(AppInfo.getApplicationInfo().bundleIdentifier ?? "")")
+        self.contentUrl = URL(string: "APP://\(AppInfo.getApplicationInfo().bundleIdentifier ?? "")/")
         if isUseIntervals {
             startDispatchTimer()
         }
@@ -420,7 +420,6 @@ extension TagWorks {
                 return false
             }
             
-//            currentContentUrlPath = self.contentUrl?.appendingPathComponent(pagePath)
             let event = Event(tagWorks: self, eventType: eventTagName, pageTitle: title, searchKeyword: eventTagParamKeyword, customUserPath: eventTagParamCustomPath, dimensions: eventTagParamDimenstions, errorMsg: eventTagParamErrorMsg)
             if self.isUseIntervals {
                 addQueue(event: event)
@@ -454,6 +453,7 @@ extension TagWorks {
 //                    }
 //                }
 //            }
+//            urlReferer: URL(string: "urlref=카카오톡"),
             let event = Event(tagWorks: self, eventType: eventTagName, pageTitle: eventTagParamTitle, searchKeyword: eventTagParamKeyword, customUserPath: eventTagParamCustomPath, dimensions: eventTagParamDimenstions, errorMsg: eventTagParamErrorMsg)
             if self.isUseIntervals {
                 addQueue(event: event)
