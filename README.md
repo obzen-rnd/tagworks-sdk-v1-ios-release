@@ -1,14 +1,42 @@
 <img src="https://capsule-render.vercel.app/api?type=Waving&color=04FFF0&height=150&section=header&text=TagWorks-SDK-iOS&fontSize=45" />
 
-![Generic badge](https://img.shields.io/badge/TagWorks_iOS_SDK-v1.1.15-green.svg)
+![Generic badge](https://img.shields.io/badge/version-v1.1.15-green.svg)
 ![Generic badge](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Generic badge](https://img.shields.io/badge/Platform-iOS-red.svg)
 ![Generic badge](https://img.shields.io/badge/support-swift-yellow.svg)
 ![Generic badge](https://img.shields.io/badge/support-objective--c-yellow.svg)
 
+## 목차
+- [목차](#목차)
+- [Requirements](#requirements)
+- [Installation](#installation)
+  - [CocoaPods](#cocoapods)
+  - [SPM](#spm)
+  - [직접 설치](#직접-설치)
+- [SDK 설정](#sdk-설정)
+- [사용자 설정](#사용자-설정)
+- [데이터 구성](#데이터-구성)
+  - [Dimension](#dimension)
+  - [공용 Dimension](#공용-dimension)
+    - [Dimension 추가](#dimension-추가)
+    - [Dimension 가져오기](#dimension-가져오기)
+    - [Dimension 삭제](#dimension-삭제)
+  - [DataBundle](#databundle)
+    - [DataBundle 객체의 key 값으로 사용 가능한 파라미터](#databundle-객체의-key-값으로-사용-가능한-파라미터)
+    - [EVENT\_TAG\_NAME 에 대응하는 값으로 사용할 수 있는 Standard 이벤트](#event_tag_name-에-대응하는-값으로-사용할-수-있는-standard-이벤트)
+- [로그 전송](#로그-전송)
+- [Web View 연동](#web-view-연동)
+- [딥링크 (유입 경로 추적)](#딥링크-유입-경로-추적)
+
+<br>
+<br>
+
 ## Requirements
 
 -   최소 iOS 버전 : iOS 9+
+  
+<br>
+<br>
 
 ## Installation
 
@@ -27,7 +55,7 @@ touch Podfile
 
 ```bash
 target '[Project Name]' do
-    pod 'TagWorks-SDK-iOS', 'release 최신 버전'
+    pod 'TagWorks-SDK-iOS', :git => 'https://github.com/obzen-rnd/tagworks-sdk-v1-ios-release.git', :tag => 'release 최신 버전'
 end
 ```
 
@@ -77,11 +105,11 @@ pod install --repo-update
 
 -   framework 폴더의 경로가 프로젝트 경로와 일치하지 않을 경우에는 Target의 `Build Settings > Search Path > Framework Search Paths` 값을 해당 framework 폴더의 경로로 변경해주세요.
 
-#
+-------------
 
 <br>
 
-## 초기화
+## SDK 설정
 
 | 옵션             | 타입    | 기본값 | 설명                                                                              |
 | ---------------- | ------- | ------ | ---------------------------------------------------------------------------------                                    |
@@ -156,6 +184,7 @@ TagWorks *tagWorksInstance = TagWorks.sharedInstance;
     [tagWorksInstance dispatch];
 }
 ```
+<br>
 
 ## 사용자 설정
 
@@ -207,6 +236,8 @@ TagWorks *tagWorksInstance = TagWorks.sharedInstance;
 // SDK 디버그 용도 로그 출력
 tagWorksInstance.isDebugLogPrint = YES;
 ```
+
+<br>
 
 ## 데이터 구성
 
@@ -346,11 +377,11 @@ TagWorks.sharedInstance.removeCommonDimension(WithType: Dimension.generalType, i
 
 <br>
 
-### DataBundle 객체
+### DataBundle
 
--   로그 전송을 하기 위한 기본 파라미터 및 개별 Dimension을 관리하기 위하여 DataBundle 클래스를 제공합니다.
+-   이벤트 전송을 하기 위해 필요한 정보들을 담는 클래스로 기본 파라미터 및 Dimension 정보를 쉽게 관리할 수 있습니다.
 -   DataBundle 클래스는 key와 value의 집합으로 구성된 컨테이너입니다.
--   이벤트 이름 값으로는 DataBundle 클래스가 제공하는 기본 이벤트 값을 사용하거나, 사용자 정의 String 값을 직접 입력할 수 있습니다.
+-   이벤트 이름 Key에 대응하는 값으로는 DataBundle 클래스가 제공하는 기본 이벤트 값을 사용하거나, 사용자 정의 String 값을 직접 입력할 수 있습니다.
 -   putDimensions 메소드를 이용하여 Dimension 객체를 DataBundle 내부에 추가하여 개별 디멘젼으로 사용할 수 있습니다.
     <br>
     <br>
@@ -368,7 +399,7 @@ TagWorks.sharedInstance.removeCommonDimension(WithType: Dimension.generalType, i
 
 <br>
 
-#### <span style="color: #6ba455">EVENT_TAG_NAME</span> 값에 사용할 수 있는 Standard 이벤트
+#### <span style="color: #6ba455">EVENT_TAG_NAME</span> 에 대응하는 값으로 사용할 수 있는 Standard 이벤트
 
 | EVENT_TAG_NAME | 설명                  |
 | -------------- | -------------------- |
@@ -573,4 +604,20 @@ config.userContentController = [[[TagWorks sharedInstance] webViewInterface] get
 
 WKWebView *webView = [[WKWebView alloc] initWithFrame:CGRectZero configuration:config];
 [self.webViewContainerView addSubview:webView];
+```
+
+<br>
+
+## 딥링크 (유입 경로 추적)
+
+- Referrer 정보가 포함되어 있는 URL로 부터 앱이 실행이 된 경우, 해당 Referrer 정보를 서버로 수집이 가능합니다.
+- 앱에서 해당 URL 정보를 받아오는 함수 내부에 다음과 같은 TagWorks SDK 인터페이스를 호출합니다.
+> **Swift**
+
+```swift
+TagWorks.sharedInstance.sendReferrerEvent(openURL: <referrer url>)
+```
+> **Objective-C**
+```obj-c
+[TagWorks.sharedInstance sendReferrerEventWithOpenURL: <referrer url>];
 ```
