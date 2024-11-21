@@ -16,14 +16,16 @@ let package = Package(
     ],
     dependencies: [
         // 외부 패키지 추가 예시
-        .package(url: "https://github.com/obzen-rnd/tagworks-sdk-v1-ios-release.git", from: "1.1.16"),
+        .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "1.3.8"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "TagWorks-SDK-iOS-v1",
-            dependencies: ["CryptoSwift"],
+            dependencies: [
+		//"CryptoSwift"
+	    ],
             path: "TagWorks-SDK-iOS-v1"
 	),
         .testTarget(
