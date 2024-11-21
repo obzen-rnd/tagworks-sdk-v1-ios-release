@@ -14,7 +14,7 @@ final class EventSerializer: Serializer {
     /// - Parameter event: 이벤트 구조체
     /// - Returns: 이벤트 프로퍼티 Map
     internal func queryItems(for event: Event) -> [String : String] {
-        event.queryItems.reduce(into: [String:String]()) {
+        event.queryItems.reduce(into: [String : String]()) {
             $0[$1.name] = $1.value
         }
     }
@@ -29,8 +29,11 @@ final class EventSerializer: Serializer {
                 "\($0.key)=\($0.value)"
             }.joined(separator: "&")
         }
-        print("👨🏻‍💻[TagWorks] Event Json Data: \(serializedEvents)")
+//        print("👨🏻‍💻[TagWorks] Event Json Data: \(serializedEvents)")
         let body = ["requests": serializedEvents.map({ "?\($0)" })]
+        // 취약점 발견으로 인한 암호화 적용
+//        let body = ["requests": serializedEvents.map({ "?\(AES256Util.encrypt(string: $0))" })]
+        print("👨🏻‍💻[TagWorks] Event Json Body: \(body)")
         return try JSONSerialization.data(withJSONObject: body, options: [])
     }
 }
@@ -104,7 +107,7 @@ fileprivate extension Event {
                 let eventString = e_c + "∞" + serializeAppInfo()
                 return [
                     URLQueryItem(name: URLQueryParams.siteId, value: siteId.stringByAddingPercentEncoding),
-                    URLQueryItem(name: URLQueryParams.userId, value: userId),
+                    URLQueryItem(name: URLQueryParams.userId, value: userId?.stringByAddingPercentEncoding),
 //                    URLQueryItem(name: URLQueryParams.url, value: url?.absoluteString.stringByAddingPercentEncoding),
 //                    URLQueryItem(name: URLQueryParams.urlReferer, value: urlReferer?.absoluteString.stringByAddingPercentEncoding),
                     URLQueryItem(name: URLQueryParams.url, value: (url?.absoluteString.decodeUrl())?.stringByAddingPercentEncoding),
@@ -118,7 +121,7 @@ fileprivate extension Event {
             
             return [
                 URLQueryItem(name: URLQueryParams.siteId, value: siteId.stringByAddingPercentEncoding),
-                URLQueryItem(name: URLQueryParams.userId, value: userId),
+                URLQueryItem(name: URLQueryParams.userId, value: userId?.stringByAddingPercentEncoding),
 //                URLQueryItem(name: URLQueryParams.url, value: url?.absoluteString.stringByAddingPercentEncoding),
 //                URLQueryItem(name: URLQueryParams.urlReferer, value: urlReferer?.absoluteString.stringByAddingPercentEncoding),
                 URLQueryItem(name: URLQueryParams.url, value: (url?.absoluteString.decodeUrl())?.stringByAddingPercentEncoding),

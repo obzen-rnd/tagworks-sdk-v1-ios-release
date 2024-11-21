@@ -16,7 +16,7 @@ Pod::Spec.new do |spec|
   #
 
   spec.name          = "TagWorks-SDK-iOS"
-  spec.version       = "1.1.15"
+  spec.version       = "1.1.16"
   spec.summary       = "TagWorks SDK for iOS"
   spec.swift_version = "5.0"
 
@@ -39,7 +39,7 @@ Pod::Spec.new do |spec|
   #
 
   # spec.license      = "MIT (example)"
-  spec.license      = { :type => "MIT", :file => "FILE_LICENSE" }
+  spec.license      = { :type => "Apache-2.0", :file => "FILE_LICENSE" }
 
 
   # ――― Author Metadata  ――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
@@ -136,5 +136,6 @@ Pod::Spec.new do |spec|
 
   # spec.xcconfig = { "HEADER_SEARCH_PATHS" => "$(SDKROOT)/usr/include/libxml2" }
   # spec.dependency "JSONKit", "~> 1.4"
+  spec.dependency "CryptoSwift", "~> 1.3.8"
 
 end

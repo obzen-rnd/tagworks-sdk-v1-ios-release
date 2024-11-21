@@ -59,23 +59,6 @@ public final class DefaultDispatcher: Dispatcher {
         return request
     }
     
-    /// 이벤트 수집 정보를 직렬화 하여 Http Request로 생성합니다.
-    /// - Parameters:
-    ///   - events: 이벤트 구조체 컬렉션
-    ///   - success: http 송신 결과 성공
-    ///   - failure: http 송신 결과 실패
-    public func send(events: [Event], success: @escaping () -> (), failure: @escaping (Error) -> ()) {
-        let jsonBody: Data
-        do {
-            jsonBody = try serializer.toJsonData(for: events)
-        } catch  {
-            failure(error)
-            return
-        }
-        let request = buildRequest(baseURL: baseUrl, method: "POST", contentType: "application/json; charset=utf-8", body: jsonBody)
-        send(request: request, success: success, failure: failure)
-    }
-    
     /// Http Request를 발송합니다.
     /// - Parameters:
     ///   - request: Http Request 객체
@@ -96,5 +79,22 @@ public final class DefaultDispatcher: Dispatcher {
             }
         }
         task.resume()
+    }
+    
+    /// 이벤트 수집 정보를 직렬화 하여 Http Request로 생성합니다.
+    /// - Parameters:
+    ///   - events: 이벤트 구조체 컬렉션
+    ///   - success: http 송신 결과 성공
+    ///   - failure: http 송신 결과 실패
+    public func send(events: [Event], success: @escaping () -> (), failure: @escaping (Error) -> ()) {
+        let jsonBody: Data
+        do {
+            jsonBody = try serializer.toJsonData(for: events)
+        } catch  {
+            failure(error)
+            return
+        }
+        let request = buildRequest(baseURL: baseUrl, method: "POST", contentType: "application/json; charset=utf-8", body: jsonBody)
+        send(request: request, success: success, failure: failure)
     }
 }
