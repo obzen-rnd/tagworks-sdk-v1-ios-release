@@ -16,7 +16,7 @@ let package = Package(
     ],
     dependencies: [
         // 외부 패키지 추가 예시
-        .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "1.8.3"),
+        .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "1.3.8"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
