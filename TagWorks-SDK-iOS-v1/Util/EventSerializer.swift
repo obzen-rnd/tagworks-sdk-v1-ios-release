@@ -29,11 +29,23 @@ final class EventSerializer: Serializer {
                 "\($0.key)=\($0.value)"
             }.joined(separator: "&")
         }
-//        print("👨🏻‍💻[TagWorks] Event Json Data: \(serializedEvents)")
-        let body = ["requests": serializedEvents.map({ "?\($0)" })]
-        // 취약점 발견으로 인한 암호화 적용
-//        let body = ["requests": serializedEvents.map({ "?\(AES256Util.encrypt(string: $0))" })]
-        print("👨🏻‍💻[TagWorks] Event Json Body: \(body)")
+    
+        let body: [String : [String]]  = ["requests": serializedEvents.map({ "?\($0)" })]
+        print("👨🏻‍💻[TagWorks] Event Json Data: \(body)")
+    
+        // JSONSerialization.data(withJSONObject:) 함수를 사용하면 안전한 JSON 사용을 위해 '\','\\' 문자가 자동으로 붙어서 인코딩 됨.
+        let bodyData = try JSONSerialization.data(withJSONObject: body, options: [])
+        if let jsonString = String(data: bodyData, encoding: .utf8) {
+            // 이스케이프 문자 제거
+//            let cleanJsonString: String = jsonString.replacingOccurrences(of: "\"", with: #"""#)
+//                .replacingOccurrences(of: "\\/", with: #"\/"#)
+//            cleanJsonString = jsonString.replacingOccurrences(of: "\\\"", with: "+", options: .regularExpression)
+//                                                    .replacingOccurrences(of: "\\/", with: "-")
+            print("👨🏻‍💻[TagWorks] Event Json String: \(jsonString)")
+            return jsonString.data(using: .utf8)!
+        }
+    
+        
         return try JSONSerialization.data(withJSONObject: body, options: [])
     }
 }
