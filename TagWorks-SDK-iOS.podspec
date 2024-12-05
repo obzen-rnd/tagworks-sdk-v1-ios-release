@@ -16,7 +16,7 @@ Pod::Spec.new do |spec|
   #
 
   spec.name          = "TagWorks-SDK-iOS"
-  spec.version       = "1.1.17"
+  spec.version       = "1.1.18"
   spec.summary       = "TagWorks SDK for iOS"
   spec.swift_version = "5.0"
 
@@ -136,6 +136,6 @@ Pod::Spec.new do |spec|
 
   # spec.xcconfig = { "HEADER_SEARCH_PATHS" => "$(SDKROOT)/usr/include/libxml2" }
   # spec.dependency "JSONKit", "~> 1.4"
-  spec.dependency "CryptoSwift", "~> 1.3.8"
+  # spec.dependency "CryptoSwift", "~> 1.3.8"
 
 end

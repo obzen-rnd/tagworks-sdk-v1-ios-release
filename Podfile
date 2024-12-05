@@ -7,7 +7,7 @@ target 'TagWorks-SDK-iOS-v1' do
   use_frameworks!
   
   # 의존성 라이브러리 추가
-  pod 'CryptoSwift', '~> 1.3.8'
+  # pod 'CryptoSwift', '~> 1.3.8'
 
   target 'TagWorks-SDK-iOS-v1Tests' do
     # 메인 타겟에서 의존성 상속

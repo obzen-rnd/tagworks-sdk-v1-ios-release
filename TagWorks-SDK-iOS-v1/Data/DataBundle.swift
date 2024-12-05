@@ -41,7 +41,11 @@ import Foundation
         self.init()
         
         // 기존 번들 내용을 복사
-        self.dataDictionary.forEach { bundle.dataDictionary[$0] = $1 }
+//        self.dataDictionary.forEach { bundle.dataDictionary[$0] = $1 }      // 확인 필요
+//        bundle.dataDictionary.forEach { self.dataDictionary[$0] = $1 }
+        for (key, value) in bundle.dataDictionary {
+            self.dataDictionary[key] = value
+        }
         self.eventDimensions.append(contentsOf: bundle.eventDimensions)
     }
     
