@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CryptoSwift
+//import CryptoSwift
 
 /// TagWorks SDK 내에서 사용되는 Util 클래스입니다.
 final class CommonUtil {
