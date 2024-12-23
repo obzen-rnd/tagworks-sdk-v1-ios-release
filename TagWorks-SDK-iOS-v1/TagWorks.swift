@@ -127,11 +127,18 @@ import Foundation
     /// 디폴트는 출력을 하지 않으나, 이슈 발생 시 true로 셋팅 하여 디버깅 로그를 통해 SDK 플로우를 디버깅
     @objc public var isDebugLogPrint: Bool = false
     
+    @objc public var isManualDispatch: Bool = false
+    
     
     private var dispatchTimer: Timer?
     
     /// 웹뷰로부터 자바스크립트로 웹뷰 이벤트를 전달받아 처리하는 클래스 객체
     @objc public let webViewInterface: WebInterface = WebInterface()
+    
+    /// Device의 광고 식별자
+    @objc public var deviceIDFA: String?
+        
+    
 
     
     // MARK: - 클래스 객체 함수
@@ -207,6 +214,49 @@ import Foundation
         }
         
         self.webViewInterface.delegate = self
+    }
+    
+    /// 이벤트 전송에 필요한 필수 항목 입력
+    ///  1.1.10 버전 이후 추가 - 파라미터에 sesstionTimeOut 값 추가
+    /// - Parameters:
+    ///   - siteId: 수집 대상이 되는 사이트(고객사) 식별자
+    ///   - baseUrl: 수집 로그 발송을 위한 서버 URL
+    ///   - userAgent: 수집 대상의 userAgent 객체 String
+//    public func setEnvironment(siteId: String, baseUrl: URL, userAgent: String?) {
+    @objc public func setInstanceConfig(siteId: String,
+                                        baseUrl: URL,
+                                        isUseIntervals: Bool,
+                                        dispatchInterval: TimeInterval,
+                                        sessionTimeOut: TimeInterval = 5.0,
+                                        userAgent: String? = nil,
+                                        isManualDispatch: Bool = false,
+                                        appVersion: String? = nil,
+                                        appName: String? = nil) {
+        self.siteId = siteId
+        self.isUseIntervals = isUseIntervals
+        self.isManualDispatch = isManualDispatch
+        var interval = dispatchInterval
+        if interval <= 3 {
+            interval = 3
+        } else if interval >= 10 {
+            interval = 10
+        }
+        self.dispatchInterval = interval
+        self.queue = DefaultQueue()
+        self.dispatcher = DefaultDispatcher(serializer: EventSerializer(), timeOut: sessionTimeOut, baseUrl: baseUrl, userAgent: userAgent)
+        self.appVersion = appVersion
+        self.appName = appName
+        self.tagWorksBase = TagWorksBase(suitName: "\(siteId)\(baseUrl.absoluteString)")
+        self.contentUrl = URL(string: "APP://\(AppInfo.getApplicationInfo().bundleIdentifier ?? "")/")
+        if isUseIntervals {
+            startDispatchTimer()
+        }
+        
+        self.webViewInterface.delegate = self
+    }
+    
+    @objc public func setManualDispatch(_ isManual: Bool) {
+        self.isManualDispatch = isManual
     }
     
     /// 이벤트 로그 발생 주기 타이머를 시작합니다.
@@ -421,7 +471,7 @@ extension TagWorks {
             }
             
             let event = Event(tagWorks: self, eventType: eventTagName, pageTitle: title, searchKeyword: eventTagParamKeyword, customUserPath: eventTagParamCustomPath, dimensions: eventTagParamDimenstions, errorMsg: eventTagParamErrorMsg)
-            if self.isUseIntervals {
+            if self.isUseIntervals || isManualDispatch {
                 addQueue(event: event)
             } else {
                 if !dispatchAtOnce(event: event) {
@@ -455,7 +505,8 @@ extension TagWorks {
 //            }
 //            urlReferer: URL(string: "urlref=카카오톡"),
             let event = Event(tagWorks: self, eventType: eventTagName, pageTitle: eventTagParamTitle, searchKeyword: eventTagParamKeyword, customUserPath: eventTagParamCustomPath, dimensions: eventTagParamDimenstions, errorMsg: eventTagParamErrorMsg)
-            if self.isUseIntervals {
+            
+            if self.isUseIntervals || isManualDispatch {
                 addQueue(event: event)
             } else {
                 if !dispatchAtOnce(event: event) {
@@ -585,6 +636,10 @@ extension TagWorks {
 //        })
     }
     
+    @objc public func removeCommonDimensionWithArrayIndex(_ index: Int) {
+        self.dimensions.remove(at: index)
+    }
+    
     @objc public func removeAllCommonDimension() {
         dimensions.removeAll()
     }
@@ -632,7 +687,7 @@ extension TagWorks: WebInterfaceDelegate {
     }
     
     func addWebViewEvent(event: Event) {
-        if self.isUseIntervals {
+        if self.isUseIntervals || isManualDispatch {
             addQueue(event: event)
         } else {
             _ = dispatchAtOnce(event: event);
@@ -651,7 +706,7 @@ extension TagWorks {
         let urlref = openURL
         
         let campaignEvent = Event(tagWorks: self, urlReferer: urlref, eventType: eventType)
-        if self.isUseIntervals {
+        if self.isUseIntervals || isManualDispatch {
             addQueue(event: campaignEvent)
         } else {
             _ = dispatchAtOnce(event: campaignEvent);

@@ -106,6 +106,10 @@ import Foundation
     @objc public func removeDimension(WithType type: Int, index: Int) {
         eventDimensions.removeAll(where: {$0.index == index && $0.type == type})
     }
+    
+    @objc public func removeDimensionWithArrayIndex(_ index: Int) {
+        eventDimensions.remove(at: index)
+    }
         
     @objc public func removeAllDimension() {
         eventDimensions.removeAll()
