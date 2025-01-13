@@ -1,6 +1,6 @@
 <img src="https://capsule-render.vercel.app/api?type=Waving&color=04FFF0&height=150&section=header&text=TagWorks-SDK-iOS&fontSize=45" />
 
-![Generic badge](https://img.shields.io/badge/version-v1.1.15-green.svg)
+![Generic badge](https://img.shields.io/badge/version-v1.1.20-green.svg)
 ![Generic badge](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Generic badge](https://img.shields.io/badge/Platform-iOS-red.svg)
 ![Generic badge](https://img.shields.io/badge/support-swift-yellow.svg)
@@ -136,7 +136,14 @@ pod install --repo-update
 > Swift
 
 ```swift
+// 둘 중 추가한 방법에 따라 SDK import
+// SPM 또는 CocoaPod 으로 라이브러리 추가한 경우
+import TagWorks_SDK_iOS
+
+// 릴리즈 프레임워크 파일로 추가한 경우
 import TagWorks_SDK_iOS_v1
+
+
 
 // TagWorks instance 설정
 TagWorks.sharedInstance.setInstanceConfig(siteId: "00,AAAAAAAA",
@@ -160,11 +167,17 @@ func sceneWillResignActive(_ scene: UIScene) {
 > Objective-C
 
 ```objc
-// SPM으로 라이브러리 추가한 경우
-@import TagWorks_SDK_iOS_v1;
+// 셋 중 추가한 방법에 따라 SDK import
+// 1. SPM으로 라이브러리 추가한 경우
+@import TagWorks_SDK_iOS;
 
-// CocoaPod이나 릴리즈 프레임워크 파일로 추가한 경우
+// 2. CocoaPod 으로 추가한 경우
+#import <TagWorks_SDK_iOS/TagWorks_SDK_iOS-Swift.h>
+
+// 3. 릴리즈 프레임워크 파일로 추가한 경우
 #import <TagWorks_SDK_iOS_v1/TagWorks_SDK_iOS_v1-Swift.h>
+
+
 
 // TagWorks instance 설정
 TagWorks *tagWorksInstance = TagWorks.sharedInstance;

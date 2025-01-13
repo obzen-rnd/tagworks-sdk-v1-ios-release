@@ -50,6 +50,15 @@ import Foundation
         case .REFERRER:  return "Referrer"
         }
     }
+    
+    @objc static public let PAGE_VIEW = "PageView"
+    @objc static public let CLICK = "Click"
+    @objc static public let SCROLL = "Scroll"
+    @objc static public let DOWNLOAD = "Search"
+    @objc static public let OUT_LINK = "OutLink"
+    @objc static public let SEARCH = "Search"
+    @objc static public let ERROR = "Error"
+    @objc static public let REFERRER = "Referrer"
 }
 
 ///
