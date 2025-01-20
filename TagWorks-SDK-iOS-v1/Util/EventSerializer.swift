@@ -106,13 +106,30 @@ fileprivate extension Event {
         }.joined(separator: "∞")
     }
     
+    private func serializeCommonDimensions() -> String {
+        let customDimensionItems = dimensions.map {
+            if $0.type == Dimension.generalType {
+                URLQueryItem(name: EventParams.customDimensionD + "\($0.index)", value: $0.value)
+            } else {
+                URLQueryItem(name: EventParams.customDimensionF + "\($0.index)", value: String($0.numValue))
+            }
+        }
+        let eventsAsQueryItems = customDimensionItems
+        let serializedEvents = eventsAsQueryItems.reduce(into: [String:String]()) {
+            $0[$1.name] = $1.value
+        }
+        return serializedEvents.map{
+            "\($0.key)≡\($0.value)"
+        }.joined(separator: "∞")
+    }
+    
     /// URLQuery 파라미터를 저장하는 컬렉션입니다.
     var queryItems: [URLQueryItem] {
         get {
             if let e_c = eventCategory {
                 // 웹뷰에서 호출이 되었을 경우, e_c 값 맨 뒤에 deviceType, AppVersion과 AppName을 덧붙인다.
                 // App의 웹뷰에서 발송할때 deviceType을 전송하지 않는 경우, 하나의 이벤트로 인식하기 때문에 필히 추가
-                let eventString = e_c + "∞" + serializeAppInfo()
+                let eventString = e_c + "∞" + serializeCommonDimensions() + "∞" + serializeAppInfo()
                 return [
                     URLQueryItem(name: URLQueryParams.siteId, value: siteId.stringByAddingPercentEncoding),
                     URLQueryItem(name: URLQueryParams.userId, value: userId?.stringByAddingPercentEncoding),

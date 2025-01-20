@@ -1,7 +1,7 @@
 <img src="https://capsule-render.vercel.app/api?type=Waving&color=04FFF0&height=150&section=header&text=TagWorks-SDK-iOS&fontSize=45" />
 
-![Generic badge](https://img.shields.io/badge/version-v1.1.20-green.svg)
-![Generic badge](https://img.shields.io/badge/license-MIT-blue.svg)
+![Generic badge](https://img.shields.io/badge/version-v1.1.21-green.svg)
+![Generic badge](https://img.shields.io/badge/license-ApacheLicense2.0-blue.svg)
 ![Generic badge](https://img.shields.io/badge/Platform-iOS-red.svg)
 ![Generic badge](https://img.shields.io/badge/support-swift-yellow.svg)
 ![Generic badge](https://img.shields.io/badge/support-objective--c-yellow.svg)
@@ -155,6 +155,9 @@ TagWorks.sharedInstance.setInstanceConfig(siteId: "00,AAAAAAAA",
                                           appVersion: "1.1.0",
                                           appName: "obzen App")
 
+//
+// *** isUseIntervals : true 로 설정한 경우에만 설정 필요 ***
+//
 // SceneDelegate class 내부
 func sceneWillResignActive(_ scene: UIScene) {
     // 어플리케이션이 background 상태 진입시 이벤트 큐에 남아있는 데이터 모두 전송
@@ -190,6 +193,9 @@ TagWorks *tagWorksInstance = TagWorks.sharedInstance;
                                    appVersion:@"1.1.0"
                                       appName:@"obzen APP"];
 
+//
+// *** isUseIntervals : true 로 설정한 경우에만 설정 필요 ***
+//
 // SceneDelegate class 내부
 - (void) sceneWillResignActive:(UIScene *)scene {
     // 어플리케이션이 background 상태 진입시 이벤트 큐에 남아있는 데이터 모두 전송
@@ -433,7 +439,7 @@ TagWorks.sharedInstance.removeCommonDimension(WithType: Dimension.generalType, i
 let bundle = DataBundle()
 
 // 이벤트 이름 - Standard 이벤트 or 사용자 정의 이벤트명
-bundle.putString(DataBundle.EVENT_TAG_NAME, EventTag.PAGE_View.description)
+bundle.putString(DataBundle.EVENT_TAG_NAME, EventTag.PAGE_VIEW.description)
 // 화면(뷰) 타이틀
 bundle.putString(DataBundle.EVENT_TAG_PARAM_TITLE, "계좌관리")
 // 화면 경로
@@ -481,7 +487,7 @@ bundle03.putString(DataBundle.EVENT_TAG_NAME, "사용자 정의 이벤트명")
 DataBundle *bundle = [[DataBundle alloc] init];
 
 // 이벤트 이름 - Standard 이벤트 or 사용자 정의 이벤트명
-[bundle putString: DataBundle.EVENT_TAG_NAME value: [StandardEventTag toStringWithEventTag:EventTagPAGE_View]];
+[bundle putString: DataBundle.EVENT_TAG_NAME value: [StandardEventTag toStringWithEventTag:EventTagPAGE_VIEW]];
 // 화면(뷰) 타이틀
 [bundle putString: DataBundle.EVENT_TAG_PARAM_TITLE value:@"계좌관리"];
 // 화면 경로
@@ -534,7 +540,7 @@ DataBundle *bundle03 = [[DataBundle alloc] init:bundle];
 ```swift
 let bundle = DataBundle()
 
-bundle.putString(DataBundle.EVENT_TAG_NAME, EventTag.PAGE_View.description)
+bundle.putString(DataBundle.EVENT_TAG_NAME, EventTag.PAGE_VIEW.description)
 bundle.putString(DataBundle.EVENT_TAG_PARAM_TITLE, "계좌관리")
 bundle.putString(DataBundle.EVENT_TAG_PARAM_PAGE_PATH, "/home/bank/Account_Management")
 bundle.putString(DataBundle.EVENT_TAG_CUSTOM_PATH, "/bank/Account")
@@ -551,7 +557,7 @@ let cDim02 = Dimension(WithType: Dimension.factType, index: 2, stringValue: "", 
 
 // bundle 객체에 Dimension 추가
 bundle.putDimensions([cDim01, cDim02])
-bundle.putString(DataBundle.EVENT_TAG_NAME, EventTag.click.description)
+bundle.putString(DataBundle.EVENT_TAG_NAME, EventTag.CLICK.description)
 
 TagWorks.sharedInstance.logEvent(TagWorks.EVENT_TYPE_USER_EVENT, bundle: bundle)
 ```
@@ -563,7 +569,7 @@ TagWorks.sharedInstance.logEvent(TagWorks.EVENT_TYPE_USER_EVENT, bundle: bundle)
 ```swift
 DataBundle *bundle = [[DataBundle alloc] init];
 
-[bundle putString: DataBundle.EVENT_TAG_NAME value: [StandardEventTag toStringWithEventTag:EventTagPAGE_View]];
+[bundle putString: DataBundle.EVENT_TAG_NAME value: [StandardEventTag toStringWithEventTag:EventTagPAGE_VIEW]];
 [bundle putString: DataBundle.EVENT_TAG_PARAM_TITLE value:@"계좌관리"];
 [bundle putString: DataBundle.EVENT_TAG_PARAM_PAGE_PATH value:@"/home/bank/Account_Management"];
 [bundle putString: DataBundle.EVENT_TAG_PARAM_CUSTOM_PATH value:@"/bank/Account"];
@@ -600,8 +606,17 @@ Dimension *cDim02 = [[Dimension alloc] initWithIndex:2 numValue:10000.0];
 
 ```swift
 // Web View 설정
+// WKUserContentController()를 처음 사용할 경우
 let config = WKWebViewConfiguration()
 config.userContentController = TagWorks.sharedInstnace.webViewInterface.getContentController()
+webView = WKWebView(frame: view.bounds, configuration: config)
+self.webViewContainerView.addSubView(webView)
+
+
+// 기존에 WKUserContentController()를 사용 중인 경우 (권장)
+let userContentController = WKUserContentController()       
+TagWorks.sharedInstance.webViewInterface.addTagworksWebInterface(userContentController)
+config.userContentController = userContentController
 webView = WKWebView(frame: view.bounds, configuration: config)
 self.webViewContainerView.addSubView(webView)
 ```
@@ -612,9 +627,17 @@ self.webViewContainerView.addSubView(webView)
 
 ```objc
 // Web View 설정
+// WKUserContentController()를 처음 사용할 경우
 WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc] init];
 config.userContentController = [[[TagWorks sharedInstance] webViewInterface] getContentController];
+WKWebView *webView = [[WKWebView alloc] initWithFrame:CGRectZero configuration:config];
+[self.webViewContainerView addSubview:webView];
 
+
+// 기존에 WKUserContentController()를 사용 중인 경우 (권장)
+WKUserContentController *userContentController = [[WKUserContentController alloc] init];
+[[TagWorks sharedInstance].webViewInterface addTagworksWebInterface:userContentController];
+config.userContentController = userContentController;
 WKWebView *webView = [[WKWebView alloc] initWithFrame:CGRectZero configuration:config];
 [self.webViewContainerView addSubview:webView];
 ```

@@ -159,8 +159,8 @@ import Foundation
         self.siteId = siteId
         self.isUseIntervals = isUseIntervals
         var interval = dispatchInterval
-        if interval <= 3 {
-            interval = 3
+        if interval <= 1 {
+            interval = 1
         } else if interval >= 10 {
             interval = 10
         }
@@ -197,8 +197,8 @@ import Foundation
         self.siteId = siteId
         self.isUseIntervals = isUseIntervals
         var interval = dispatchInterval
-        if interval <= 3 {
-            interval = 3
+        if interval <= 1 {
+            interval = 1
         } else if interval >= 10 {
             interval = 10
         }
@@ -236,8 +236,8 @@ import Foundation
         self.isUseIntervals = isUseIntervals
         self.isManualDispatch = isManualDispatch
         var interval = dispatchInterval
-        if interval <= 3 {
-            interval = 3
+        if interval <= 1 {
+            interval = 1
         } else if interval >= 10 {
             interval = 10
         }
@@ -297,6 +297,7 @@ import Foundation
             dispatcher.send(events: [event], success: { [weak self] in
                 guard let self = self else { return }
                 print("👨🏻‍💻[TagWorks] dispatchAtOnce Send Success!! - \(event)")
+                print("👨🏻‍💻[TagWorks] dimension value - \(event.dimensions.map {"{\($0.index), \($0.value), \($0.numValue)}"})")
                 self.isDispatching = false
             }, failure: { [weak self] error in
                 guard let self = self else { return }
