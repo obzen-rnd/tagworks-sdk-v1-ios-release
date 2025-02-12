@@ -57,6 +57,9 @@ public struct Event: Codable {
     /// 사용자 에러 메세지
     let errorMsg: String?
     
+    /// IDFA - 광고식별자
+    let adId: String?
+    
     ///================================================
     /// 웹뷰로부터 받은 파라미터를 통해 이벤트를 생성하기 위한 변수들
     
@@ -95,6 +98,7 @@ extension Event {
         }
         self.visitorId = tagWorks.visitorId
         self.userId = tagWorks.userId
+        self.adId = tagWorks.adId
         self.url = url ?? tagWorks.currentContentUrlPath
         self.urlReferer = urlReferer
         self.language = DeviceInfo.getDeviceInfo().deviceLanguage

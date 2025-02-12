@@ -10,16 +10,16 @@ import Foundation
 /// 공용 EventKey String 정의
 /// DataBundle에 값을 셋팅하기 위한 Key 값
 /// Objective-C에서도 사용하기 위해 클래스로 생성
-@objc extension DataBundle {
+extension DataBundle {
     /// Event 항목 정의
     /// Event Key
-    static public let EVENT_TAG_NAME: String               = "OBZEN_EVENT_NAME"                 // pageView, click...
-    static public let EVENT_TAG_PARAM_TITLE: String        = "EVENT_TAG_PARAM_TITLE"
-    static public let EVENT_TAG_PARAM_PAGE_PATH: String    = "EVENT_TAG_PARAM_PAGE_PATH"
-    static public let EVENT_TAG_PARAM_KEYWORD: String      = "EVENT_TAG_PARAM_KEYWORD"
-    static public let EVENT_TAG_PARAM_CUSTOM_PATH: String  = "EVENT_TAG_PARAM_CUSTOM_PATH"      // 분석용(논리적인 그룹을 만들어 분석 용도로 사용 - 예를 들면 구매 페이지의 모든 하위 페이지를 '구매'로 묶어서 확인)
-//  static public let EVENT_TAG_PARAM_DIMENSIONS: String   = "EVENT_TAG_PARAM_DIMENSIONS"
-    static public let EVENT_TAG_PARAM_ERROR_MSG: String    = "EVENT_TAG_PARAM_ERROR_MSG"
+    @objc static public let EVENT_TAG_NAME: String               = "OBZEN_EVENT_NAME"                 // pageView, click...
+    @objc static public let EVENT_TAG_PARAM_TITLE: String        = "EVENT_TAG_PARAM_TITLE"
+    @objc static public let EVENT_TAG_PARAM_PAGE_PATH: String    = "EVENT_TAG_PARAM_PAGE_PATH"
+    @objc static public let EVENT_TAG_PARAM_KEYWORD: String      = "EVENT_TAG_PARAM_KEYWORD"
+    @objc static public let EVENT_TAG_PARAM_CUSTOM_PATH: String  = "EVENT_TAG_PARAM_CUSTOM_PATH"      // 분석용(논리적인 그룹을 만들어 분석 용도로 사용 - 예를 들면 구매 페이지의 모든 하위 페이지를 '구매'로 묶어서 확인)
+//  @objc static public let EVENT_TAG_PARAM_DIMENSIONS: String   = "EVENT_TAG_PARAM_DIMENSIONS"
+    @objc static public let EVENT_TAG_PARAM_ERROR_MSG: String    = "EVENT_TAG_PARAM_ERROR_MSG"
 }
 
 /// 사용자 정의 이벤트 저장을 위한 클래스입니다.
@@ -41,8 +41,6 @@ import Foundation
         self.init()
         
         // 기존 번들 내용을 복사
-//        self.dataDictionary.forEach { bundle.dataDictionary[$0] = $1 }      // 확인 필요
-//        bundle.dataDictionary.forEach { self.dataDictionary[$0] = $1 }
         for (key, value) in bundle.dataDictionary {
             self.dataDictionary[key] = value
         }
@@ -69,6 +67,43 @@ import Foundation
         dataDictionary.removeValue(forKey: key)
     }
     
+
+    /// 이벤트에 필요한 파라미터 항목들이 비어 있는지 체크
+    @objc public func isParameterEmpty() -> Bool {
+        if dataDictionary.isEmpty {
+            return true
+        }
+        return false
+    }
+    
+    /// 이벤트에 필요한 Dimension 항목들이 비어 있는지 체크
+    @objc public func isDimensionEmpty() -> Bool {
+        if eventDimensions.isEmpty {
+            return true
+        }
+        return false
+    }
+    
+    /// 이벤트에 필요한 파라미터 항목들의 갯수를 리턴
+    @objc public func parameterCount() -> Int {
+        return dataDictionary.count
+    }
+    
+    /// 이벤트에 필요한 Dimension 항목들의 갯수를 리턴
+    @objc public func dimensionCount() -> Int {
+        return eventDimensions.count
+    }
+}
+
+// MARK: - 개별 디멘전
+
+extension DataBundle {
+    
+    /*
+        Index를 기반으로 디멘젼을 추가하는 방식
+        - 동적 파라미터를 사용 시 해당 메소드는 사용하면 안됨!!
+    */
+    
     ///
     /// 이벤트에 필요한 Dimension 항목들을, Array에 추가
     /// 단, 추가하기 전 중복 항목 체크..
@@ -79,6 +114,41 @@ import Foundation
             removeDimension(WithType: dimension.type, index: dimension.index)
         }
         eventDimensions.append(contentsOf: dimensions)
+    }
+    
+    /// 수집 로그의 개별 디멘전을 지정합니다.
+    /// * 이미 동일한 인덱스에 지정된 디멘전이 있는 경우 삭제하고 저장됩니다.
+    /// - Parameter dimension: 추가할 디멘전 객체
+    @objc public func putDimension(dimension: Dimension){
+        removeDimension(WithType: dimension.type, index: dimension.index)
+        self.eventDimensions.append(dimension)
+    }
+    
+    @objc public func putDimension(_ dimension: Dimension){
+        removeDimension(WithType: dimension.type, index: dimension.index)
+        self.eventDimensions.append(dimension)
+    }
+    
+    /// 수집 로그의 개별 디멘전을 지정합니다.
+    /// * 이미 동일한 인덱스에 지정된 디멘전이 있는 경우 삭제하고 저장됩니다.
+    /// - Parameters:
+    ///   - index: 추가할 디멘전 index
+    ///   - stringValue: 추가할 디멘전 value (d - String 타입)
+    @objc public func putDimension(index: Int, stringValue: String) {
+        putDimension(dimension: Dimension(index: index, stringValue: stringValue))
+    }
+    
+    @objc public func putDimension(index: Int, value: String) {
+        putDimension(dimension: Dimension(index: index, value: value))
+    }
+    
+    /// 수집 로그의 개별 디멘전을 지정합니다.
+    /// * 이미 동일한 인덱스에 지정된 디멘전이 있는 경우 삭제하고 저장됩니다.
+    /// - Parameters:
+    ///   - index: 추가할 디멘전 index
+    ///   - numValue: 추가할 디멘전 value (f - Double 타입)
+    @objc public func putDimension(index: Int, numValue: Double) {
+        putDimension(dimension: Dimension(index: index, numValue: numValue))
     }
     
     /// 이벤트 디멘전을 가져옵니다.
@@ -114,30 +184,94 @@ import Foundation
     @objc public func removeAllDimension() {
         eventDimensions.removeAll()
     }
-
-    /// 이벤트에 필요한 파라미터 항목들이 비어 있는지 체크
-    @objc public func isParameterEmpty() -> Bool {
-        if dataDictionary.isEmpty {
-            return true
+    
+    
+    /*
+        동적 파라미터(키값을 스트링으로 가지는)를 기반으로 디멘젼을 추가하는 방식
+        - Index 파라미터를 사용 시 해당 메소드는 사용하면 안됨!!
+    */
+    
+    ///
+    /// 수집 로그의 공용 디멘전을 지정합니다.
+    /// * 이미 동일한 인덱스에 지정된 디멘전이 있는 경우 삭제하고 저장됩니다.
+    /// - Parameter dimensions: 추가할 디멘전 배열 객체
+    ///
+    @objc public func putDynamicDimension(dimensions: [Dimension]) {
+        // 중복 항목을 제거한 후, array 추가
+        for dimension in dimensions {
+            removeDynamicDimension(key: dimension.key)
         }
-        return false
+        self.eventDimensions.append(contentsOf: dimensions)
     }
     
-    /// 이벤트에 필요한 Dimension 항목들이 비어 있는지 체크
-    @objc public func isDimensionEmpty() -> Bool {
-        if eventDimensions.isEmpty {
-            return true
+    @objc public func putDynamicDimensions(_ dimensions: [Dimension]) {
+        // 중복 항목을 제거한 후, array 추가
+        for dimension in dimensions {
+            removeDynamicDimension(key: dimension.key)
         }
-        return false
+        self.eventDimensions.append(contentsOf: dimensions)
     }
     
-    /// 이벤트에 필요한 파라미터 항목들의 갯수를 리턴
-    @objc public func parameterCount() -> Int {
-        return dataDictionary.count
+    /// 수집 로그의 공용 디멘전을 지정합니다.
+    /// * 이미 동일한 인덱스에 지정된 디멘전이 있는 경우 삭제하고 저장됩니다.
+    /// - Parameter dimension: 추가할 디멘전 객체
+    @objc public func putDynamicDimension(dimension: Dimension){
+        removeDynamicDimension(key: dimension.key)
+        self.eventDimensions.append(dimension)
     }
     
-    /// 이벤트에 필요한 Dimension 항목들의 갯수를 리턴
-    @objc public func dimensionCount() -> Int {
-        return eventDimensions.count
+    @objc public func putDynamicDimension(_ dimension: Dimension){
+        removeDynamicDimension(key: dimension.key)
+        self.eventDimensions.append(dimension)
+    }
+    
+    /// 수집 로그의 공용 디멘전을 지정합니다.
+    /// * 이미 동일한 인덱스에 지정된 디멘전이 있는 경우 삭제하고 저장됩니다.
+    /// - Parameters:
+    ///   - index: 추가할 디멘전 index
+    ///   - stringValue: 추가할 디멘전 value (d - String 타입)
+    @objc public func putDynamicDimension(key: String, stringValue: String) {
+        putDynamicDimension(dimension: Dimension(key: key, value: stringValue))
+    }
+    
+    @objc public func putDynamicDimension(key: String, value: String) {
+        putDynamicDimension(dimension: Dimension(key: key, value: value))
+    }
+    
+    /// 수집 로그의 공용 디멘전을 지정합니다.
+    /// * 이미 동일한 인덱스에 지정된 디멘전이 있는 경우 삭제하고 저장됩니다.
+    /// - Parameters:
+    ///   - index: 추가할 디멘전 index
+    ///   - numValue: 추가할 디멘전 value (f - Double 타입)
+    @objc public func putDynamicDimension(key: String, numValue: Double) {
+        putDynamicDimension(dimension: Dimension(key: key, numValue: numValue))
+    }
+    
+    /// 수집 로그의 공용 디멘전을 제거합니다.
+    /// - Parameters:
+    ///  - WithType: 디멘전 type
+    ///  - index: 디멘전 index
+    @objc public func removeDynamicDimension(key: String) {
+        self.eventDimensions.removeAll(where: {$0.key == key})
+    }
+    
+    @objc public func removeDynamicDimensionWithArrayIndex(_ index: Int) {
+        self.eventDimensions.remove(at: index)
+    }
+    
+    @objc public func removeAllDynamicDimension() {
+        self.eventDimensions.removeAll()
+    }
+    
+    /// 수집 로그의 공용 디멘전을 가져옵니다.
+    /// - Parameters:
+    ///  - WithType: 디멘전 type
+    ///  - index: 디멘전 index
+    @objc public func getDynamicDimension(key: String) -> Dimension? {
+        return self.eventDimensions.filter {$0.key == key}.first
+    }
+    
+    @objc public func getDynamicDimensions() -> [Dimension] {
+        return self.eventDimensions
     }
 }

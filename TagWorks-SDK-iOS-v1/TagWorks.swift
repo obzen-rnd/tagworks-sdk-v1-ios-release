@@ -89,6 +89,9 @@ import Foundation
     /// - 값이 없을 경우에는 내부적으로 Display Bundle Name을 사용합니다.
     @objc public var appName: String?
     
+    /// 수집되는 사용자의 IDFA(광고식별자)
+    @objc public var adId: String?
+    
     // 필수 설정값 end
     //-----------------------------------------
     
@@ -128,6 +131,8 @@ import Foundation
     @objc public var isDebugLogPrint: Bool = false
     
     @objc public var isManualDispatch: Bool = false
+    
+    @objc public var isUseDynamicParameter: Bool = false
     
     
     private var dispatchTimer: Timer?
@@ -231,7 +236,8 @@ import Foundation
                                         userAgent: String? = nil,
                                         isManualDispatch: Bool = false,
                                         appVersion: String? = nil,
-                                        appName: String? = nil) {
+                                        appName: String? = nil,
+                                        isUseDynamicParameter: Bool = false) {
         self.siteId = siteId
         self.isUseIntervals = isUseIntervals
         self.isManualDispatch = isManualDispatch
@@ -246,6 +252,7 @@ import Foundation
         self.dispatcher = DefaultDispatcher(serializer: EventSerializer(), timeOut: sessionTimeOut, baseUrl: baseUrl, userAgent: userAgent)
         self.appVersion = appVersion
         self.appName = appName
+        self.isUseDynamicParameter = isUseDynamicParameter
         self.tagWorksBase = TagWorksBase(suitName: "\(siteId)\(baseUrl.absoluteString)")
         self.contentUrl = URL(string: "APP://\(AppInfo.getApplicationInfo().bundleIdentifier ?? "")/")
         if isUseIntervals {
@@ -297,7 +304,7 @@ import Foundation
             dispatcher.send(events: [event], success: { [weak self] in
                 guard let self = self else { return }
                 print("👨🏻‍💻[TagWorks] dispatchAtOnce Send Success!! - \(event)")
-                print("👨🏻‍💻[TagWorks] dimension value - \(event.dimensions.map {"{\($0.index), \($0.value), \($0.numValue)}"})")
+                print("👨🏻‍💻[TagWorks] dimension value - \(event.dimensions.map {"{\($0.key) \($0.index), \($0.value), \($0.numValue)}"})")
                 self.isDispatching = false
             }, failure: { [weak self] error in
                 guard let self = self else { return }
@@ -517,62 +524,15 @@ extension TagWorks {
         }
         return true
     }
-    
-//    /// 사용자 지정 이벤트를 수집합니다.
-//    /// - Parameter event: 사용자 지정 이벤트 객체
-//    public func event(_ event: Event){
-//        addQueue(event: event)
-//    }
-//    
-//    /// 이벤트를 수집합니다.
-//    /// - Parameters:
-//    ///   - eventType: 이벤트 발생 유형
-//    ///   - dimensions: 사용자 정의 디멘전
-//    ///   - customUserPath: 사용자 정의 경로
-//    public func event(eventType: String, dimensions: [Dimension] = [], customUserPath: String? = nil){
-//        let event = Event(tagWorks: self, eventType: eventType, customUserPath: customUserPath, dimensions: dimensions)
-//        addQueue(event: event)
-//    }
-//    
-//    /// 이벤트를 수집합니다.
-//    /// - Parameters:
-//    ///   - eventType: 이벤트 발생 유형
-//    ///   - dimensions: 사용자 정의 디멘전
-//    ///   - customUserPath: 사용자 정의 경로
-//    @objc public func event(eventType: EventTag, dimensions: [Dimension] = [], customUserPath: String? = nil){
-//        event(eventType: eventType.eventString, dimensions: dimensions, customUserPath: customUserPath)
-//    }
-//    
-//    
-//    /// 현재 사용자의 페이지를 수집합니다.
-//    /// - Parameters:
-//    ///   - pagePath: 현재 페이지 경로
-//    ///   - pageTitle: 현재 페이지 제목
-//    ///   - dimensions: 사용자 정의 디멘전
-//    ///   - customUserPath: 사용자 정의 경로
-//    @objc public func pageView(pagePath: [String], pageTitle: String?, dimensions: [Dimension] = [], customUserPath: String? = nil){
-//        currentContentUrlPath = self.contentUrl?.appendingPathComponent(pagePath.joined(separator: "/"))
-//        let event = Event(tagWorks: self, eventType: Tag.pageView.event, pageTitle: pageTitle, customUserPath: customUserPath, dimensions: dimensions)
-//        queue(event: event)
-//    }
-//    
-//    /// 검색 키워드를 수집합니다.
-//    /// - Parameters:
-//    ///   - keyword: 검색 키워드
-//    ///   - dimensions: 사용자 정의 디멘전
-//    ///   - customUserPath: 사용자 정의 경로
-//    @objc public func searchKeyword(keyword: String, dimensions: [Dimension] = [], customUserPath: String? = nil){
-//        let event = Event(tagWorks: self, eventType: Tag.search.event, searchKeyword: keyword, customUserPath: customUserPath, dimensions: dimensions)
-//        queue(event: event)
-//    }
 }
 
 // MARK: - 공용 디멘전
 extension TagWorks {
     
-    // 2. 디멘젼 전체를 삭제하는 인터페이스 필요
-    // 2.1 디멘젼 객체를 이용해 삭제하는 인터페이스 필요
-    // 3. 디멘젼 Array 변수를 리턴해주는 인터페이스 필요
+    /*
+        Index를 기반으로 디멘젼을 추가하는 방식
+        - 동적 파라미터를 사용 시 해당 메소드는 사용하면 안됨!!
+    */
     
     ///
     /// 수집 로그의 공용 디멘전을 지정합니다.
@@ -580,6 +540,14 @@ extension TagWorks {
     /// - Parameter dimensions: 추가할 디멘전 배열 객체
     ///
     @objc public func setCommonDimension(dimensions: [Dimension]) {
+        // 중복 항목을 제거한 후, array 추가
+        for dimension in dimensions {
+            removeCommonDimension(WithType: dimension.type, index: dimension.index)
+        }
+        self.dimensions.append(contentsOf: dimensions)
+    }
+    
+    @objc public func setCommonDimensions(_ dimensions: [Dimension]) {
         // 중복 항목을 제거한 후, array 추가
         for dimension in dimensions {
             removeCommonDimension(WithType: dimension.type, index: dimension.index)
@@ -595,6 +563,11 @@ extension TagWorks {
         self.dimensions.append(dimension)
     }
     
+    @objc public func setCommonDimension(_ dimension: Dimension){
+        removeCommonDimension(WithType: dimension.type, index: dimension.index)
+        self.dimensions.append(dimension)
+    }
+    
     /// 수집 로그의 공용 디멘전을 지정합니다.
     /// * 이미 동일한 인덱스에 지정된 디멘전이 있는 경우 삭제하고 저장됩니다.
     /// - Parameters:
@@ -602,6 +575,10 @@ extension TagWorks {
     ///   - stringValue: 추가할 디멘전 value (d - String 타입)
     @objc public func setCommonDimension(index: Int, stringValue: String) {
         setCommonDimension(dimension: Dimension(WithType: Dimension.generalType, index: index, stringValue: stringValue, numValue: 0))
+    }
+    
+    @objc public func setCommonDimension(index: Int, value: String) {
+        setCommonDimension(dimension: Dimension(WithType: Dimension.generalType, index: index, stringValue: value, numValue: 0))
     }
     
     /// 수집 로그의 공용 디멘전을 지정합니다.
@@ -654,6 +631,110 @@ extension TagWorks {
     }
     
     @objc public func getCommonDimensions() -> [Dimension] {
+        return self.dimensions
+    }
+    
+    
+    /*
+        동적 파라미터(키값을 스트링으로 가지는)를 기반으로 디멘젼을 추가하는 방식
+        - Index 파라미터를 사용 시 해당 메소드는 사용하면 안됨!!
+    */
+    
+    ///
+    /// 수집 로그의 공용 디멘전을 지정합니다.
+    /// * 이미 동일한 인덱스에 지정된 디멘전이 있는 경우 삭제하고 저장됩니다.
+    /// - Parameter dimensions: 추가할 디멘전 배열 객체
+    ///
+    @objc public func setDynamicCommonDimension(dimensions: [Dimension]) {
+        // 중복 항목을 제거한 후, array 추가
+        for dimension in dimensions {
+            removeDynamicCommonDimension(key: dimension.key)
+        }
+        self.dimensions.append(contentsOf: dimensions)
+    }
+    
+    @objc public func setDynamicCommonDimensions(_ dimensions: [Dimension]) {
+        // 중복 항목을 제거한 후, array 추가
+        for dimension in dimensions {
+            removeDynamicCommonDimension(key: dimension.key)
+        }
+        self.dimensions.append(contentsOf: dimensions)
+    }
+    
+    /// 수집 로그의 공용 디멘전을 지정합니다.
+    /// * 이미 동일한 인덱스에 지정된 디멘전이 있는 경우 삭제하고 저장됩니다.
+    /// - Parameter dimension: 추가할 디멘전 객체
+    @objc public func setDynamicCommonDimension(dimension: Dimension){
+        removeDynamicCommonDimension(key: dimension.key)
+        self.dimensions.append(dimension)
+    }
+    
+    @objc public func setDynamicCommonDimension(_ dimension: Dimension){
+        removeDynamicCommonDimension(key: dimension.key)
+        self.dimensions.append(dimension)
+    }
+    
+    /// 수집 로그의 공용 디멘전을 지정합니다.
+    /// * 이미 동일한 인덱스에 지정된 디멘전이 있는 경우 삭제하고 저장됩니다.
+    /// - Parameters:
+    ///   - index: 추가할 디멘전 index
+    ///   - stringValue: 추가할 디멘전 value (d - String 타입)
+    @objc public func setDynamicCommonDimension(key: String, stringValue: String) {
+        setDynamicCommonDimension(dimension: Dimension(key: key, value: stringValue))
+    }
+    
+    @objc public func setDynamicCommonDimension(key: String, value: String) {
+        setDynamicCommonDimension(dimension: Dimension(key: key, value: value))
+    }
+    
+    /// 수집 로그의 공용 디멘전을 지정합니다.
+    /// * 이미 동일한 인덱스에 지정된 디멘전이 있는 경우 삭제하고 저장됩니다.
+    /// - Parameters:
+    ///   - index: 추가할 디멘전 index
+    ///   - numValue: 추가할 디멘전 value (f - Double 타입)
+    @objc public func setDynamicCommonDimension(key: String, numValue: Double) {
+        setDynamicCommonDimension(dimension: Dimension(key: key, numValue: numValue))
+    }
+    
+    // 필요 없다고 판단되어 인터페이스 삭제 - 2025.01.24 by Kevin (v.1.1.22)
+//    /// 수집 로그의 공용 디멘전을 지정합니다.
+//    /// * 이미 동일한 인덱스에 지정된 디멘전이 있는 경우 삭제하고 저장됩니다.
+//    /// - Parameters:
+//    ///   - type: 추가할 디멘전 type
+//    ///   - index: 추가할 디멘전 index
+//    ///   - stringValue: 추가할 디멘전 value (d - String 타입)
+//    ///   - numValue: 추가할 디멘전 value (f - Double 타입)
+////    @objc public func setCommonDimension(index: Int, value: String){
+////        setCommonDimension(dimension: Dimension(index: index, value: value))
+//    @objc public func setCommonDimension(type: Int, index: Int, stringValue: String, numValue: Double) {
+//        setCommonDimension(dimension: Dimension(WithType: type, index: index, stringValue: stringValue, numValue: numValue))
+//    }
+    
+    /// 수집 로그의 공용 디멘전을 제거합니다.
+    /// - Parameters:
+    ///  - WithType: 디멘전 type
+    ///  - index: 디멘전 index
+    @objc public func removeDynamicCommonDimension(key: String) {
+        self.dimensions.removeAll(where: {$0.key == key})
+    }
+    
+    @objc public func removeDynamicCommonDimensionWithArrayIndex(_ index: Int) {
+        self.dimensions.remove(at: index)
+    }
+    
+    @objc public func removeAllDynamicCommonDimension() {
+        dimensions.removeAll()
+    }
+    
+    /// 수집 로그의 공용 디멘전을 가져옵니다.
+    /// - Parameters:
+    ///  - WithType: 디멘전 type
+    ///  - index: 디멘전 index
+    @objc public func getDynamicCommonDimension(key: String) -> Dimension? {
+        return self.dimensions.filter {$0.key == key}.first
+    }
+    
+    @objc public func getDynamicCommonDimensions() -> [Dimension] {
         return self.dimensions
     }
 }
@@ -714,8 +795,8 @@ extension TagWorks {
         }
     }
     
-//    // iOS의 광고식별자를 받아옵니다.
-//    @objc public func setIDFA(uuid: String) {
-//        
-//    }
+    // iOS의 광고식별자를 받아옵니다.
+    @objc public func setAdid(_ uuid: String) {
+        self.adId = uuid
+    }
 }

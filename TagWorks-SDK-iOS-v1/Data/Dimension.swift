@@ -14,6 +14,9 @@ public final class Dimension: NSObject, Codable {
     /// 사용자 정의 디멘전의 index
     @objc public let index: Int
     
+    /// 동적 파라미터에서 사용하기 위한 Key
+    @objc public let key: String
+    
     /// 사용자 정의 디멘전의 value
     @objc public let value: String
     
@@ -26,6 +29,7 @@ public final class Dimension: NSObject, Codable {
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.index = try container.decode(Int.self, forKey: .index)
+        self.key = try container.decode(String.self, forKey: .key)
         self.value = try container.decode(String.self, forKey: .value)
         self.numValue = try container.decode(Double.self, forKey: .numValue)
         self.type = try container.decode(Int.self, forKey: .type)
@@ -40,6 +44,7 @@ public final class Dimension: NSObject, Codable {
     @objc public init(WithType type: Int = generalType, index: Int, stringValue: String, numValue: Double = 0) {
         self.type = type
         self.index = index
+        self.key = ""
         self.numValue = numValue
         self.value = stringValue
         super.init()
@@ -48,23 +53,50 @@ public final class Dimension: NSObject, Codable {
     @objc public init(index: Int, stringValue: String) {
         self.type = Dimension.generalType
         self.index = index
-        self.numValue = 0
+        self.key = ""
+        self.numValue = -1
         self.value = stringValue
+        super.init()
+    }
+    
+    @objc public init(index: Int, value: String) {
+        self.type = Dimension.generalType
+        self.index = index
+        self.key = ""
+        self.numValue = -1
+        self.value = value
         super.init()
     }
     
     @objc public init(index: Int, numValue: Double = 0) {
         self.type = Dimension.factType
         self.index = index
+        self.key = ""
         self.numValue = numValue
         self.value = ""
         super.init()
     }
     
-//    @objc public init(index: Int, value: String){
-//        self.index = index
-//        self.value = value
-//    }
+    ///
+    /// 동적 파라미터를 이용한 Dimension 설정
+    ///
+    @objc public init(key: String, value: String) {
+        self.type = Dimension.generalType
+        self.index = -1
+        self.key = key
+        self.numValue = -1
+        self.value = value
+        super.init()
+    }
+    
+    @objc public init(key: String, numValue: Double) {
+        self.type = Dimension.factType
+        self.index = -1
+        self.key = key
+        self.numValue = numValue
+        self.value = ""
+        super.init()
+    }
 }
 
 extension Dimension {
