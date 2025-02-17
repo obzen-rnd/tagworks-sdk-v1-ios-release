@@ -304,7 +304,7 @@ import Foundation
             dispatcher.send(events: [event], success: { [weak self] in
                 guard let self = self else { return }
                 print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] dispatchAtOnce Send Success!! - \(event)")
-                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] dimension value - \(event.dimensions.map {"{\($0.key) \($0.index), \($0.value), \($0.numValue)}"})")
+                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] dimension value - \(event.dimensions.map {"{\($0.key), \($0.index), \($0.value), \($0.numValue)}"})")
                 self.isDispatching = false
             }, failure: { [weak self] error in
                 guard let self = self else { return }
@@ -575,11 +575,11 @@ extension TagWorks {
     ///   - index: 추가할 디멘전 index
     ///   - stringValue: 추가할 디멘전 value (d - String 타입)
     @objc public func setCommonDimension(index: Int, stringValue: String) {
-        setCommonDimension(dimension: Dimension(WithType: Dimension.generalType, index: index, stringValue: stringValue, numValue: 0))
+        setCommonDimension(dimension: Dimension(WithType: Dimension.generalType, index: index, stringValue: stringValue, numValue: -1))
     }
     
     @objc public func setCommonDimension(index: Int, value: String) {
-        setCommonDimension(dimension: Dimension(WithType: Dimension.generalType, index: index, stringValue: value, numValue: 0))
+        setCommonDimension(dimension: Dimension(WithType: Dimension.generalType, index: index, stringValue: value, numValue: -1))
     }
     
     /// 수집 로그의 공용 디멘전을 지정합니다.
