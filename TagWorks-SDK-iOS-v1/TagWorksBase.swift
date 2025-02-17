@@ -27,7 +27,7 @@ internal struct TagWorksBase {
         if result == false {
             if #available(iOS 11.3, *) {
                 let secCopyError = SecCopyErrorMessageString(keychainStorage.lastErrorStatus, nil)!
-                print("👨🏻‍💻[TagWorks] \(secCopyError)")
+                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Keychain migrate error: \(secCopyError)")
             }
         }
     }

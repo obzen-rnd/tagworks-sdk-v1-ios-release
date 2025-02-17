@@ -52,7 +52,7 @@ public struct Event: Codable {
     let customUserPath: String?
     
     /// 사용자 정의 디멘전 컬렉션
-    let dimensions: [Dimension]
+    var dimensions: [Dimension] = []
     
     /// 사용자 에러 메세지
     let errorMsg: String?
@@ -107,8 +107,22 @@ extension Event {
         self.pageTitle = pageTitle
         self.searchKeyword = searchKeyword
         self.customUserPath = customUserPath
-        self.dimensions = tagWorks.dimensions + dimensions
         self.eventCategory = eventCategory
         self.errorMsg = errorMsg
+//        self.dimensions = tagWorks.dimensions + dimensions
+        self.dimensions = mergeDimensions(dimensions)
+    }
+    
+    func mergeDimensions(_ dimensions: [Dimension]) -> [Dimension] {
+        var commonDimensions = TagWorks.sharedInstance.dimensions
+        for dimension in dimensions {
+            if dimension.index == -1 {
+                commonDimensions.removeAll(where: {$0.key == dimension.key})
+            } else {
+                commonDimensions.removeAll(where: {$0.index == dimension.index})
+            }
+        }
+        let mergedDimensions = commonDimensions + dimensions
+        return mergedDimensions
     }
 }

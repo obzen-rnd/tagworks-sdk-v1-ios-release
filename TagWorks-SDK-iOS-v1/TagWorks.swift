@@ -268,7 +268,7 @@ import Foundation
     
     /// 이벤트 로그 발생 주기 타이머를 시작합니다.
     private func startDispatchTimer() {
-        print("👨🏻‍💻[TagWorks] startDispatchTimer!!")
+        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] startDispatchTimer!!")
         guard Thread.isMainThread else {
             DispatchQueue.main.sync {
                 self.startDispatchTimer()
@@ -303,8 +303,8 @@ import Foundation
         DispatchQueue.main.async {
             dispatcher.send(events: [event], success: { [weak self] in
                 guard let self = self else { return }
-                print("👨🏻‍💻[TagWorks] dispatchAtOnce Send Success!! - \(event)")
-                print("👨🏻‍💻[TagWorks] dimension value - \(event.dimensions.map {"{\($0.key) \($0.index), \($0.value), \($0.numValue)}"})")
+                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] dispatchAtOnce Send Success!! - \(event)")
+                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] dimension value - \(event.dimensions.map {"{\($0.key) \($0.index), \($0.value), \($0.numValue)}"})")
                 self.isDispatching = false
             }, failure: { [weak self] error in
                 guard let self = self else { return }
@@ -322,12 +322,12 @@ import Foundation
         }
         
         guard !isDispatching else {
-            print("👨🏻‍💻[TagWorks] is already dispatching.")
+            print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] is already dispatching.")
             logger.verbose("is already dispatching.")
             return false
         }
         guard let queue = self.queue, queue.size > 0 else {
-            print("👨🏻‍💻[TagWorks] Dispatch queue is empty.")
+            print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Dispatch queue is empty.")
             logger.info("No need to dispatch. Dispatch queue is empty.")
             if isUseIntervals {
                 startDispatchTimer()
@@ -342,7 +342,7 @@ import Foundation
     
     /// 현재 Queue에 저장되어 있는 이벤트 로그를 발송합니다.
     private func dispatchBatch() {
-        print("👨🏻‍💻[TagWorks] dispatchBatch start!!!")
+        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] dispatchBatch start!!!")
         guard Thread.isMainThread else {
             DispatchQueue.main.sync {
                 self.dispatchBatch()
@@ -353,19 +353,19 @@ import Foundation
         queue.first(limit: numberOfEventsDispatchedAtOnce) { [weak self] events in
             guard let self = self else { return }
             guard events.count > 0 else {
-                print("👨🏻‍💻[TagWorks] events count zero!!")
+                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] events count zero!!")
                 self.isDispatching = false
                 if isUseIntervals {
                     self.startDispatchTimer()
                 }
-                print("👨🏻‍💻[TagWorks] Finish dispatching events")
+                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Finish dispatching events")
                 self.logger.info("Finished dispatching events")
                 return
             }
             dispatcher.send(events: events, success: { [weak self] in
                 guard let self = self else { return }
                 DispatchQueue.main.async {
-                    print("👨🏻‍💻[TagWorks] dispatchBatch Send Success!! - \(events)")
+                    print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] dispatchBatch Send Success!! - \(events)")
                     queue.remove(events: events, completion: {
                         self.logger.info("Dispatched batch of \(events.count) events.")
                         DispatchQueue.main.async {
@@ -396,12 +396,12 @@ import Foundation
             return
         }
         guard !isOptedOut else { return }
-        print("👨🏻‍💻[TagWorks] Added queue event!!")
+        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Added queue event!!")
         logger.verbose("Added queue event: \(event)")
         
         guard var queue = self.queue else { return }
         queue.enqueue(event: event)
-        print("👨🏻‍💻[TagWorks] Queue Size : \(queue.size)")
+        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Queue Size : \(queue.size)")
     }
 }
 
@@ -529,6 +529,7 @@ extension TagWorks {
 // MARK: - 공용 디멘전
 extension TagWorks {
     
+    // MARK: Dimension index 파라미터
     /*
         Index를 기반으로 디멘젼을 추가하는 방식
         - 동적 파라미터를 사용 시 해당 메소드는 사용하면 안됨!!
@@ -634,7 +635,7 @@ extension TagWorks {
         return self.dimensions
     }
     
-    
+    // MARK: Dimension 동적 파라미터
     /*
         동적 파라미터(키값을 스트링으로 가지는)를 기반으로 디멘젼을 추가하는 방식
         - Index 파라미터를 사용 시 해당 메소드는 사용하면 안됨!!
@@ -757,6 +758,7 @@ extension TagWorks {
     ///
 }
 
+// MARK: WebView 인터페이스
 /// WebView Interface
 extension TagWorks: WebInterfaceDelegate {
     

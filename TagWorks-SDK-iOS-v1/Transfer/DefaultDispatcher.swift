@@ -67,9 +67,9 @@ public final class DefaultDispatcher: Dispatcher {
     private func send(request: URLRequest, success: @escaping ()->(), failure: @escaping (_ error: Error)->()) {
         let task = session.dataTask(with: request) { data, response, error in
             
-            print("👨🏻‍💻[TagWorks] Response: \(data as Any), \(response.map(\.url) as Any), Error - \(error as Any)")
+            print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Response: \(data as Any), \(response.map(\.url) as Any), Error - \(error as Any)")
             if let httpResponse = response as? HTTPURLResponse {
-                print("👨🏻‍💻[TagWorks] statusCode: \(httpResponse.statusCode)")
+                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] statusCode: \(httpResponse.statusCode)")
             }
             
             if let error = error {
@@ -90,11 +90,11 @@ public final class DefaultDispatcher: Dispatcher {
         var jsonBody: Data
         do {
             jsonBody = try serializer.toJsonData(for: events)
-            print("👨🏻‍💻[TagWorks] Json Body: \(String(data:jsonBody, encoding: .utf8) ?? "")")
+            print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Json Body: \(String(data:jsonBody, encoding: .utf8) ?? "")")
             // 취약점 발견으로 인한 암호화 적용
             // ##@ 를 붙이는 이유: 해당 패킷은 AES로 암호화 되어 있다는 표시
             let aesJsonBody: String = "##@" + AES256Util.encrypt(data: jsonBody)
-            print("👨🏻‍💻[TagWorks] send Json AES Body: \(aesJsonBody)")
+            print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] send Json AES Body: \(aesJsonBody)")
             
             jsonBody = aesJsonBody.data(using: .utf8)!
             

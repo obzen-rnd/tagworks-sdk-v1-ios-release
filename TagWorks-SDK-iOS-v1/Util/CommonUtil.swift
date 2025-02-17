@@ -24,6 +24,17 @@ final class CommonUtil {
             return formatter
         }()
     }
+    
+    public static func getSDKVersion() -> String? {
+        // 현재 프레임워크의 번들을 가져옵니다.
+        let frameworkBundle = Bundle(for: CommonUtil.self)
+        
+        // 버전 정보 가져오기
+        if let version = frameworkBundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String {
+            return version
+        }
+        return nil
+    }
 }
 
 extension Locale {

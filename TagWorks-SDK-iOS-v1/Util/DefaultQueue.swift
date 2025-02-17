@@ -34,7 +34,7 @@ public final class DefaultQueue: NSObject, Queue {
     public func remove(events: [Event], completion: @escaping () -> Void) {
         items = items.filter( {event in !events.contains(where: { target in target.uuid == event.uuid })})
         completion()
-        print("👨🏻‍💻[TagWorks] Queue: remove() - remains[\(items.count)]")
+        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Queue: remove() - remains[\(items.count)]")
     }
     
     /// queue에서 이벤트 구조체를 반환합니다.
