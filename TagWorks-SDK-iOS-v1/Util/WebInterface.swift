@@ -44,6 +44,10 @@ protocol WebInterfaceDelegate: AnyObject {
     public func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
 //        print(message.name)
         print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] WebInterface: \(message.body)")
+        if (!TagWorks.sharedInstance.isInitialize()) {
+            return
+        }
+        
         if message.name == messageHandlerName {
             
             // UI에서 출력하기 위한 용도

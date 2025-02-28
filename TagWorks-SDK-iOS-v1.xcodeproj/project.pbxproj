@@ -370,6 +370,13 @@
 			path = CryptoSwift;
 			sourceTree = "<group>";
 		};
+		9857C9222D6D7B0A009F3DE1 /* Manager */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Manager;
+			sourceTree = "<group>";
+		};
 		98CE84F02C50CD7700245400 = {
 			isa = PBXGroup;
 			children = (
@@ -396,10 +403,12 @@
 				98CE85142C50CDF400245400 /* TagWorks.swift */,
 				98CE852B2C50CDF500245400 /* TagWorksBase.swift */,
 				98CE85192C50CDF500245400 /* Constants */,
+				9857C9222D6D7B0A009F3DE1 /* Manager */,
 				98CE852A2C50CDF500245400 /* Data */,
 				98CE85232C50CDF500245400 /* Protocol */,
 				98CE85162C50CDF400245400 /* Transfer */,
 				98CE851E2C50CDF500245400 /* Util */,
+				98F1CCE72D64672600291C05 /* Popup */,
 				98CE84FD2C50CD7700245400 /* TagWorks_SDK_iOS_v1.h */,
 				98CE84FE2C50CD7700245400 /* TagWorks_SDK_iOS_v1.docc */,
 			);
@@ -467,6 +476,13 @@
 				98CE85292C50CDF500245400 /* UserAgent.swift */,
 			);
 			path = Data;
+			sourceTree = "<group>";
+		};
+		98F1CCE72D64672600291C05 /* Popup */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Popup;
 			sourceTree = "<group>";
 		};
 		99C531338D873E1AA50B3D1B /* Frameworks */ = {
@@ -904,7 +920,7 @@
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = SD2JH29386;
 				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1.1.22;
+				DYLIB_CURRENT_VERSION = 1.1.23;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
@@ -943,7 +959,7 @@
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = SD2JH29386;
 				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1.1.22;
+				DYLIB_CURRENT_VERSION = 1.1.23;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";

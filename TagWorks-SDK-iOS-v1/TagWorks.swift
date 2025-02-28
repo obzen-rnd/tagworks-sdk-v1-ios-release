@@ -5,6 +5,7 @@
 //  Created by Digital on 7/17/24.
 //
 
+import UIKit
 import Foundation
 
 /// TagWorks 클래스는 SDK 모듈내에서 가장 최상위에 존재하는 클래스입니다.
@@ -29,7 +30,7 @@ import Foundation
     private var queue: Queue?
     
     /// 수집된 로그를 발송하는 객체입니다.
-    private var dispatcher: Dispatcher?
+    private var dispatcher: DefaultDispatcher?
     
     //-----------------------------------------
     // 필수 설정값
@@ -48,10 +49,13 @@ import Foundation
     @objc public var visitorId: String {
         get {
             if let existingId = tagWorksBase?.visitorId {
+                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] exist visitorId : \(existingId)")
+//                UIPasteboard.general.string = existingId
                 return existingId
             }
             let id = UUID().uuidString.lowercased()
             tagWorksBase?.visitorId = id
+            print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] new visitorId : \(id)")
             return id
         }
         set {
@@ -133,6 +137,15 @@ import Foundation
     @objc public var isManualDispatch: Bool = false
     
     @objc public var isUseDynamicParameter: Bool = false
+    
+    @objc public var userAgent: String? {
+        get {
+            return self.dispatcher?.userAgent
+        }
+        set {
+            self.dispatcher?.userAgent = newValue
+        }
+    }
     
     
     private var dispatchTimer: Timer?
@@ -262,6 +275,47 @@ import Foundation
         self.webViewInterface.delegate = self
     }
     
+    /// 이벤트 전송에 필요한 필수 항목 입력
+    ///  1.1.10 버전 이후 추가 - 파라미터에 sesstionTimeOut 값 추가
+    /// - Parameters:
+    ///   - siteId: 수집 대상이 되는 사이트(고객사) 식별자
+    ///   - baseUrl: 수집 로그 발송을 위한 서버 URL
+    ///   - userAgent: 수집 대상의 userAgent 객체 String
+//    public func setEnvironment(siteId: String, baseUrl: URL, userAgent: String?) {
+    @objc public func setInstanceConfig(siteId: String,
+                                        baseUrl: URL,
+                                        isUseIntervals: Bool,
+                                        dispatchIntervalWithSeconds: TimeInterval,
+                                        sessionTimeOutWithSeconds: TimeInterval = 5.0,
+                                        userAgent: String? = nil,
+                                        isManualDispatch: Bool = false,
+                                        appVersion: String? = nil,
+                                        appName: String? = nil,
+                                        isUseDynamicParameter: Bool = false) {
+        self.siteId = siteId
+        self.isUseIntervals = isUseIntervals
+        self.isManualDispatch = isManualDispatch
+        var interval = dispatchIntervalWithSeconds
+        if interval <= 1 {
+            interval = 1
+        } else if interval >= 10 {
+            interval = 10
+        }
+        self.dispatchInterval = interval
+        self.queue = DefaultQueue()
+        self.dispatcher = DefaultDispatcher(serializer: EventSerializer(), timeOut: sessionTimeOutWithSeconds, baseUrl: baseUrl, userAgent: userAgent)
+        self.appVersion = appVersion
+        self.appName = appName
+        self.isUseDynamicParameter = isUseDynamicParameter
+        self.tagWorksBase = TagWorksBase(suitName: "\(siteId)\(baseUrl.absoluteString)")
+        self.contentUrl = URL(string: "APP://\(AppInfo.getApplicationInfo().bundleIdentifier ?? "")/")
+        if isUseIntervals {
+            startDispatchTimer()
+        }
+        
+        self.webViewInterface.delegate = self
+    }
+    
     @objc public func setManualDispatch(_ isManual: Bool) {
         self.isManualDispatch = isManual
     }
@@ -295,6 +349,10 @@ import Foundation
     
     /// 현재 Queue에 저장되어 있는 이벤트 구조체를 즉시 발송합니다. (수동 처리) - 타이머 사용 안함.
     internal func dispatchAtOnce(event: Event) -> Bool {
+        guard isInitialize() else {
+            return false
+        }
+        
         guard !isOptedOut else {
             return false
         }
@@ -317,6 +375,13 @@ import Foundation
     
     /// 현재 Queue에 저장되어 있는 이벤트 구조체를 즉시 발송합니다. (수동 처리)
     @objc public func dispatch() -> Bool {
+        guard isInitialize() else {
+            if isUseIntervals {
+                startDispatchTimer()
+            }
+            return false
+        }
+        
         guard !isOptedOut else {
             return false
         }
@@ -396,10 +461,14 @@ import Foundation
             return
         }
         guard !isOptedOut else { return }
+        guard var queue = self.queue else { return }
+        
+        // IBK 여정분석 요청에 따라 큐 사이즈를 200개로 제한 - 2025.02.27
+        // by Kevin.
+        guard queue.size < 200 else { return }
         print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Added queue event!!")
         logger.verbose("Added queue event: \(event)")
         
-        guard var queue = self.queue else { return }
         queue.enqueue(event: event)
         print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Queue Size : \(queue.size)")
     }
@@ -419,7 +488,7 @@ extension TagWorks {
     /// Dictionary 형태의 DataBundle로 파라미터들을 받기 위해 새로 구현 - Added by Kevin 2024.07.22
     @objc public func logEvent(_ type: String, bundle: DataBundle) -> Bool {
         
-        if !isInitialize() {
+        guard isInitialize() else {
             return false
         }
         
@@ -516,6 +585,7 @@ extension TagWorks {
             
             if self.isUseIntervals || isManualDispatch {
                 addQueue(event: event)
+                
             } else {
                 if !dispatchAtOnce(event: event) {
                     logger.debug("dispatchAtOnce is Failed.")

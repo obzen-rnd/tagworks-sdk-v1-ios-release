@@ -5,6 +5,7 @@
 //  Created by Digital on 7/22/24.
 //
 
+import UIKit
 import Foundation
 //import CryptoSwift
 
@@ -34,6 +35,26 @@ final class CommonUtil {
             return version
         }
         return nil
+    }
+    
+    // 화면 크기에 맞춰 비율을 적용하여 높이를 리턴하는 함수
+    public static func calculateHeight(for size: CGSize) -> CGFloat {
+        let screenWidth = UIScreen.main.bounds.width        // 화면 가로 크기
+        let scaleFactor = screenWidth / size.width          // 화면 크기 대비 원본 크기의 가로 비율
+        let calculatedHeight = size.height * scaleFactor    // 높이 계산
+        
+        return calculatedHeight
+    }
+    
+    // 가로, 세로 비율을 고려하여 새로 계산된 세로 값을 리턴하는 함수
+    public static func calculateNewHeight(originalWidth: CGFloat, originalHeight: CGFloat, newWidth: CGFloat) -> CGFloat {
+        // 가로, 세로 비율 계산
+        let aspectRatio = originalHeight / originalWidth
+        
+        // 새 가로 값에 맞는 세로 값 계산
+        let newHeight = newWidth * aspectRatio
+        
+        return newHeight
     }
 }
 

@@ -24,7 +24,9 @@ public final class DefaultDispatcher: Dispatcher {
     public let baseUrl: URL
     
     /// 수집 대상자의 UserAgent 정보입니다.
-    public private(set) var userAgent: String?
+    /// 외부에서 읽을 수는 있지만, 수정은 해당 클래스 내에서만 가능
+//    public private(set) var userAgent: String?
+    public var userAgent: String?
     
     /// 기본 Dispatcher 클래스의 생성자입니다.
     /// - Parameters:
@@ -40,7 +42,8 @@ public final class DefaultDispatcher: Dispatcher {
         self.timeOut = tOut
         self.session = URLSession.shared
         self.baseUrl = baseUrl
-        self.userAgent = userAgent ?? UserAgent(appInfo: AppInfo.getApplicationInfo(), deviceInfo: DeviceInfo.getDeviceInfo()).userAgentString
+//        self.userAgent = userAgent ?? UserAgent(appInfo: AppInfo.getApplicationInfo(), deviceInfo: DeviceInfo.getDeviceInfo()).userAgentString
+        self.userAgent = (userAgent == nil || userAgent == "") ? UserAgent(appInfo: AppInfo.getApplicationInfo(), deviceInfo: DeviceInfo.getDeviceInfo()).userAgentString : userAgent
     }
     
     /// Http Request객체를 생성하여 반환합니다.

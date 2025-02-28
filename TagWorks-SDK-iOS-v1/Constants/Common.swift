@@ -115,4 +115,19 @@ extension Event {
     }
 }
 
+// MARK: TagWorksPopup 에서 사용될 타입들 정의
 
+@objc public class InAppPopupType: NSObject {
+    @objc static public let centerPopup         = 1
+    @objc static public let bottomPopup         = 2
+    @objc static public let pagePopup           = 3
+    @objc static public let topPopup            = 4
+}
+
+@objc public class InAppPopupButtonType: NSObject {
+    @objc static public let none                = 0
+    @objc static public let close               = 1
+    @objc static public let closeAndNoMoreShow  = 2
+    @objc static public let closeAndNoShowToday = 3
+    @objc static public let closeAndNoShowSeven = 4
+}
