@@ -381,7 +381,7 @@ import Foundation
         logger.verbose("Added queue event: \(event)")
         
         queue.enqueue(event: event) {
-            if self.queue?.size == 1 {
+            if self.queue!.size >= 1 && self.dispatchTimer == nil {
                 if self.isUseIntervals && !self.isManualDispatch {
                     self.startDispatchTimer()
                 }
@@ -420,6 +420,9 @@ import Foundation
     
     /// 현재 Queue에 저장되어 있는 이벤트 구조체를 즉시 발송합니다. (수동 처리)
     @objc public func dispatch() -> Bool {
+        
+        self.dispatchTimer = nil
+        
         guard isInitialize() else {
 //            if isUseIntervals && !isManualDispatch {
 //                startDispatchTimer()
