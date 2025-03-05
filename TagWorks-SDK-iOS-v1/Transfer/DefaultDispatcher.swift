@@ -101,7 +101,7 @@ public final class DefaultDispatcher: Dispatcher {
             
             jsonBody = aesJsonBody.data(using: .utf8)!
             
-        } catch  {
+        } catch {
             failure(error)
             return
         }

@@ -31,7 +31,7 @@ final class EventSerializer: Serializer {
         }
     
         let body: [String : [String]]  = ["requests": serializedEvents.map({ "?\($0)" })]
-        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Event Json Data: \(body)")
+//        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Event Json Data: \(body)")
     
         // JSONSerialization.data(withJSONObject:) 함수를 사용하면 안전한 JSON 사용을 위해 '\','\\' 문자가 자동으로 붙어서 인코딩 됨.
         return try JSONSerialization.data(withJSONObject: body, options: [])

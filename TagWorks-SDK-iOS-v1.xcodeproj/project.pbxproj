@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		41FD520D78932C477ACD16AF /* Pods_TagWorks_SDK_iOS_v1Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84B056F3E5612822EB774EB1 /* Pods_TagWorks_SDK_iOS_v1Tests.framework */; };
 		9850EAF42D019BF300701F00 /* Bit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9850EAC82D019BF300701F00 /* Bit.swift */; };
 		9850EAF52D019BF300701F00 /* UInt8+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9850EAEB2D019BF300701F00 /* UInt8+Extension.swift */; };
 		9850EAF62D019BF300701F00 /* BlockCipher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9850EAC92D019BF300701F00 /* BlockCipher.swift */; };
@@ -110,6 +109,7 @@
 		98CE855A2C50F56000245400 /* WebInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98CE85592C50F56000245400 /* WebInterface.swift */; };
 		98CE859E2C523EFB00245400 /* KeychainStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98CE859D2C523EFB00245400 /* KeychainStorage.swift */; };
 		98E268EF2CC0D81600FF8F59 /* libswiftCore.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 98E268EE2CC0D81600FF8F59 /* libswiftCore.tbd */; };
+		B76298E7BD343E6830D70B78 /* Pods_TagWorks_SDK_iOS_v1.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF505ADBD67F63611B20B35A /* Pods_TagWorks_SDK_iOS_v1.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -123,8 +123,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		15ECF5BC388C33C4A63E33A3 /* Pods-TagWorks-SDK-iOS-v1.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TagWorks-SDK-iOS-v1.debug.xcconfig"; path = "Target Support Files/Pods-TagWorks-SDK-iOS-v1/Pods-TagWorks-SDK-iOS-v1.debug.xcconfig"; sourceTree = "<group>"; };
-		84B056F3E5612822EB774EB1 /* Pods_TagWorks_SDK_iOS_v1Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TagWorks_SDK_iOS_v1Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		15ECF5BC388C33C4A63E33A3 /* Pods-TagWorks-SDK-iOS-v1.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TagWorks-SDK-iOS-v1.debug.xcconfig"; path = "../../TagWorks-SDK-iOS-SWIFT-Test/Pods/Target Support Files/Pods-TagWorks-SDK-iOS-v1/Pods-TagWorks-SDK-iOS-v1.debug.xcconfig"; sourceTree = "<group>"; };
 		9850EAA32D019BF300701F00 /* AEAD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEAD.swift; sourceTree = "<group>"; };
 		9850EAA42D019BF300701F00 /* AEADChaCha20Poly1305.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEADChaCha20Poly1305.swift; sourceTree = "<group>"; };
 		9850EAA62D019BF300701F00 /* BlockMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockMode.swift; sourceTree = "<group>"; };
@@ -229,9 +228,7 @@
 		98CE859D2C523EFB00245400 /* KeychainStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainStorage.swift; sourceTree = "<group>"; };
 		98E268EE2CC0D81600FF8F59 /* libswiftCore.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libswiftCore.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk/usr/lib/swift/libswiftCore.tbd; sourceTree = DEVELOPER_DIR; };
 		AF505ADBD67F63611B20B35A /* Pods_TagWorks_SDK_iOS_v1.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TagWorks_SDK_iOS_v1.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		B6855EBDA09FB921D7F768E8 /* Pods-TagWorks-SDK-iOS-v1.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TagWorks-SDK-iOS-v1.release.xcconfig"; path = "Target Support Files/Pods-TagWorks-SDK-iOS-v1/Pods-TagWorks-SDK-iOS-v1.release.xcconfig"; sourceTree = "<group>"; };
-		CA051549958981804EFC2B59 /* Pods-TagWorks-SDK-iOS-v1Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TagWorks-SDK-iOS-v1Tests.debug.xcconfig"; path = "Target Support Files/Pods-TagWorks-SDK-iOS-v1Tests/Pods-TagWorks-SDK-iOS-v1Tests.debug.xcconfig"; sourceTree = "<group>"; };
-		E3B269A53C3C706BFA0BB12D /* Pods-TagWorks-SDK-iOS-v1Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TagWorks-SDK-iOS-v1Tests.release.xcconfig"; path = "Target Support Files/Pods-TagWorks-SDK-iOS-v1Tests/Pods-TagWorks-SDK-iOS-v1Tests.release.xcconfig"; sourceTree = "<group>"; };
+		B6855EBDA09FB921D7F768E8 /* Pods-TagWorks-SDK-iOS-v1.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TagWorks-SDK-iOS-v1.release.xcconfig"; path = "../../TagWorks-SDK-iOS-SWIFT-Test/Pods/Target Support Files/Pods-TagWorks-SDK-iOS-v1/Pods-TagWorks-SDK-iOS-v1.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -240,6 +237,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				98E268EF2CC0D81600FF8F59 /* libswiftCore.tbd in Frameworks */,
+				B76298E7BD343E6830D70B78 /* Pods_TagWorks_SDK_iOS_v1.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -248,7 +246,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				98CE85052C50CD7700245400 /* TagWorks_SDK_iOS_v1.framework in Frameworks */,
-				41FD520D78932C477ACD16AF /* Pods_TagWorks_SDK_iOS_v1Tests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -490,7 +487,6 @@
 			children = (
 				98E268EE2CC0D81600FF8F59 /* libswiftCore.tbd */,
 				AF505ADBD67F63611B20B35A /* Pods_TagWorks_SDK_iOS_v1.framework */,
-				84B056F3E5612822EB774EB1 /* Pods_TagWorks_SDK_iOS_v1Tests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -500,8 +496,6 @@
 			children = (
 				15ECF5BC388C33C4A63E33A3 /* Pods-TagWorks-SDK-iOS-v1.debug.xcconfig */,
 				B6855EBDA09FB921D7F768E8 /* Pods-TagWorks-SDK-iOS-v1.release.xcconfig */,
-				CA051549958981804EFC2B59 /* Pods-TagWorks-SDK-iOS-v1Tests.debug.xcconfig */,
-				E3B269A53C3C706BFA0BB12D /* Pods-TagWorks-SDK-iOS-v1Tests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -543,7 +537,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 98CE85112C50CD7700245400 /* Build configuration list for PBXNativeTarget "TagWorks-SDK-iOS-v1Tests" */;
 			buildPhases = (
-				A66CBEA94CF1125E8A4F5453 /* [CP] Check Pods Manifest.lock */,
 				98CE85002C50CD7700245400 /* Sources */,
 				98CE85012C50CD7700245400 /* Frameworks */,
 				98CE85022C50CD7700245400 /* Resources */,
@@ -629,28 +622,6 @@
 			);
 			outputPaths = (
 				"$(DERIVED_FILE_DIR)/Pods-TagWorks-SDK-iOS-v1-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		A66CBEA94CF1125E8A4F5453 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-TagWorks-SDK-iOS-v1Tests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -916,11 +887,11 @@
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.1.22;
+				CURRENT_PROJECT_VERSION = 1.1.24;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = SD2JH29386;
 				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1.1.23;
+				DYLIB_CURRENT_VERSION = 1.1.24;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
@@ -933,7 +904,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.22;
+				MARKETING_VERSION = 1.1.24;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
 				OTHER_LDFLAGS = "$(inherited)";
@@ -955,11 +926,11 @@
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.1.22;
+				CURRENT_PROJECT_VERSION = 1.1.24;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = SD2JH29386;
 				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1.1.23;
+				DYLIB_CURRENT_VERSION = 1.1.24;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
@@ -972,7 +943,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.22;
+				MARKETING_VERSION = 1.1.24;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
 				OTHER_LDFLAGS = "$(inherited)";
@@ -989,7 +960,6 @@
 		};
 		98CE85122C50CD7700245400 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = CA051549958981804EFC2B59 /* Pods-TagWorks-SDK-iOS-v1Tests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
@@ -1007,7 +977,6 @@
 		};
 		98CE85132C50CD7700245400 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = E3B269A53C3C706BFA0BB12D /* Pods-TagWorks-SDK-iOS-v1Tests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;

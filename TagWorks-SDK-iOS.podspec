@@ -16,7 +16,7 @@ Pod::Spec.new do |spec|
   #
 
   spec.name          = "TagWorks-SDK-iOS"
-  spec.version       = "1.1.23"
+  spec.version       = "1.1.24"
   spec.summary       = "TagWorks SDK for iOS"
   spec.swift_version = "5.0"
 
