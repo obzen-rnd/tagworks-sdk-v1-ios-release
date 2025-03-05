@@ -191,9 +191,6 @@ import Foundation
         self.tagWorksBase = TagWorksBase(suitName: "\(siteId)\(baseUrl.absoluteString)")
         self.contentUrl = URL(string: "APP://\(AppInfo.getApplicationInfo().bundleIdentifier ?? "")/")
 //        self.contentUrl = URL(string: "http://\(AppInfo.getApplicationInfo().bundleIdentifier ?? "")")
-//        if isUseIntervals {
-//            startDispatchTimer()
-//        }
         
         self.webViewInterface.delegate = self
     }
@@ -228,9 +225,6 @@ import Foundation
         self.appName = appName
         self.tagWorksBase = TagWorksBase(suitName: "\(siteId)\(baseUrl.absoluteString)")
         self.contentUrl = URL(string: "APP://\(AppInfo.getApplicationInfo().bundleIdentifier ?? "")/")
-//        if isUseIntervals {
-//            startDispatchTimer()
-//        }
         
         self.webViewInterface.delegate = self
     }
@@ -269,9 +263,6 @@ import Foundation
         self.isUseDynamicParameter = isUseDynamicParameter
         self.tagWorksBase = TagWorksBase(suitName: "\(siteId)\(baseUrl.absoluteString)")
         self.contentUrl = URL(string: "APP://\(AppInfo.getApplicationInfo().bundleIdentifier ?? "")/")
-//        if isUseIntervals {
-//            startDispatchTimer()
-//        }
         
         self.webViewInterface.delegate = self
     }
@@ -310,9 +301,6 @@ import Foundation
         self.isUseDynamicParameter = isUseDynamicParameter
         self.tagWorksBase = TagWorksBase(suitName: "\(siteId)\(baseUrl.absoluteString)")
         self.contentUrl = URL(string: "APP://\(AppInfo.getApplicationInfo().bundleIdentifier ?? "")/")
-//        if isUseIntervals {
-//            startDispatchTimer()
-//        }
         
         self.webViewInterface.delegate = self
     }
@@ -421,12 +409,10 @@ import Foundation
     /// 현재 Queue에 저장되어 있는 이벤트 구조체를 즉시 발송합니다. (수동 처리)
     @objc public func dispatch() -> Bool {
         
+        // 타이머 초기화 (재실행을 위해 필요)
         self.dispatchTimer = nil
         
         guard isInitialize() else {
-//            if isUseIntervals && !isManualDispatch {
-//                startDispatchTimer()
-//            }
             return false
         }
         
@@ -442,9 +428,6 @@ import Foundation
         guard let queue = self.queue, queue.size > 0 else {
             print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Dispatch queue is empty.")
             logger.info("No need to dispatch. Dispatch queue is empty.")
-//            if isUseIntervals && !isManualDispatch {
-//                startDispatchTimer()
-//            }
             return false
         }
         logger.info("Start dispatching events")
@@ -493,9 +476,6 @@ import Foundation
             }, failure: { [weak self] error in
                 guard let self = self else { return }
 //                self.isDispatching = false
-//                if isUseIntervals && !isManualDispatch {
-//                    self.startDispatchTimer()
-//                }
                 
                 retryCount += 1
                 print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] dispatchBatch Send Failed!! - Retry Count: \(self.retryCount) \n")
