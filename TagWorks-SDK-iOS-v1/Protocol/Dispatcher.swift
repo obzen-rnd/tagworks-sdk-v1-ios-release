@@ -11,7 +11,7 @@ import Foundation
 public protocol Dispatcher {
     
     /// 수집 서버 url 주소입니다.
-    var baseUrl: URL { get }
+    var baseUrl: URL? { get }
     
     /// UserAgent 정보입니다.
     var userAgent: String? { get }

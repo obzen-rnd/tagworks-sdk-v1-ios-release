@@ -21,7 +21,7 @@ public final class DefaultDispatcher: Dispatcher {
     private let session: URLSession
     
     /// TagWorks 수집 서버 주소입니다.
-    public let baseUrl: URL
+    public let baseUrl: URL?
     
     /// 수집 대상자의 UserAgent 정보입니다.
     /// 외부에서 읽을 수는 있지만, 수정은 해당 클래스 내에서만 가능
@@ -105,7 +105,7 @@ public final class DefaultDispatcher: Dispatcher {
             failure(error)
             return
         }
-        let request = buildRequest(baseURL: baseUrl, method: "POST", contentType: "application/json; charset=utf-8", body: jsonBody)
+        let request = buildRequest(baseURL: baseUrl!, method: "POST", contentType: "application/json; charset=utf-8", body: jsonBody)
         send(request: request, success: success, failure: failure)
     }
 }

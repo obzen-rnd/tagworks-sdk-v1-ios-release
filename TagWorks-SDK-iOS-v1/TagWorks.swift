@@ -157,7 +157,7 @@ import Foundation
     /// Device의 광고 식별자
     @objc public var deviceIDFA: String?
         
-    
+    @objc public var isDispatchRetry = false
 
     
     // MARK: - 클래스 객체 함수
@@ -477,13 +477,30 @@ import Foundation
                 guard let self = self else { return }
 //                self.isDispatching = false
                 
-                retryCount += 1
-                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] dispatchBatch Send Failed!! - Retry Count: \(self.retryCount) \n")
+                if isDispatchRetry {
+                    retryCount += 1
+                    print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] dispatchBatch Send Failed!! - Retry Count: \(self.retryCount) \n")
                 
-                if retryCount >= 3 {
-                    // 실패가 발생하더라도 (전송 로스 케이스) 큐에서는 이벤트들을 삭제하고 다음 이벤트들을 전송
-                    // IBK 여정분석 요청 - 2025.03.05 by Kevin
-                    retryCount = 0
+                    if retryCount >= 3 {
+                        // 실패가 발생하더라도 (전송 로스 케이스) 큐에서는 이벤트들을 삭제하고 다음 이벤트들을 전송
+                        // IBK 여정분석 요청 - 2025.03.05 by Kevin
+                        retryCount = 0
+                        DispatchQueue.main.async {
+                            queue.remove(events: events, completion: {
+                                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Removed batch of \(events.count) events.")
+                                self.logger.info("Removed batch of \(events.count) events.")
+                                DispatchQueue.main.async {
+                                    self.dispatchBatch()
+                                }
+                            })
+                        }
+                    } else {
+                        DispatchQueue.main.async {
+                            self.dispatchBatch()
+                        }
+                    }
+                } else {
+                    // Retry 사용 안함
                     DispatchQueue.main.async {
                         queue.remove(events: events, completion: {
                             print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Removed batch of \(events.count) events.")
@@ -492,10 +509,6 @@ import Foundation
                                 self.dispatchBatch()
                             }
                         })
-                    }
-                } else {
-                    DispatchQueue.main.async {
-                        self.dispatchBatch()
                     }
                 }
                 
@@ -510,7 +523,7 @@ import Foundation
 extension TagWorks {
     
     @objc public func isInitialize() -> Bool {
-        if self.siteId != nil && self.contentUrl != nil {
+        if self.siteId != nil && self.siteId != "" && self.dispatcher?.baseUrl != nil  {
             return true
         }
         return false
