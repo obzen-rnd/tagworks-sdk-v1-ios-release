@@ -7,6 +7,7 @@
 
 import UIKit
 import Foundation
+import AdSupport
 
 /// TagWorks 클래스는 SDK 모듈내에서 가장 최상위에 존재하는 클래스입니다.
 @objc final public class TagWorks: NSObject {
@@ -95,7 +96,7 @@ import Foundation
     @objc public var appName: String?
     
     /// 수집되는 사용자의 IDFA(광고식별자)
-    @objc public var adId: String?
+    @objc public var adId: String = ASIdentifierManager.shared().advertisingIdentifier.uuidString
     
     // 필수 설정값 end
     //-----------------------------------------
@@ -134,6 +135,7 @@ import Foundation
     /// SDK 디버깅을 위한 로그 출력 플래그
     /// 디폴트는 출력을 하지 않으나, 이슈 발생 시 true로 셋팅 하여 디버깅 로그를 통해 SDK 플로우를 디버깅
     @objc public var isDebugLogPrint: Bool = false
+    @objc public var isDebugLogPost: Bool = false
     
     @objc public var isManualDispatch: Bool = false
     
@@ -614,16 +616,7 @@ extension TagWorks {
                     return false
                 }
             }
-//            else {
-//                let event = Event(tagWorks: self, eventType: eventTagName, pageTitle: eventTagParamTitle, searchKeyword: eventTagParamKeyword, customUserPath: eventTagParamCustomPath, dimensions: eventTagParamDimenstions)
-//                if self.isUseIntervals {
-//                    addQueue(event: event)
-//                } else {
-//                    if !dispatchAtOnce(event: event) {
-//                        logger.debug("dispatchAtOnce is Failed.")
-//                    }
-//                }
-//            }
+
 //            urlReferer: URL(string: "urlref=카카오톡"),
             let event = Event(tagWorks: self, eventType: eventTagName, pageTitle: eventTagParamTitle, searchKeyword: eventTagParamKeyword, customUserPath: eventTagParamCustomPath, dimensions: eventTagParamDimenstions, errorMsg: eventTagParamErrorMsg)
             

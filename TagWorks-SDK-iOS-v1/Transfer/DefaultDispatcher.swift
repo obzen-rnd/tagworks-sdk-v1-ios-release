@@ -93,6 +93,7 @@ public final class DefaultDispatcher: Dispatcher {
         var jsonBody: Data
         do {
             jsonBody = try serializer.toJsonData(for: events)
+            print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Json origin: \(String(data:jsonBody, encoding: .utf8)?.decodeUrl() ?? "")")
             print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Json Body: \(String(data:jsonBody, encoding: .utf8) ?? "")")
             // 취약점 발견으로 인한 암호화 적용
             // ##@ 를 붙이는 이유: 해당 패킷은 AES로 암호화 되어 있다는 표시

@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		981559082D79898B00AA8B9F /* RestApiManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 981559062D79898B00AA8B9F /* RestApiManager.swift */; };
+		981559092D79898B00AA8B9F /* WebViewManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 981559072D79898B00AA8B9F /* WebViewManager.swift */; };
+		9815590B2D79899900AA8B9F /* WebPopupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9815590A2D79899900AA8B9F /* WebPopupViewController.swift */; };
+		9815590D2D7989A600AA8B9F /* TagWorksPopup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9815590C2D7989A600AA8B9F /* TagWorksPopup.swift */; };
+		981559102D79A23C00AA8B9F /* UI+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9815590F2D79A23C00AA8B9F /* UI+Extensions.swift */; };
+		981559122D79B05F00AA8B9F /* WebPopupStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 981559112D79B05F00AA8B9F /* WebPopupStyle.swift */; };
 		9850EAF42D019BF300701F00 /* Bit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9850EAC82D019BF300701F00 /* Bit.swift */; };
 		9850EAF52D019BF300701F00 /* UInt8+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9850EAEB2D019BF300701F00 /* UInt8+Extension.swift */; };
 		9850EAF62D019BF300701F00 /* BlockCipher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9850EAC92D019BF300701F00 /* BlockCipher.swift */; };
@@ -83,6 +89,10 @@
 		9850EB3D2D019BF300701F00 /* Int+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9850EADB2D019BF300701F00 /* Int+Extension.swift */; };
 		9850EB3E2D019BF300701F00 /* NoPadding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9850EADE2D019BF300701F00 /* NoPadding.swift */; };
 		9850EB3F2D019BF300701F00 /* PBKDF2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9850EABE2D019BF300701F00 /* PBKDF2.swift */; };
+		98A273FE2D8BA1AA0072A10C /* DetailWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98A273FD2D8BA1AA0072A10C /* DetailWebViewController.swift */; };
+		98A2740D2D8CFAEF0072A10C /* close_416.png in Resources */ = {isa = PBXBuildFile; fileRef = 98A2740B2D8CFAEF0072A10C /* close_416.png */; };
+		98A2740E2D8CFAEF0072A10C /* close_white_416.png in Resources */ = {isa = PBXBuildFile; fileRef = 98A2740C2D8CFAEF0072A10C /* close_white_416.png */; };
+		98A274102D8D55800072A10C /* DetailWebViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 98A2740F2D8D55800072A10C /* DetailWebViewController.xib */; };
 		98CE84FF2C50CD7700245400 /* TagWorks_SDK_iOS_v1.docc in Sources */ = {isa = PBXBuildFile; fileRef = 98CE84FE2C50CD7700245400 /* TagWorks_SDK_iOS_v1.docc */; };
 		98CE85052C50CD7700245400 /* TagWorks_SDK_iOS_v1.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 98CE84FA2C50CD7700245400 /* TagWorks_SDK_iOS_v1.framework */; };
 		98CE850A2C50CD7700245400 /* TagWorks_SDK_iOS_v1Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98CE85092C50CD7700245400 /* TagWorks_SDK_iOS_v1Tests.swift */; };
@@ -109,7 +119,6 @@
 		98CE855A2C50F56000245400 /* WebInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98CE85592C50F56000245400 /* WebInterface.swift */; };
 		98CE859E2C523EFB00245400 /* KeychainStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98CE859D2C523EFB00245400 /* KeychainStorage.swift */; };
 		98E268EF2CC0D81600FF8F59 /* libswiftCore.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 98E268EE2CC0D81600FF8F59 /* libswiftCore.tbd */; };
-		B76298E7BD343E6830D70B78 /* Pods_TagWorks_SDK_iOS_v1.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF505ADBD67F63611B20B35A /* Pods_TagWorks_SDK_iOS_v1.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -123,7 +132,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		15ECF5BC388C33C4A63E33A3 /* Pods-TagWorks-SDK-iOS-v1.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TagWorks-SDK-iOS-v1.debug.xcconfig"; path = "../../TagWorks-SDK-iOS-SWIFT-Test/Pods/Target Support Files/Pods-TagWorks-SDK-iOS-v1/Pods-TagWorks-SDK-iOS-v1.debug.xcconfig"; sourceTree = "<group>"; };
+		981559062D79898B00AA8B9F /* RestApiManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestApiManager.swift; sourceTree = "<group>"; };
+		981559072D79898B00AA8B9F /* WebViewManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewManager.swift; sourceTree = "<group>"; };
+		9815590A2D79899900AA8B9F /* WebPopupViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebPopupViewController.swift; sourceTree = "<group>"; };
+		9815590C2D7989A600AA8B9F /* TagWorksPopup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagWorksPopup.swift; sourceTree = "<group>"; };
+		9815590F2D79A23C00AA8B9F /* UI+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UI+Extensions.swift"; sourceTree = "<group>"; };
+		981559112D79B05F00AA8B9F /* WebPopupStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebPopupStyle.swift; sourceTree = "<group>"; };
 		9850EAA32D019BF300701F00 /* AEAD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEAD.swift; sourceTree = "<group>"; };
 		9850EAA42D019BF300701F00 /* AEADChaCha20Poly1305.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEADChaCha20Poly1305.swift; sourceTree = "<group>"; };
 		9850EAA62D019BF300701F00 /* BlockMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockMode.swift; sourceTree = "<group>"; };
@@ -200,6 +214,10 @@
 		9850EAF02D019BF300701F00 /* Updatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Updatable.swift; sourceTree = "<group>"; };
 		9850EAF12D019BF300701F00 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		9850EAF22D019BF300701F00 /* ZeroPadding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZeroPadding.swift; sourceTree = "<group>"; };
+		98A273FD2D8BA1AA0072A10C /* DetailWebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailWebViewController.swift; sourceTree = "<group>"; };
+		98A2740B2D8CFAEF0072A10C /* close_416.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = close_416.png; sourceTree = "<group>"; };
+		98A2740C2D8CFAEF0072A10C /* close_white_416.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = close_white_416.png; sourceTree = "<group>"; };
+		98A2740F2D8D55800072A10C /* DetailWebViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DetailWebViewController.xib; sourceTree = "<group>"; };
 		98CE84FA2C50CD7700245400 /* TagWorks_SDK_iOS_v1.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TagWorks_SDK_iOS_v1.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		98CE84FD2C50CD7700245400 /* TagWorks_SDK_iOS_v1.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TagWorks_SDK_iOS_v1.h; sourceTree = "<group>"; };
 		98CE84FE2C50CD7700245400 /* TagWorks_SDK_iOS_v1.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = TagWorks_SDK_iOS_v1.docc; sourceTree = "<group>"; };
@@ -227,8 +245,6 @@
 		98CE85592C50F56000245400 /* WebInterface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebInterface.swift; sourceTree = "<group>"; };
 		98CE859D2C523EFB00245400 /* KeychainStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainStorage.swift; sourceTree = "<group>"; };
 		98E268EE2CC0D81600FF8F59 /* libswiftCore.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libswiftCore.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk/usr/lib/swift/libswiftCore.tbd; sourceTree = DEVELOPER_DIR; };
-		AF505ADBD67F63611B20B35A /* Pods_TagWorks_SDK_iOS_v1.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TagWorks_SDK_iOS_v1.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		B6855EBDA09FB921D7F768E8 /* Pods-TagWorks-SDK-iOS-v1.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TagWorks-SDK-iOS-v1.release.xcconfig"; path = "../../TagWorks-SDK-iOS-SWIFT-Test/Pods/Target Support Files/Pods-TagWorks-SDK-iOS-v1/Pods-TagWorks-SDK-iOS-v1.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -237,7 +253,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				98E268EF2CC0D81600FF8F59 /* libswiftCore.tbd in Frameworks */,
-				B76298E7BD343E6830D70B78 /* Pods_TagWorks_SDK_iOS_v1.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -252,6 +267,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		9815590E2D79A21C00AA8B9F /* Extension */ = {
+			isa = PBXGroup;
+			children = (
+				9815590F2D79A23C00AA8B9F /* UI+Extensions.swift */,
+			);
+			path = Extension;
+			sourceTree = "<group>";
+		};
 		9850EAA52D019BF300701F00 /* AEAD */ = {
 			isa = PBXGroup;
 			children = (
@@ -370,8 +393,19 @@
 		9857C9222D6D7B0A009F3DE1 /* Manager */ = {
 			isa = PBXGroup;
 			children = (
+				981559062D79898B00AA8B9F /* RestApiManager.swift */,
+				981559072D79898B00AA8B9F /* WebViewManager.swift */,
 			);
 			path = Manager;
+			sourceTree = "<group>";
+		};
+		98A2740A2D8CFA9B0072A10C /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				98A2740B2D8CFAEF0072A10C /* close_416.png */,
+				98A2740C2D8CFAEF0072A10C /* close_white_416.png */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		98CE84F02C50CD7700245400 = {
@@ -399,7 +433,10 @@
 			children = (
 				98CE85142C50CDF400245400 /* TagWorks.swift */,
 				98CE852B2C50CDF500245400 /* TagWorksBase.swift */,
+				9815590C2D7989A600AA8B9F /* TagWorksPopup.swift */,
+				98A2740A2D8CFA9B0072A10C /* Resources */,
 				98CE85192C50CDF500245400 /* Constants */,
+				9815590E2D79A21C00AA8B9F /* Extension */,
 				9857C9222D6D7B0A009F3DE1 /* Manager */,
 				98CE852A2C50CDF500245400 /* Data */,
 				98CE85232C50CDF500245400 /* Protocol */,
@@ -478,6 +515,10 @@
 		98F1CCE72D64672600291C05 /* Popup */ = {
 			isa = PBXGroup;
 			children = (
+				981559112D79B05F00AA8B9F /* WebPopupStyle.swift */,
+				9815590A2D79899900AA8B9F /* WebPopupViewController.swift */,
+				98A273FD2D8BA1AA0072A10C /* DetailWebViewController.swift */,
+				98A2740F2D8D55800072A10C /* DetailWebViewController.xib */,
 			);
 			path = Popup;
 			sourceTree = "<group>";
@@ -486,7 +527,6 @@
 			isa = PBXGroup;
 			children = (
 				98E268EE2CC0D81600FF8F59 /* libswiftCore.tbd */,
-				AF505ADBD67F63611B20B35A /* Pods_TagWorks_SDK_iOS_v1.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -494,8 +534,6 @@
 		BFC53D2F2F2104D70E1C829E /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				15ECF5BC388C33C4A63E33A3 /* Pods-TagWorks-SDK-iOS-v1.debug.xcconfig */,
-				B6855EBDA09FB921D7F768E8 /* Pods-TagWorks-SDK-iOS-v1.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -518,7 +556,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 98CE850E2C50CD7700245400 /* Build configuration list for PBXNativeTarget "TagWorks-SDK-iOS-v1" */;
 			buildPhases = (
-				591B440BC72C82115F15B79C /* [CP] Check Pods Manifest.lock */,
 				98CE84F52C50CD7700245400 /* Headers */,
 				98CE84F62C50CD7700245400 /* Sources */,
 				98CE84F72C50CD7700245400 /* Frameworks */,
@@ -593,6 +630,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				98A2740D2D8CFAEF0072A10C /* close_416.png in Resources */,
+				98A274102D8D55800072A10C /* DetailWebViewController.xib in Resources */,
+				98A2740E2D8CFAEF0072A10C /* close_white_416.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -604,31 +644,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		591B440BC72C82115F15B79C /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-TagWorks-SDK-iOS-v1-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		98CE84F62C50CD7700245400 /* Sources */ = {
@@ -647,6 +662,7 @@
 				9850EAF92D019BF300701F00 /* Generics.swift in Sources */,
 				9850EAFA2D019BF300701F00 /* BlockMode.swift in Sources */,
 				9850EAFB2D019BF300701F00 /* Collection+Extension.swift in Sources */,
+				981559102D79A23C00AA8B9F /* UI+Extensions.swift in Sources */,
 				9850EAFC2D019BF300701F00 /* Utils.swift in Sources */,
 				9850EAFD2D019BF300701F00 /* BatchedCollection.swift in Sources */,
 				9850EAFE2D019BF300701F00 /* AEADChaCha20Poly1305.swift in Sources */,
@@ -657,6 +673,7 @@
 				9850EB032D019BF300701F00 /* PKCS7.swift in Sources */,
 				9850EB042D019BF300701F00 /* AES.Cryptors.swift in Sources */,
 				9850EB052D019BF300701F00 /* Authenticator.swift in Sources */,
+				9815590D2D7989A600AA8B9F /* TagWorksPopup.swift in Sources */,
 				9850EB062D019BF300701F00 /* CBC.swift in Sources */,
 				9850EB072D019BF300701F00 /* StreamEncryptor.swift in Sources */,
 				9850EB082D019BF300701F00 /* Rabbit.swift in Sources */,
@@ -670,6 +687,8 @@
 				9850EB102D019BF300701F00 /* ChaCha20+Foundation.swift in Sources */,
 				9850EB112D019BF300701F00 /* CBCMAC.swift in Sources */,
 				9850EB122D019BF300701F00 /* Updatable.swift in Sources */,
+				981559082D79898B00AA8B9F /* RestApiManager.swift in Sources */,
+				981559092D79898B00AA8B9F /* WebViewManager.swift in Sources */,
 				9850EB132D019BF300701F00 /* OCB.swift in Sources */,
 				9850EB142D019BF300701F00 /* BlockModeOptions.swift in Sources */,
 				9850EB152D019BF300701F00 /* Data+Extension.swift in Sources */,
@@ -696,6 +715,7 @@
 				9850EB2A2D019BF300701F00 /* PKCS7Padding.swift in Sources */,
 				9850EB2B2D019BF300701F00 /* BlockEncryptor.swift in Sources */,
 				9850EB2C2D019BF300701F00 /* GCM.swift in Sources */,
+				981559122D79B05F00AA8B9F /* WebPopupStyle.swift in Sources */,
 				9850EB2D2D019BF300701F00 /* Blowfish.swift in Sources */,
 				9850EB2E2D019BF300701F00 /* CipherModeWorker.swift in Sources */,
 				9850EB2F2D019BF300701F00 /* StreamDecryptor.swift in Sources */,
@@ -714,6 +734,7 @@
 				9850EB3C2D019BF300701F00 /* Digest.swift in Sources */,
 				9850EB3D2D019BF300701F00 /* Int+Extension.swift in Sources */,
 				9850EB3E2D019BF300701F00 /* NoPadding.swift in Sources */,
+				98A273FE2D8BA1AA0072A10C /* DetailWebViewController.swift in Sources */,
 				9850EB3F2D019BF300701F00 /* PBKDF2.swift in Sources */,
 				98CE853D2C50CDF500245400 /* UserAgent.swift in Sources */,
 				98CE85372C50CDF500245400 /* Serializer.swift in Sources */,
@@ -721,6 +742,7 @@
 				98CE85312C50CDF500245400 /* DefaultLogger.swift in Sources */,
 				98CE853B2C50CDF500245400 /* Dimension.swift in Sources */,
 				98CE85342C50CDF500245400 /* Dispatcher.swift in Sources */,
+				9815590B2D79899900AA8B9F /* WebPopupViewController.swift in Sources */,
 				98CE853A2C50CDF500245400 /* DeviceInfo.swift in Sources */,
 				98CE84FF2C50CD7700245400 /* TagWorks_SDK_iOS_v1.docc in Sources */,
 				98CE853C2C50CDF500245400 /* Event.swift in Sources */,
@@ -882,16 +904,15 @@
 		};
 		98CE850F2C50CD7700245400 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 15ECF5BC388C33C4A63E33A3 /* Pods-TagWorks-SDK-iOS-v1.debug.xcconfig */;
 			buildSettings = {
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.1.24;
+				CURRENT_PROJECT_VERSION = 1.1.25;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = SD2JH29386;
 				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1.1.24;
+				DYLIB_CURRENT_VERSION = 1.1.25;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
@@ -904,7 +925,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.24;
+				MARKETING_VERSION = 1.1.25;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
 				OTHER_LDFLAGS = "$(inherited)";
@@ -921,16 +942,15 @@
 		};
 		98CE85102C50CD7700245400 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = B6855EBDA09FB921D7F768E8 /* Pods-TagWorks-SDK-iOS-v1.release.xcconfig */;
 			buildSettings = {
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.1.24;
+				CURRENT_PROJECT_VERSION = 1.1.25;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = SD2JH29386;
 				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1.1.24;
+				DYLIB_CURRENT_VERSION = 1.1.25;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
@@ -943,7 +963,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.24;
+				MARKETING_VERSION = 1.1.25;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
 				OTHER_LDFLAGS = "$(inherited)";

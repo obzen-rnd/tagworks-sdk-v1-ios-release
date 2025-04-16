@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="DetailWebViewController" customModule="TagWorks_SDK_iOS_v1" customModuleProvider="target">
+            <connections>
+                <outlet property="loadingIndicator" destination="4Hf-Eo-l8M" id="X2s-ac-sMr"/>
+                <outlet property="view" destination="yvk-1u-qN6" id="pQ9-7H-Hy6"/>
+                <outlet property="webViewContainerView" destination="2ff-Zy-j94" id="Y0Y-dV-Cb9"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="yvk-1u-qN6">
+            <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="2ff-Zy-j94">
+                    <rect key="frame" x="0.0" y="59" width="393" height="759"/>
+                    <subviews>
+                        <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="4Hf-Eo-l8M">
+                            <rect key="frame" x="186" y="369" width="20" height="20"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        </activityIndicatorView>
+                    </subviews>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                </view>
+            </subviews>
+            <viewLayoutGuide key="safeArea" id="IyO-6X-u9o"/>
+            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+            <constraints>
+                <constraint firstItem="2ff-Zy-j94" firstAttribute="trailing" secondItem="IyO-6X-u9o" secondAttribute="trailing" id="DqD-w0-MB4"/>
+                <constraint firstItem="2ff-Zy-j94" firstAttribute="top" secondItem="IyO-6X-u9o" secondAttribute="top" id="QRh-YU-ipI"/>
+                <constraint firstItem="2ff-Zy-j94" firstAttribute="bottom" secondItem="IyO-6X-u9o" secondAttribute="bottom" id="jpr-hz-stz"/>
+                <constraint firstItem="2ff-Zy-j94" firstAttribute="leading" secondItem="IyO-6X-u9o" secondAttribute="leading" id="wgP-I4-ZwS"/>
+            </constraints>
+            <point key="canvasLocation" x="216" y="150"/>
+        </view>
+    </objects>
+    <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>

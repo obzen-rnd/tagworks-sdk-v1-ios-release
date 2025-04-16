@@ -47,7 +47,7 @@ final class CommonUtil {
     }
     
     // 가로, 세로 비율을 고려하여 새로 계산된 세로 값을 리턴하는 함수
-    public static func calculateNewHeight(originalWidth: CGFloat, originalHeight: CGFloat, newWidth: CGFloat) -> CGFloat {
+    static func calculateNewHeight(originalWidth: CGFloat, originalHeight: CGFloat, newWidth: CGFloat) -> CGFloat {
         // 가로, 세로 비율 계산
         let aspectRatio = originalHeight / originalWidth
         
@@ -55,6 +55,84 @@ final class CommonUtil {
         let newHeight = newWidth * aspectRatio
         
         return newHeight
+    }
+    
+    // 화면의 넓이에 맞춰 폰트 크기를 계산하는 함수
+    static func getRatioFontSize(originWidth: CGFloat, originFontSize: CGFloat, viewWidth: CGFloat? = nil) -> CGFloat {
+        let baseWidth: CGFloat = originWidth // 기준 넓이
+        let baseFontSize: CGFloat = originFontSize // 기준 폰트 크기
+        
+        let currentWidth: CGFloat = viewWidth == nil ? UIScreen.main.bounds.width : viewWidth! // 현재 화면 넓이
+        
+        // 비율에 맞춰 폰트 크기 계산
+        let fontSize = baseFontSize * (currentWidth / baseWidth)
+        
+        return fontSize
+    }
+    
+    // 현재 날짜를 가져오는 함수
+    static func getCurrentDateTime() -> Date {
+        return Date()
+    }
+    
+    static func dateToString(_ date: Date) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"  // 날짜 형식 설정
+        return dateFormatter.string(from: date)
+    }
+    
+    static func stringToDate(_ string: String) -> Date? {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        return dateFormatter.date(from: string)
+    }
+    
+    // 현재 시간에 설정한 딜레이 시간(초)를 더한 시간을 리턴
+    static func addedDelaySeconds(seconds: Int) -> Date {
+        let currentDate = Date() // 현재 날짜 및 시간
+        let calendar = Calendar.current
+        let addedSeconds = calendar.date(byAdding: .second, value: seconds, to: currentDate)
+        return addedSeconds!
+    }
+    
+    // 현재 시간에 설정한 딜레이 시간(일)를 더한 시간을 리턴
+    static func addedDelayDays(days: Int) -> Date {
+        let currentDate = Date() // 현재 날짜 및 시간
+        let calendar = Calendar.current
+        let addedSeconds = calendar.date(byAdding: .day, value: days, to: currentDate)
+        return addedSeconds!
+    }
+    
+    // 지정한 초 이상 경과 여부 체크
+    static func isSecondsPassed(from time: Date, seconds: TimeInterval) -> Bool {
+        let currentDate = Date() // 현재 날짜 및 시간
+        let timeInterval = currentDate.timeIntervalSince(time) // 지정된 시간과 현재 시간의 차이 (초 단위)
+        
+        return timeInterval >= seconds // 지정 초 이상 경과했으면 true, 그렇지 않으면 false
+    }
+    
+    // 오늘 날짜인지 여부 체크
+    static func isDateToday(_ date: Date) -> Bool {
+        let calendar = Calendar.current
+        return calendar.isDateInToday(date)
+    }
+    
+    // 두 날짜가 동일한 날인지, 아니면 다음 날인지 확인하는 함수
+    static func isNextDay(from previousDate: Date, nextDays: Int) -> Bool {
+        let currentDate = Date()            // 현재 날짜 및 시간
+        let calendar = Calendar.current
+        
+        // 날짜가 같다면 (하루가 지나지 않았다면) false
+        if calendar.isDate(previousDate, inSameDayAs: currentDate) {
+            return false
+        }
+        
+        // 날짜가 다르고, 하루 차이 나는 경우 (다음 날로 변경)
+        if calendar.dateComponents([.day], from: previousDate, to: currentDate).day! > nextDays {
+            return true
+        }
+        
+        return false
     }
 }
 
@@ -80,7 +158,7 @@ extension String {
         let escapedString = self.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
         return escapedString
     }
-    func decodeUrl() -> String? {
+    public func decodeUrl() -> String? {
         return self.removingPercentEncoding
     }
     

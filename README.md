@@ -1,35 +1,76 @@
-<img src="https://capsule-render.vercel.app/api?type=Waving&color=04FFF0&height=150&section=header&text=TagWorks-SDK-iOS&fontSize=45" />
 
-![Generic badge](https://img.shields.io/badge/version-v1.1.22-green.svg)
+<div>
+
+<br><br><br><br><br><br><br><br><br>
+
+<p align="center">
+  <strong style="font-size: 40px;">TagWorks SDK iOS</strong>
+  <br><br>
+  <span style="font-size: 24px;">개발자 메뉴얼</span>
+  <br><br>
+  <br><br>
+  ver. 1.1.25
+</p>
+
+
+
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+
+<p align="center">
+  © obzen Inc.<br>
+  All rights reserved.
+</p>
+
+<br><br><br>
+
+</div>
+
+<div style="page-break-after: always;"></div>
+
+![TagWorks SDK iOS](https://capsule-render.vercel.app/api?type=Soft&color=gradient&height=150&section=header&text=TagWorks-SDK-iOS&fontSize=50&animation=fadeOut)
+
+![Generic badge](https://img.shields.io/badge/version-v1.1.25-green.svg)
 ![Generic badge](https://img.shields.io/badge/license-ApacheLicense2.0-blue.svg)
 ![Generic badge](https://img.shields.io/badge/Platform-iOS-red.svg)
 ![Generic badge](https://img.shields.io/badge/support-swift-yellow.svg)
 ![Generic badge](https://img.shields.io/badge/support-objective--c-yellow.svg)
 
+<br>
+
+
+
 ## 목차
-- [목차](#목차)
-- [Requirements](#requirements)
-- [Installation](#installation)
-  - [CocoaPods](#cocoapods)
-  - [SPM](#spm)
-  - [직접 설치](#직접-설치)
-- [SDK 설정](#sdk-설정)
-- [사용자 설정](#사용자-설정)
-- [데이터 구성](#데이터-구성)
-  - [Dimension](#dimension)
-  - [공용 Dimension](#공용-dimension)
-    - [Dimension 추가](#dimension-추가)
-    - [Dimension 가져오기](#dimension-가져오기)
-    - [Dimension 삭제](#dimension-삭제)
-  - [DataBundle](#databundle)
-    - [DataBundle 객체의 key 값으로 사용 가능한 파라미터](#databundle-객체의-key-값으로-사용-가능한-파라미터)
-    - [EVENT\_TAG\_NAME 에 대응하는 값으로 사용할 수 있는 Standard 태그](#event_tag_name-에-대응하는-값으로-사용할-수-있는-standard-태그)
-- [로그 전송](#로그-전송)
-- [Web View 연동](#web-view-연동)
-- [딥링크 (유입 경로 추적)](#딥링크-유입-경로-추적)
+- [Mobile Tag 수집](#mobile-tag-수집)
+  - [Requirements](#requirements)
+  - [Installation](#installation)
+    - [CocoaPods](#cocoapods)
+    - [SPM](#spm)
+    - [직접 설치](#직접-설치)
+  - [SDK 설정](#sdk-설정)
+  - [사용자 설정](#사용자-설정)
+  - [데이터 구성](#데이터-구성)
+    - [Dimension](#dimension)
+    - [공용 Dimension](#공용-dimension)
+      - [Dimension 추가](#dimension-추가)
+      - [Dimension 가져오기](#dimension-가져오기)
+      - [Dimension 삭제](#dimension-삭제)
+    - [DataBundle](#databundle)
+      - [DataBundle 객체의 key 값으로 사용 가능한 파라미터](#databundle-객체의-key-값으로-사용-가능한-파라미터)
+      - [EVENT\_TAG\_NAME 에 대응하는 값으로 사용할 수 있는 Standard 태그](#event_tag_name-에-대응하는-값으로-사용할-수-있는-standard-태그)
+  - [로그 전송](#로그-전송)
+  - [Web View 연동](#web-view-연동)
+  - [딥링크 (유입 경로 추적)](#딥링크-유입-경로-추적)
+- [InAppMessage](#inappmessage)
+  - [onCMS Popup](#oncms-popup)
+    - [onCMS Popup을 노출하기 위해 필요한 파라미터](#oncms-popup을-노출하기-위해-필요한-파라미터)
+  - [onCMS Banner](#oncms-banner)
+    - [onCMS Banner를 노출하기 위해 필요한 파라미터](#oncms-banner를-노출하기-위해-필요한-파라미터)
+      - [주의 사항](#주의-사항)
 
 <br>
-<br>
+<div style="page-break-after: always;"></div>
+
+# Mobile Tag 수집
 
 ## Requirements
 
@@ -154,11 +195,12 @@ import TagWorks_SDK_iOS_v1
 TagWorks.sharedInstance.setInstanceConfig(siteId: "00,AAAAAAAA",
                                           baseUrl: URL(string: "http://obzen.com/obzenTagWorks")!,
                                           isUseIntervals: false,
-                                          dispatchInterval: 5,
-                                          sessionTimeOut: 5,
+                                          dispatchIntervalWithSeconds: 5,
+                                          sessionTimeOutWithSeconds: 5,
                                           userAgent: nil,
-                                          appVersion: "1.1.0",
-                                          appName: "obzen App",
+                                          isManualDispatch: false,
+                                          appVersion: "앱 버전",
+                                          appName: "앱 이름",
                                           isUseDynamicParameter: true)
 
 //
@@ -168,6 +210,14 @@ TagWorks.sharedInstance.setInstanceConfig(siteId: "00,AAAAAAAA",
 func sceneWillResignActive(_ scene: UIScene) {
     // 어플리케이션이 background 상태 진입시 태깅 큐에 남아있는 데이터 모두 전송
     TagWorks.sharedInstance.dispatch()
+}
+```
+
+ - TagWorks 초기화 상태 여부 체크
+```swift
+if TagWorks.sharedInstance.isInitialize() == false {
+    // 초기화가 정상적으로 이루어지지 않은 상태
+    // 예외 처리 코드 추가
 }
 ```
 
@@ -193,8 +243,8 @@ TagWorks *tagWorksInstance = TagWorks.sharedInstance;
 [tagWorksInstance setInstanceConfigWithSiteId:@"00,AAAAAAAA"
                                       baseUrl:[NSURL URLWithString:@"http://obzen.com/obzenTagWorks"]
                                isUseIntervals:NO
-                             dispatchInterval:5
-                               sessionTimeOut:5
+                  dispatchIntervalWithSeconds:5
+                    sessionTimeOutWithSeconds:5
                                     userAgent:nil
                                    appVersion:@"1.1.0"
                                       appName:@"obzen APP"
@@ -210,6 +260,14 @@ TagWorks *tagWorksInstance = TagWorks.sharedInstance;
     [tagWorksInstance dispatch];
 }
 ```
+- TagWorks 초기화 상태 여부 체크
+```swift
+if (TagWorks.sharedInstance.isInitialize == false) {
+    // 초기화가 정상적으로 이루어지지 않은 상태
+    // 예외 처리 코드 추가
+}
+```
+
 <br>
 <br>
 
@@ -348,7 +406,7 @@ TagWorks.sharedInstance.setCommonDimension(index: 3, value: "설정정보02")   
 TagWorks.sharedInstance.setCommonDimension(index: 4, numValue: 10000.0)       // 숫자형
 ```
 ```swift
-// # set (객체, Array, Dimension index 및 value 가능)
+// # set (객체, Array, Dimension key 및 value 가능)
 // 동적 파라미터 key 값을 사용하여 설정 (SDK 초기화 설정 시 isUseDynamicParameter를 true로 설정한 경우 사용)
 let dim01 = Dimension(key: "사용자행동01", value: "설정정보01")
 let dim02 = Dimension(key: "사용자행동02", numValue: 99999.0)
@@ -400,8 +458,8 @@ Dimension *dim02 = [[Dimension alloc] initWithKey: @"사용자행동02" numValue
 > Swift
 
 ```swift
-// 타입과 index를 사용하여 가져오기 (SDK 초기화 설정 시 isUseDynamicParameter를 설정하지 않거나 false로 설정한 경우 사용)
 // # get - Dimension Array return
+// 타입과 index를 사용하여 가져오기 (SDK 초기화 설정 시 isUseDynamicParameter를 설정하지 않거나 false로 설정한 경우 사용)
 let commonDimension = TagWorks.sharedInstance.getCommonDimensions()
 
 // # get - Dimension 객체 return
@@ -503,6 +561,7 @@ TagWorks.sharedInstance.removeDynamicCommonDimension(key: "사용자행동01")
 -   태깅 로그를 전송 하기 위해 필요한 정보들을 담는 클래스로 기본 파라미터 및 Dimension 정보를 쉽게 관리할 수 있습니다.
 -   DataBundle 클래스는 key와 value의 집합으로 구성된 컨테이너입니다.
 -   태그명 Key에 대응하는 값으로는 DataBundle 클래스가 제공하는 기본 태그 값을 사용하거나, 사용자 정의 String 값을 직접 입력할 수 있습니다.
+-   <mark>기본적으로 EVENT_TAG_NAME 값을 설정하지 않는 경우, 로그 전송이 이루어지지 않습니다.</mark>
 -   putDimensions() 또는 putDynamicDimension() 메소드를 이용하여 Dimension 객체를 DataBundle 내부에 추가하여 개별 디멘젼으로 사용할 수 있습니다.
     <br>
     <br>
@@ -567,9 +626,10 @@ bundle02.putString(DataBundle.EVENT_TAG_PARAM_TITLE, "화면타이틀02")
 ```
 
 ```swift
-// # DataBundle에 저장할 Dimension 설정
-// ===================================================================================================
-// 타입과 index를 사용하여 Dimension 설정 (SDK 초기화 설정 시 isUseDynamicParameter를 설정하지 않거나 false로 설정한 경우 사용)
+// # DataBundle에 저장할 개별 디멘젼 설정
+//
+// 방법 1. 타입과 index를 이용한 개별 디멘젼 설정 (SDK 초기화 설정 시 isUseDynamicParameter를 설정하지 않거나 false로 설정한 경우 사용)
+//
 
 let dim01 = Dimension(index: 1, value: "설정정보01")
 let dim02 = Dimension(index: 2, numValue: 10000.0)
@@ -587,8 +647,9 @@ bundle.removeAllDimension()                                         // 전체 �
 bundle.removeDimension(WithType: Dimension.generalType, index: 1)   // 해당 타입 index의 Dimension 삭제
 
 
-//===================================================================================================
-// 동적 파라미터 key 값을 사용하여 Dimension 설정 (SDK 초기화 설정 시 isUseDynamicParameter를 true로 설정한 경우 사용)
+//
+// 방법 2. 동적 파라미터 key 값을 이용한 개별 디멘젼 설정 (SDK 초기화 설정 시 isUseDynamicParameter를 true로 설정한 경우 사용)
+//
 let dim01 = Dimension(key: "사용자행동01", value: "설정정보01")
 let dim02 = Dimension(key: "사용자행동02", numValue: 10000.0)
 
@@ -641,9 +702,9 @@ DataBundle *bundle02 = [[DataBundle alloc] init: bundle];
 
 ```swift
 // # DataBundle에 저장할 Dimension 설정
-//==============================================================================================================
-// 타입과 index를 사용하여 Dimension 설정 (SDK 초기화 설정 시 isUseDynamicParameter를 설정하지 않거나 false로 설정한 경우 사용)
-
+//
+// 방법 1. 타입과 index를 이용한 개별 디멘젼 설정 (SDK 초기화 설정 시 isUseDynamicParameter를 설정하지 않거나 false로 설정한 경우 사용)
+//
 Dimension *dim01 = [[Dimension alloc] initWithIndex:1 value:@"설정정보01"];       
 Dimension *dim02 = [[Dimension alloc] initWithIndex:2 numValue:10000.0];
 
@@ -660,9 +721,9 @@ Dimension *dimension = [bundle getDimensionWithType:Dimension.generalType index:
 [bundle removeDimensionWithType:Dimension.generalType index: 1];     // 해당 타입 index의 Dimension 삭제
 
 
-//==============================================================================================================
-// 동적 파라미터 key 값을 사용하여 Dimension 설정 (SDK 초기화 설정 시 isUseDynamicParameter를 true로 설정한 경우 사용)
-
+//
+// 방법 2. 동적 파라미터 key 값을 이용한 개별 디멘젼 설정 (SDK 초기화 설정 시 isUseDynamicParameter를 true로 설정한 경우 사용)
+//
 Dimension *dim01 = [[Dimension alloc] initWithKey:@"사용자행동01" value:@"설정정보01"];
 Dimension *dim02 = [[Dimension alloc] initWithKey:@"사용자행동02" numValue:10000.0];
 
@@ -685,8 +746,8 @@ Dimension *dimension = [bundle getDynamicDimensionWithKey:@"사용자행동01"];
 ## 로그 전송
 
 -   logEvent 함수를 호출하여 로그를 전송합니다.
--   로그 타입에는 페이지뷰, 사용자 태그 두 가지 타입이 존재합니다.
--   <mark>기본적으로 EVENT_TAG_NAME 값을 설정하지 않는 경우, 태깅 로그 전송이 이루어지지 않습니다.</mark>
+-   <mark>기본적으로 EVENT_TAG_NAME 값을 설정하지 않는 경우, 수집 로그 전송이 이루어지지 않습니다.</mark>
+-   로그 타입에는 페이지뷰 태그, 사용자 태그 두 가지 타입이 존재합니다.
 -   로그 타입이 TagWorks.EVENT_TYPE_PAGE 인 경우
     -   `EVENT_TAG_NAME 값이 StandardEvent.PAGE_VIEW 인 경우, EVENT_TAG_PARAM_PAGE_PATH 값은 필수 파라미터입니다.`
 -   로그 타입이 TagWorks.EVENT_TYPE_USER_EVENT 인 경우
@@ -739,7 +800,7 @@ DataBundle *bundle = [[DataBundle alloc] init];
 ## Web View 연동
 
 -   Web / App 연동을 위한 interface 를 제공합니다.
--   앱에서 Tag Manager Code Snippet 이 포함된 웹뷰를 실행하면, 웹뷰에서 발생된 태깅은 SDK를 통하여 앱으로 전송됩니다.
+-   앱에서 Tag Manager Code Snippet 이 포함된 웹뷰를 실행하면, 웹뷰에서 발생된 태깅 로그는 SDK를 통하여 앱으로 전송됩니다.
 -   WKWebViewConfiguration 설정 이외의 다른 설정은 필요하지 않습니다.
 -   로그인 시 사용자 맵핑을 위해 로그인 시점에 userId 설정하는 부분과 App에서 설정한 Dimension 값을 WebView에서 사용하기 위해 쿠키를<br>
 설정하는 부분에 있어 부분적인 대응 개발이 필요할 수 있습니다.
@@ -801,4 +862,84 @@ TagWorks.sharedInstance.sendReferrerEvent(openURL: <referrer url>)
 > **Objective-C**
 ```obj-c
 [TagWorks.sharedInstance sendReferrerEventWithOpenURL: <referrer url>];
+```
+
+<br>
+<br>
+
+# InAppMessage 
+
+## onCMS Popup
+- onCMS 연동을 통해 앱 내 팝업을 노출할 수 있습니다.
+- onCMS 추천 영역 설정을 통해 가운데 팝업, 하단 슬라이드 팝업, 전체 페이지 팝업 형태로 노출 가능합니다.
+  
+### onCMS Popup을 노출하기 위해 필요한 파라미터
+
+| 파라미터                        | 타입    | 설명                                                 |
+| ----------------------------- | ------ | --------------------------------------------------- |
+| onCMSUrl                      | String | 고객사에 설치된 onCMS 서버 URL (예: "https://lab.obzen.com/oncms")     |
+| cust_id                       | String | 고객 번호                                             |
+| rcmd_area_cd                  | String | 추천 영역 코드                                         |
+| viewController 객체            | 객체 포인터 | 팝업을 띄우기 위한 현재 ViewController의 객체 포인터       |
+|                                                                                              |
+
+> **Swift**
+
+```swift
+// onCMS InAppMessage 호출
+TagWorksPopup.sharedInstance.onCMSPopup
+                    (onCmsUrl: "https://onCMSUrl", 
+                    cust_id: "고객번호", 
+                    rcmd_area_cd: "추천영역코드", 
+                    owner: self)
+```
+> **Objective-C**
+```obj-c
+// onCMS InAppMessage 호출
+[TagWorksPopup.sharedInstance onCMSPopupOnCmsUrl: @"https://onCMSUrl" 
+                                         cust_id: @"고객번호" 
+                                    rcmd_area_cd: @"추천영역코드" 
+                                           owner: self];
+```
+
+## onCMS Banner
+- onCMS 연동을 통해 앱 내 설정한 네이티브 영역에 배너를 노출할 수 있습니다.
+- onCMS 추천 영역 설정을 통해 단일 배너, 롤링 배너, 리스트 배너 형태로 노출 가능합니다.
+  
+### onCMS Banner를 노출하기 위해 필요한 파라미터
+
+| 파라미터                        | 타입     | 설명                                                 |
+| ----------------------------- | ------ | --------------------------------------------------- |
+| onCmsUrl                      | String | 고객사에 설치된 onCMS 서버 URL (예: "https://lab.obzen.com/oncms")     |
+| cust_id                       | String | 고객 번호                                             |
+| rcmd_area_cd                  | String | 추천 영역 코드                                         |
+| bannerView                    | 객체 포인터 | 배너를 노출하기 위한 UIView 영역의 객체 포인터             |
+| defaultPngImageName           | String | 로딩되기 전에 보여줄 디폴트 PNG 이미지 (Asset에 추가된 이미지가 아닌 프로젝트에 파일로 추가) |
+|                                                                                              |
+
+#### 주의 사항
+> [!CAUTION]
+`defaultPngImageName`을 지정하지 않으면 로딩 전 빈 화면이 노출될 수 있습니다.
+
+<br>
+
+> **Swift**
+
+```swift
+// onCMS InAppMessage 호출
+TagWorksPopup.sharedInstance.onCMSPopupBanner(
+                    onCmsUrl: "https://onCMSUrl",
+                    cust_id: "고객번호",
+                    rcmd_area_cd: "추천영역코드",
+                    bannerView: bannerView,
+                    defaultPngImageName: "default_image")
+```
+> **Objective-C**
+```obj-c
+// onCMS InAppMessage 호출
+[TagWorksPopup.sharedInstance onCMSPopupBannerOnCmsUrl: @"https://onCMSUrl"
+                                               cust_id: @"고객번호"
+                                          rcmd_area_cd: @"추천영역코드"
+                                            bannerView: bannerView
+                                   defaultPngImageName: @"default_image"];
 ```
