@@ -10,31 +10,33 @@ import UIKit
 import WebKit
 
 @objc final public class TagWorksPopup: NSObject {
-
+    
     // MARK: - 싱글톤 객체 생성 및 반환
     @objc static public let sharedInstance = TagWorksPopup()
-
+    
     private override init() {
         super.init()
     }
-
+    
     private var popupViewController: UIViewController?
     private var currentViewController: UIViewController?
     private var detailWebViewController: DetailWebViewController?
     private var isPopupAnimating = false
     
     private var bannerView: UIView?
-    private var defaultWebView = WKWebView()
-    private var onCMSBannerWebView = WKWebView()
+//    private var defaultWebView = WKWebView()
+//    private var onCMSBannerWebView = WKWebView()
+    private var defaultWebView: WKWebView?
+    private var onCMSBannerWebView: WKWebView?
     private var webViewManager: WebViewManager!
-
+    
     // ======================================================
-
+    
     //    "cust_id": "testuser",
     //    "rcmd_area_cd": "NEW_AREA_1"
-
+    
     @objc public func onCMSPopup(
-        onCmsUrl: String, cust_id: String, rcmd_area_cd: String, owner: UIViewController? = nil
+        onCmsUrl: String, cust_id: String, rcmd_area_cd: String, owner: UIViewController
     ) {
         currentViewController = owner
         
@@ -121,10 +123,10 @@ import WebKit
             if success {
                 DispatchQueue.main.async {
                     if let htmlString = data as? String {
-                        self.webViewManager = WebViewManager(webView: self.onCMSBannerWebView)
+                        self.webViewManager = WebViewManager(webView: self.onCMSBannerWebView!)
                         self.webViewManager.webViewDelegate = TagWorksPopup.sharedInstance
                         
-                        self.onCMSBannerWebView.loadHTMLString(htmlString, baseURL: nil)
+                        self.onCMSBannerWebView!.loadHTMLString(htmlString, baseURL: nil)
                     }
                 }
             } else {
@@ -136,20 +138,26 @@ import WebKit
     func createBannerWebView(defaultImageName: String) {
         if let bannerView = bannerView {
             print("bannerView Size: \(bannerView.bounds.width) x \(bannerView.bounds.height)")
-            defaultWebView.frame = CGRect(x: 0, y: 0, width: bannerView.bounds.width, height: bannerView.bounds.height)
-//            defaultWebView.translatesAutoresizingMaskIntoConstraints = false
-            defaultWebView.contentMode = .scaleToFill
-            defaultWebView.backgroundColor = .clear
-            setWebViewDefaultContents(webView: defaultWebView, pngImageName: defaultImageName)
+            if self.defaultWebView == nil {
+                self.defaultWebView = WKWebView()
+            }
+            defaultWebView!.frame = CGRect(x: 0, y: 0, width: bannerView.bounds.width, height: bannerView.bounds.height)
+            //            defaultWebView.translatesAutoresizingMaskIntoConstraints = false
+            defaultWebView!.contentMode = .scaleToFill
+            defaultWebView!.backgroundColor = .clear
+            setWebViewDefaultContents(webView: defaultWebView!, pngImageName: defaultImageName)
             
-            onCMSBannerWebView.frame = CGRect(x: 0, y: 0, width: bannerView.bounds.width, height: bannerView.bounds.height)
-//            onCMSBannerWebView.translatesAutoresizingMaskIntoConstraints = false
-            onCMSBannerWebView.contentMode = .scaleToFill
-            onCMSBannerWebView.backgroundColor = .clear
-            onCMSBannerWebView.isHidden = true
+            if self.onCMSBannerWebView == nil {
+                self.onCMSBannerWebView = WKWebView()
+            }
+            onCMSBannerWebView!.frame = CGRect(x: 0, y: 0, width: bannerView.bounds.width, height: bannerView.bounds.height)
+            //            onCMSBannerWebView.translatesAutoresizingMaskIntoConstraints = false
+            onCMSBannerWebView!.contentMode = .scaleToFill
+            onCMSBannerWebView!.backgroundColor = .clear
+            onCMSBannerWebView!.isHidden = true
             
-            bannerView.addSubview(onCMSBannerWebView)
-            bannerView.addSubview(defaultWebView)
+            bannerView.addSubview(onCMSBannerWebView!)
+            bannerView.addSubview(defaultWebView!)
         }
     }
     
@@ -157,7 +165,7 @@ import WebKit
         guard pngImageName.count > 0 else { return }
         guard let url = Bundle.main.url(forResource: pngImageName, withExtension: "png") else { return }
         let directoryURL = url.deletingLastPathComponent()
-//        webView.loadFileURL(url, allowingReadAccessTo: directoryURL)
+        //        webView.loadFileURL(url, allowingReadAccessTo: directoryURL)
         
         let htmlString = """
         <html>
@@ -169,7 +177,7 @@ import WebKit
         </body>
         </html>
         """
-
+        
         webView.loadHTMLString(htmlString, baseURL: directoryURL)
     }
     
@@ -208,7 +216,7 @@ import WebKit
     
     
     public func onCMSPopupCenter(
-        onCmsUrl: String, cust_id: String, rcmd_area_cd: String, _ owner: UIViewController? = nil
+        onCmsUrl: String, cust_id: String, rcmd_area_cd: String, _ owner: UIViewController
     ) {
         currentViewController = owner
         
@@ -220,8 +228,8 @@ import WebKit
         if components.count > 0 {
             cntn_id = String(components[1])
         }
-
-//        href="obzenapp://webviewurl=https%3A%2F%2Fwww.obzen.com%2F
+        
+        //        href="obzenapp://webviewurl=https%3A%2F%2Fwww.obzen.com%2F
         let viewHtml: String = """
             <html>
              <head>
@@ -277,7 +285,7 @@ import WebKit
              </body>
             </html>
             """
-
+        
         let styleValue: String = """
             {
             "webViewWidth":320,
@@ -328,7 +336,7 @@ import WebKit
             "closeBtnPosition":"bottom"
             }
             """
-
+        
         let parameters: [String: Any] = [
             "cust_id": cust_id,
             "rcmd_area_cd": rcmd_area_cd,
@@ -345,8 +353,8 @@ import WebKit
                 "view": viewHtml, "style": styleValue,
             ]
             
-//            self.popupViewController = WebPopupViewController(jsonData: data as! [String: Any])
-//            self.popupViewController = WebPopupViewController(cust_id: cust_id, rcmd_area_cd: rcmd_area_cd, requestUrl: "onCMSPopupCenter", jsonData: dataDic)
+            //            self.popupViewController = WebPopupViewController(jsonData: data as! [String: Any])
+            //            self.popupViewController = WebPopupViewController(cust_id: cust_id, rcmd_area_cd: rcmd_area_cd, requestUrl: "onCMSPopupCenter", jsonData: dataDic)
             self.popupViewController = WebPopupViewController(
                 cust_id: cust_id,
                 rcmd_area_cd: rcmd_area_cd,
@@ -355,16 +363,16 @@ import WebKit
             
             // 뒷 배경이 보이도록 설정
             self.popupViewController?.modalPresentationStyle = .overCurrentContext
-
+            
             let styleString = dataDic["style"] as? String
             var styleDic: [String: Any] = [:]
             if let styleString = styleString {
                 styleDic =
-                    try! JSONSerialization.jsonObject(
-                        with: styleString.data(using: .utf8)!, options: [])
-                    as! [String: Any]
+                try! JSONSerialization.jsonObject(
+                    with: styleString.data(using: .utf8)!, options: [])
+                as! [String: Any]
             }
-
+            
             if styleDic["popupType"] as! String == "S" {
                 // 바텀 슬라이드
                 self.isPopupAnimating = true
@@ -375,7 +383,7 @@ import WebKit
                 // 전체페이지
                 self.isPopupAnimating = true
             }
-
+            
             if let webPopupViewcontroller = self.popupViewController as? WebPopupViewController
             {
                 webPopupViewcontroller.backgroundAlpha = 0.5
@@ -386,135 +394,6 @@ import WebKit
             }
         }
     }
-
-    func onCMSPopupPage(
-        cust_id: String, rcmd_area_cd: String, _ owner: UIViewController? = nil
-    ) {
-        currentViewController = owner
-
-//        let restApiManager = RestApiManager()
-//        //        restApiManager.loadData()
-//
-//        //        restApiManager.onCMSBridgePopup(cust_id: cust_id, rcmd_area_cd: rcmd_area_cd) { success, data in
-//        //            if success {
-//        let viewHtml: String = """
-//            <html>
-//              <head>
-//               <meta http-equiv="Content-Type" content="'text/html; charset=UTF-8">
-//               <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0">
-//               <link rel="stylesheet" href="https://dxlab.obzen.com/html/jrecommend/oncms//css/rolling.css">
-//               <link rel="stylesheet" href="https://dxlab.obzen.com/html/jrecommend/oncms//css/popup.css">
-//               <link rel="stylesheet" href="https://dxlab.obzen.com/html/jrecommend/oncms//css/obz.rcmd.font.css">
-//               <script> function setCookie() {if(typeof URL==="undefined"){function URL(url,base){var doc=document.implementation.createHTMLDocument("");if(base){var baseElement=doc.createElement("base");baseElement.href=base;doc.head.appendChild(baseElement)}var anchorElement=doc.createElement("a");anchorElement.href=url;doc.body.appendChild(anchorElement);Object.defineProperties(this,{href:{get:function(){return anchorElement.href},set:function(value){anchorElement.href=value}},searchParams:{get:function(){return new URLSearchParams(anchorElement.search)}},search:{get:function(){return anchorElement.search},set:function(value){anchorElement.search=value}}})}}function getCookie(name){var cookies=document.cookie.split(";");for(var i=0;i<cookies.length;i++){var cookie=cookies[i].replace(" ","").split("=");if(name===cookie[0])return cookie[1]}return null}function generateUUID(){function toHex(num){var hexString=num.toString(16);while(hexString.length<4)hexString="0"+hexString;return hexString}if(typeof window.crypto==="undefined"||typeof window.crypto.getRandomValues==="undefined"){return"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,function(c){var r=Math.random()*16|0;return(c==="x"?r:(r&0x3|0x8)).toString(16)})}else{var values=new Uint16Array(8);window.crypto.getRandomValues(values);return toHex(values[0])+toHex(values[1])+"-"+toHex(values[2])+"-"+toHex(values[3])+"-"+toHex(values[4])+"-"+toHex(values[5])+toHex(values[6])+toHex(values[7])}}var searchParams=new URL(window.location.href).searchParams;var ozvid=searchParams.get("ozvid");var otmPreview=searchParams.get("otmPreview");if(ozvid!=="undefined"&&ozvid!==null&&ozvid.length===36){var expDate=new Date();expDate.setTime(expDate.getTime()+31536e7);document.cookie="ozvid="+ozvid+";expires="+expDate.toUTCString()+";pa"+"th=/;domain=.obzen.com"}else if(!getCookie("ozvid")||(getCookie("ozvid")&&getCookie("ozvid").length<36)){var newExpDate=new Date();newExpDate.setTime(newExpDate.getTime()+31536e7);document.cookie="ozvid="+generateUUID()+";expires="+newExpDate.toUTCString()+";path=/;domain=.obzen.com"}}setCookie();function addElementView(){var links=document.querySelectorAll("[rcmd_item_id]");var observer=new IntersectionObserver(function(entries,observer){entries.forEach(function(entry){if(entry.isIntersecting){entry.target.classList.add("visible");onCMSEvent(entry.target,"ElementVisibility_onCMS");observer.unobserve(entry.target)}})},{threshold:0.5});links.forEach(function(link){observer.observe(link)})}function onCMSEvent(element,trg_type){for (var i in element.classList) {if (element.classList[i] == "banner-clone")  return;}var excmp_id=element.getAttribute("excmp_id");var area_snrio_id=element.getAttribute("area_snrio_id");var rcmd_rule_id=element.getAttribute("rcmd_rule_id");var rcmd_area_cd=element.getAttribute("rcmd_area_cd");var rcmd_item_id=element.getAttribute("rcmd_item_id");var delimiter=decodeURIComponent("%E2%88%9E");var delimiter_=decodeURIComponent("%E2%89%A1");var cName="ozvid"+"=";var cookieData=document.cookie;var start=cookieData.indexOf(cName);var vstor_id="";if(start!=-1){start+=cName.length;var end=cookieData.indexOf(";",start);if(end==-1)end=cookieData.length;vstor_id=cookieData.substring(start,end)}var url=new URL(document.URL);var cust_id=url.searchParams.get("cust_id");var data;if(trg_type=="AllElementsClick_Elem_onCMS"){data="type"+delimiter_+"click"+delimiter+"excmp_id"+delimiter_+excmp_id+delimiter+"area_snrio_id"+delimiter_+area_snrio_id+delimiter+"rcmd_ru"+"le_id"+delimiter_+rcmd_rule_id+delimiter+"rcmd_area_cd"+delimiter_+rcmd_area_cd+delimiter+"rcmd_item_id"+delimiter_+rcmd_item_id+delimiter+"cust_id"+delimiter_+cust_id+delimiter+"vstor_id"+delimiter_+vstor_id}else if(trg_type=="ElementVisibility_onCMS"){data="type"+delimiter_+"view"+delimiter+"excmp_id"+delimiter_+excmp_id+delimiter+"area_snrio_id"+delimiter_+area_snrio_id+delimiter+"rcmd_ru"+"le_id"+delimiter_+rcmd_rule_id+delimiter+"rcmd_area_cd"+delimiter_+rcmd_area_cd+delimiter+"rcmd_item_id"+delimiter_+rcmd_item_id+delimiter+"cust_id"+delimiter_+cust_id+delimiter+"vstor_id"+delimiter_+vstor_id}obzenLogEvent(data)}function obzenLogEvent(du){var result={};var delimiter = decodeURIComponent("%E2%88%9E");var delimiter_ = decodeURIComponent("%E2%89%A1");du.split(delimiter).forEach(function(param){var keyValue=param.split(delimiter_);var key=keyValue[0];var value=keyValue[1];if(key){result[decodeURIComponent(key)]=decodeURIComponent(value?value.replace(/\\+/g," "):"")}});const post_url="https://ibk-poc.obzen.com/oncms/hist";const xhr=new XMLHttpRequest();xhr.open("POST",post_url,true);xhr.setRequestHeader("Content-Type","application/json");xhr.onload=function(){if(xhr.status>=200&&xhr.status<300){console.log("Response received:",xhr.responseText)}else{console.error("Failed to send data:",xhr.statusText)}};xhr.onerror=function(){console.error("Network error occurred.")};xhr.send(JSON.stringify(result))}</script>
-//              </head>
-//              <body>
-//               <style> .list > * { border-radius: 0px; overflow: hidden; margin-bottom: 0px;}  .wrap .banner-dot { width: 6px !important; height: 6px !important;}  .wrap .banner-dot-pager {bottom: 0px;width:100%;} .wrap .banner-info {}</style>
-//               <div class="wrap">
-//                <div class="list">
-//                 <div class="preview-container vertical full-image content-container" id="previewTemp" onclick="onCMSEvent(this, 'AllElementsClick_Elem_onCMS')" rcmd_area_cd="POPUP_TEST_AREA" excmp_id="0" area_snrio_id="RA2000965_10008" rcmd_rule_id="RA2000965_10008" rcmd_item_id="4003622" target="_blank" displaymode="mobile" style="width: 320px; height: 350px; background-color: rgb(255, 255, 255);" obz-lo="2">
-//                  <a class="preview-link" target="_blank"></a>
-//                  <div class="preview-img-cont">
-//                   <img class="preview-img" style="display: block;" src="https://dxlab.obzen.com/html/jrecommend/oncms/img/2000025_uUDuU.png" imagename="[2000025] 국내주식 스페셜 깜짝 이벤트">
-//                   <div class="preview-img-placeholder" style="display: none;"></div>
-//                  </div>
-//                 </div>
-//                </div>
-//                <div class="banner-dot-pager"></div>
-//                <div class="banner-info">
-//                 <div class="banner-btn">
-//                  <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 0 24 24" width="20px">
-//                   <path d="M8 6.82v10.36c0 .79.87 1.27 1.54.84l8.14-5.18c.62-.39.62-1.29 0-1.69L9.54 5.98C8.87 5.55 8 6.03 8 6.82z" />
-//                  </svg>
-//                  <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 0 24 24" width="20px">
-//                   <path d="M8 19c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2s-2 .9-2 2v10c0 1.1.9 2 2 2zm6-12v10c0 1.1.9 2 2 2s2-.9 2-2V7c0-1.1-.9-2-2-2s-2 .9-2 2z" />
-//                  </svg>
-//                 </div>
-//                 <div class="banner-idx"></div>
-//                </div>
-//               </div>
-//               <script src="https://dxlab.obzen.com/html/jrecommend/oncms//js/rolling.js"></script>
-//               <script>initTemplate();document.addEventListener('DOMContentLoaded', function(){addElementView();});</script>
-//              </body>
-//             </html>
-//            """
-//
-//        let styleValue: String = """
-//            {
-//            "webViewWidth":320,
-//            "webViewHeight":350,
-//            "webViewRadius":15,
-//            "webViewBgAlpha":0.5,
-//            "cardWidth":320,
-//            "cardHeight":350,
-//            "bgcloseOption":"1",
-//            "dupDisplayDelay":20,
-//            "popupType":"A",
-//            "popupTitleUse":"1",
-//            "popupTitle":"이벤트 알림",
-//            "popupTitleHeight":30,
-//            "popupTitleTextAlign":"center",
-//            "popupTitleFontSize":13,
-//            "popupTitleFontColor":"#cdcdcd",
-//            "popupTitleBgColor":"#FF11FF",
-//            "closeBtnGrpType":"2",
-//            "closeBtnGrpHeight":40,
-//            "closeBtnGrpFontSize":10,
-//            "closeOptBtnType":"7",
-//            "closeOptBtnFontColor":"#ffffff",
-//            "closeOptBtnBgColor":"#ff5018",
-//            "closeBtnFontColor":"#414141",
-//            "closeBtnBgColor":"#aaaa33",
-//            "contListType":"",
-//            "contType":"ROLLING",
-//            "cardRadius":0,
-//            "cardMargin":0,
-//            "backgroundColor":"#cdcdcd",
-//            "useRollingIndex":"1",
-//            "usePaging":"1",
-//            "pagePosition":"bottom",
-//            "pageTop":0,
-//            "pageBottom":0,
-//            "pageLeft":0,
-//            "pageRight":0,
-//            "dotSize":6,
-//            "rollingSpeed":4000,
-//            "listTitle":"",
-//            "listTitleIcon":"",
-//            "listTitleTextAlign":"center",
-//            "listTitleFontSize":"10px",
-//            "listTitleFontColor":"#555555"}
-//            """
-//
-//        DispatchQueue.main.async {
-//            let dataDic: [String: Any] = [
-//                "view": viewHtml, "style": styleValue,
-//            ]
-//            //                    self.popupViewController = WebPopupViewController(jsonData: data as! [String: Any])
-//            self.popupViewController = WebPopupViewController(cust_id: cust_id, rcmd_area_cd: rcmd_area_cd, requestUrl: "onCMSPopupPage", jsonData: dataDic)
-//            // 뒷 배경이 보이도록 설정
-//            self.popupViewController?.modalPresentationStyle = .overCurrentContext
-//
-//            let styleString = dataDic["style"] as? String
-//            var styleDic: [String: Any] = [:]
-//            if let styleString = styleString {
-//                styleDic =
-//                    try! JSONSerialization.jsonObject(
-//                        with: styleString.data(using: .utf8)!, options: [])
-//                    as! [String: Any]
-//            }
-//
-//            if styleDic["popupType"] as! String == "S" {
-//                // 바텀 슬라이드
-//                self.isPopupAnimating = true
-//            } else if styleDic["popupType"] as! String == "C" {
-//                // 센터 팝업
-//                self.isPopupAnimating = false
-//            } else {
-//                // 전체페이지
-//                self.isPopupAnimating = true
-//            }
-//        }
-    }
 }
 
 extension TagWorksPopup: WebViewManagerDelegate {
@@ -522,10 +401,18 @@ extension TagWorksPopup: WebViewManagerDelegate {
     func webViewDidFinishLoad(_ webView: WKWebView) {
         // 배너인 경우, 웹뷰 체인지 후 끝!!
         if bannerView != nil {
-            defaultWebView.isHidden = true
-            onCMSBannerWebView.isHidden = false
+            defaultWebView!.isHidden = true
+            onCMSBannerWebView!.isHidden = false
 //            return
         }
+        
+//        if currentViewController == nil {
+//            // rootViewController를 가져오기
+//            guard let rootViewController = UIApplication.shared.keyWindow?.rootViewController else {
+//                return
+//            }
+//            currentViewController = rootViewController
+//        }
         
         // 현재 보여지고 있는 ViewController가 유효한지 체크
         guard let viewController = currentViewController,
@@ -534,13 +421,6 @@ extension TagWorksPopup: WebViewManagerDelegate {
             print("ViewController is not visible, cannot show popup.")
             return
         }
-
-//        // rootViewController를 가져오기
-//        guard let rootViewController = UIApplication.shared.keyWindow?.rootViewController else {
-//            return
-//        }
-        
-//        rootViewController.present(popupViewController, animated: isPopupAnimating, completion: nil)
 
         // 팝업을 띄우기 위해 present
         if let popupViewController = self.popupViewController as? WebPopupViewController {

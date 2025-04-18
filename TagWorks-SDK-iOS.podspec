@@ -95,8 +95,9 @@ Pod::Spec.new do |spec|
   # spec.exclude_files = "Classes/Exclude"
 
   # spec.public_header_files = "Classes/**/*.h"
+  # spec.source_files = "TagWorks-SDK-iOS-v1/**/*"
 
-  spec.source_files = "TagWorks-SDK-iOS-v1/**/*"
+  spec.source_files = "TagWorks-SDK-iOS-v1/**/*.{h,m,swift}"
 
 
   # ――― Resources ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
@@ -111,7 +112,6 @@ Pod::Spec.new do |spec|
   # spec.resources = "Resources/*.png"
 
   # spec.preserve_paths = "FilesToSave", "MoreFilesToSave"
-
 
   # ――― Project Linking ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   #

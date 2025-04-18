@@ -33,15 +33,17 @@ internal struct TagWorksBase {
     }
     
     /// 유저 식별자 (고객 식별자)를 저장 및 반환합니다.
-    public var userId: String? {
-        get {
-            return userDefaults.string(forKey: UserDefaultKey.userId)
-        }
-        set {
-            userDefaults.setValue(newValue, forKey: UserDefaultKey.userId)
-            userDefaults.synchronize()
-        }
-    }
+    /// 기존에는 userId를 로컬에 저장 후 사용했지만, userId 셋팅을 통해 로그인 상태를 체크 용도로 사용하기에 로컬 파일에 저장하지 않도록 변경 - 장등수 상무, 이현진 차장 합의
+    /// 2025. 04. 18 by Kevin
+//    public var userId: String? {
+//        get {
+//            return userDefaults.string(forKey: UserDefaultKey.userId)
+//        }
+//        set {
+//            userDefaults.setValue(newValue, forKey: UserDefaultKey.userId)
+//            userDefaults.synchronize()
+//        }
+//    }
     
     /// 방문자 식별자를 저장 및 반환합니다.
     /// 앱을 삭제해도 변하지 않도록 키체인을 이용하여 저장 및 반환하도록 변경 - by Kevin 2024.07.16

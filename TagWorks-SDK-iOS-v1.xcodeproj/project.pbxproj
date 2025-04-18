@@ -415,7 +415,6 @@
 				98CE85082C50CD7700245400 /* TagWorks-SDK-iOS-v1Tests */,
 				98CE84FB2C50CD7700245400 /* Products */,
 				99C531338D873E1AA50B3D1B /* Frameworks */,
-				BFC53D2F2F2104D70E1C829E /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -529,13 +528,6 @@
 				98E268EE2CC0D81600FF8F59 /* libswiftCore.tbd */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		BFC53D2F2F2104D70E1C829E /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

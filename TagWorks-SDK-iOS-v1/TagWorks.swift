@@ -67,14 +67,15 @@ import AdSupport
     
     /// 수집되는 사용자의 유저 식별자 (고객 식별자)입니다.
     ///  - 로그인되어 사용하는 사용자의 유저 식별자입니다. (사이트에서 전달받음)
-    @objc public var userId: String? {
-        get {
-            return tagWorksBase?.userId
-        }
-        set {
-            tagWorksBase?.userId = newValue
-        }
-    }
+    @objc public var userId: String?
+//    @objc public var userId: String? {
+//        get {
+//            return tagWorksBase?.userId
+//        }
+//        set {
+//            tagWorksBase?.userId = newValue
+//        }
+//    }
     
     /// 수집 허용 여부 입니다.
     @objc public var isOptedOut: Bool {
@@ -309,6 +310,11 @@ import AdSupport
     
     @objc public func setManualDispatch(_ isManual: Bool) {
         self.isManualDispatch = isManual
+    }
+    
+    // userId 초기화 함수 - 명시적인 호출을 통해 userId 초기화
+    @objc public func clearUserId() {
+        userId = nil
     }
     
     /// 이벤트 로그 발생 주기 타이머를 시작합니다.
