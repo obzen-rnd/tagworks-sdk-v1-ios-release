@@ -26,7 +26,7 @@ import WebKit
     private var bannerView: UIView?
 //    private var defaultWebView = WKWebView()
 //    private var onCMSBannerWebView = WKWebView()
-    private var defaultWebView: WKWebView?
+    private var defaultWebView: UIImageView?
     private var onCMSBannerWebView: WKWebView?
     private var webViewManager: WebViewManager!
     
@@ -139,13 +139,16 @@ import WebKit
         if let bannerView = bannerView {
             print("bannerView Size: \(bannerView.bounds.width) x \(bannerView.bounds.height)")
             if self.defaultWebView == nil {
-                self.defaultWebView = WKWebView()
+//                self.defaultWebView = WKWebView()
+                self.defaultWebView = UIImageView()
             }
             defaultWebView!.frame = CGRect(x: 0, y: 0, width: bannerView.bounds.width, height: bannerView.bounds.height)
             //            defaultWebView.translatesAutoresizingMaskIntoConstraints = false
             defaultWebView!.contentMode = .scaleToFill
             defaultWebView!.backgroundColor = .clear
-            setWebViewDefaultContents(webView: defaultWebView!, pngImageName: defaultImageName)
+//            setWebViewDefaultContents(webView: defaultWebView!, pngImageName: defaultImageName)
+            defaultWebView!.image = UIImage(named: defaultImageName)
+            bannerView.addSubview(defaultWebView!)
             
             if self.onCMSBannerWebView == nil {
                 self.onCMSBannerWebView = WKWebView()

@@ -30,6 +30,10 @@ internal struct TagWorksBase {
                 print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Keychain migrate error: \(secCopyError)")
             }
         }
+        
+        // 기존에 userId 저장된 값이 있을 경우, 삭제 로직 추가 - 2025. 04.18 by Kevin
+        userDefaults.removeObject(forKey: UserDefaultKey.userId)
+        userDefaults.synchronize()
     }
     
     /// 유저 식별자 (고객 식별자)를 저장 및 반환합니다.
