@@ -13,6 +13,9 @@ public final class DefaultQueue: NSObject, Queue {
     /// 이벤트 구조체 컬렉션
     private var items = [Event]()
     
+    /// 로그 직렬화 인터페이스를 상속받는 클래스 객체입니다.
+    private let serializer = EventSerializer()
+    
     /// queue의 사이즈를 반환합니다.
     public var size: Int {
         return items.count
@@ -24,6 +27,20 @@ public final class DefaultQueue: NSObject, Queue {
     ///   - completion: 완료 CallBack
     public func enqueue(events: [Event], completion: (() -> Void)?) {
         items.append(contentsOf: events)
+        
+        // 값 설정 여부에 따라 userDefault에 저장할지 결정
+        if TagWorks.sharedInstance.localQueueEnabled {
+            var jsonBody: Data
+            do {
+                jsonBody = try serializer.toJsonData(for: items, isLocalQueue: true)
+                
+                TagWorks.sharedInstance.tagWorksBase?.eventsLocalQueue = String(data: jsonBody, encoding: .utf8) ?? ""
+                print("[🐹🐹🐹🐹] : \(TagWorks.sharedInstance.tagWorksBase?.eventsLocalQueue ?? "Nothing!!!")")
+            } catch {
+                completion?()
+                return
+            }
+        }
         completion?()
     }
     

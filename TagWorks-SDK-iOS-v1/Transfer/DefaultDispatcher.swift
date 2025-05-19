@@ -92,7 +92,7 @@ public final class DefaultDispatcher: Dispatcher {
     public func send(events: [Event], success: @escaping () -> (), failure: @escaping (Error) -> ()) {
         var jsonBody: Data
         do {
-            jsonBody = try serializer.toJsonData(for: events)
+            jsonBody = try serializer.toJsonData(for: events, isLocalQueue: false)
             print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Json origin: \(String(data:jsonBody, encoding: .utf8)?.decodeUrl() ?? "")")
             print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Json Body: \(String(data:jsonBody, encoding: .utf8) ?? "")")
             // 취약점 발견으로 인한 암호화 적용
@@ -108,5 +108,29 @@ public final class DefaultDispatcher: Dispatcher {
         }
         let request = buildRequest(baseURL: baseUrl!, method: "POST", contentType: "application/json; charset=utf-8", body: jsonBody)
         send(request: request, success: success, failure: failure)
+    }
+    
+    /// 로컬 큐에 저장된 직렬화 이벤트 수집 정보를 Http Request로 생성합니다.
+    /// - Parameters:
+    ///   - events: 이벤트 구조체 컬렉션
+    ///   - success: http 송신 결과 성공
+    ///   - failure: http 송신 결과 실패
+    public func send(localQueueEvents: String, success: @escaping () -> (), failure: @escaping (Error) -> ()) {
+        var jsonBody: Data
+        if let data = localQueueEvents.data(using: .utf8) {
+            jsonBody = data
+            
+            print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Json origin: \(localQueueEvents.decodeUrl() ?? "")")
+            print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Json Body: \(localQueueEvents)")
+            // 취약점 발견으로 인한 암호화 적용
+            // ##@ 를 붙이는 이유: 해당 패킷은 AES로 암호화 되어 있다는 표시
+            let aesJsonBody: String = "##@" + AES256Util.encrypt(data: jsonBody)
+            print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] send Json AES Body: \(aesJsonBody)")
+            
+            jsonBody = aesJsonBody.data(using: .utf8)!
+            
+            let request = buildRequest(baseURL: baseUrl!, method: "POST", contentType: "application/json; charset=utf-8", body: jsonBody)
+            send(request: request, success: success, failure: failure)
+        }
     }
 }

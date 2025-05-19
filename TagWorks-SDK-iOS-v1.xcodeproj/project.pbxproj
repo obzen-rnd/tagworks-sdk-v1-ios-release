@@ -118,6 +118,8 @@
 		98CE853E2C50CDF500245400 /* TagWorksBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98CE852B2C50CDF500245400 /* TagWorksBase.swift */; };
 		98CE855A2C50F56000245400 /* WebInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98CE85592C50F56000245400 /* WebInterface.swift */; };
 		98CE859E2C523EFB00245400 /* KeychainStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98CE859D2C523EFB00245400 /* KeychainStorage.swift */; };
+		98CFA01D2DD7271900D347C3 /* UIViewController+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98CFA01C2DD7271900D347C3 /* UIViewController+Extensions.swift */; };
+		98CFA01F2DD7274B00D347C3 /* UIView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98CFA01E2DD7274B00D347C3 /* UIView+Extensions.swift */; };
 		98E268EF2CC0D81600FF8F59 /* libswiftCore.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 98E268EE2CC0D81600FF8F59 /* libswiftCore.tbd */; };
 /* End PBXBuildFile section */
 
@@ -244,6 +246,8 @@
 		98CE852B2C50CDF500245400 /* TagWorksBase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TagWorksBase.swift; sourceTree = "<group>"; };
 		98CE85592C50F56000245400 /* WebInterface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebInterface.swift; sourceTree = "<group>"; };
 		98CE859D2C523EFB00245400 /* KeychainStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainStorage.swift; sourceTree = "<group>"; };
+		98CFA01C2DD7271900D347C3 /* UIViewController+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Extensions.swift"; sourceTree = "<group>"; };
+		98CFA01E2DD7274B00D347C3 /* UIView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Extensions.swift"; sourceTree = "<group>"; };
 		98E268EE2CC0D81600FF8F59 /* libswiftCore.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libswiftCore.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk/usr/lib/swift/libswiftCore.tbd; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
 
@@ -271,6 +275,8 @@
 			isa = PBXGroup;
 			children = (
 				9815590F2D79A23C00AA8B9F /* UI+Extensions.swift */,
+				98CFA01C2DD7271900D347C3 /* UIViewController+Extensions.swift */,
+				98CFA01E2DD7274B00D347C3 /* UIView+Extensions.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -683,7 +689,9 @@
 				981559092D79898B00AA8B9F /* WebViewManager.swift in Sources */,
 				9850EB132D019BF300701F00 /* OCB.swift in Sources */,
 				9850EB142D019BF300701F00 /* BlockModeOptions.swift in Sources */,
+				98CFA01F2DD7274B00D347C3 /* UIView+Extensions.swift in Sources */,
 				9850EB152D019BF300701F00 /* Data+Extension.swift in Sources */,
+				98CFA01D2DD7271900D347C3 /* UIViewController+Extensions.swift in Sources */,
 				9850EB162D019BF300701F00 /* AES+Foundation.swift in Sources */,
 				9850EB172D019BF300701F00 /* ECB.swift in Sources */,
 				9850EB182D019BF300701F00 /* PBKDF1.swift in Sources */,
@@ -900,11 +908,11 @@
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.1.25;
+				CURRENT_PROJECT_VERSION = 1.1.26;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = SD2JH29386;
 				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1.1.25;
+				DYLIB_CURRENT_VERSION = 1.1.26;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
@@ -917,7 +925,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.25;
+				MARKETING_VERSION = 1.1.26;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
 				OTHER_LDFLAGS = "$(inherited)";
@@ -938,11 +946,11 @@
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.1.25;
+				CURRENT_PROJECT_VERSION = 1.1.26;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = SD2JH29386;
 				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1.1.25;
+				DYLIB_CURRENT_VERSION = 1.1.26;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
@@ -955,7 +963,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.25;
+				MARKETING_VERSION = 1.1.26;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
 				OTHER_LDFLAGS = "$(inherited)";

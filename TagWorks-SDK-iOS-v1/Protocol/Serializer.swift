@@ -18,5 +18,5 @@ public protocol Serializer {
     /// 이벤트 구조체에 저장된 프로퍼티를 Json 형태의 Data로 반환합니다.
     /// - Parameter events: 이벤트 구조체 컬렉션
     /// - Returns: Json Data
-    func toJsonData(for events: [Event]) throws -> Data
+    func toJsonData(for events: [Event], isLocalQueue: Bool) throws -> Data
 }

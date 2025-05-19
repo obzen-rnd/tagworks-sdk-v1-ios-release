@@ -66,9 +66,12 @@ extension TagWorksBase {
     
     /// TagWokrs UserDefault 저장 Key를 열거합니다.
     internal struct UserDefaultKey {
-        static let userId       = "TagWorksUserIdKey"
-        static let visitorId    = "TagWorksVisitorIdKey"
-        static let optOut       = "TagWorksOptOutKey"
+        static let userId           = "TagWorksUserIdKey"
+        static let visitorId        = "TagWorksVisitorIdKey"
+        static let optOut           = "TagWorksOptOutKey"
+        static let eventsLocalQueue = "TagWorksLocalQueueKey"
+        static let errorLog         = "TagWorksErrorLogKey"     // IBK 고객여정에서 요청한 앱 크래시 경우에 에러 로그 저장 용도 - by Kevin. 2025. 05. 13
+        static let errorReport      = "TagWorksErrorReportKey"  // SDK 내부 기능으로 앱 크래시 경우 자동 탐지 후 에러 리포트 스택 트레이스를 저장 용도
     }
 }
 
@@ -131,3 +134,14 @@ extension Event {
     @objc static public let closeAndNoShowToday = 3
     @objc static public let closeAndNoShowSeven = 4
 }
+
+
+// MARK: IBK 고객여정에서 사용하는 에러 로그 전송 Dimension Index/Key
+let errorTypeDimensionIndex         = 901
+let errorDataDimensionIndex         = 902
+let errorTimeDimensionIndex         = 903
+
+let errorTypeDimensionKey            = "obz_err_type"
+let errorDataDimensionKey            = "obz_err_data"
+let errorTimeDimensionKey            = "obz_err_time"
+

@@ -35,6 +35,14 @@ public struct DeviceInfo {
     
     /// 수집되는 디바이스의 정보 구조체를 반환합니다.
     /// - Returns: 디바이스 구조체
+    /// 예시값 )
+    /// iPhone14,8
+    /// iOS
+    /// 18.4.1
+    /// (428.0, 926.0)
+    /// (1284.0, 2778.0)
+    /// Optional("24.4.0")
+    /// Optional("ko")
     public static func getDeviceInfo() -> DeviceInfo {
         return DeviceInfo(devicePlatform: getDevicePlatform(),
                           deviceOperatingSystem: getDeviceOperatingSystem(),
@@ -42,7 +50,8 @@ public struct DeviceInfo {
                           deviceScreenSize: getDeviceScreenSize(),
                           deviceNativeScreenSize: getDeviceNativeScreenSize(),
                           deviceDarwinVersion: getDeviceDarwinVersion(),
-                          deviceLanguage: Locale.current.languageCode)
+//                          deviceLanguage: Locale.current.languageCode)
+                          deviceLanguage: getDevicePreferredLanguage())
     }
 }
 
@@ -92,5 +101,15 @@ extension DeviceInfo {
         var sysinfo = utsname()
         uname(&sysinfo)
         return String(bytes: Data(bytes: &sysinfo.release, count: Int(_SYS_NAMELEN)), encoding: .ascii)?.trimmingCharacters(in: .controlCharacters)
+    }
+    
+    // 디바이스의 설정->일반->'언어 및 지역'에서 사용자가 설정한 우선순의 1순위의 언어 (실제로 폰에 적용된 언어)
+    public static func getDevicePreferredLanguage() -> String? {
+        return Locale.preferredLanguages.first?.components(separatedBy: "-").first
+    }
+    
+    // 디바이스의 설정->일반->'언어 및 지역'에서 사용자가 설정한 지역과 언어 (예: ko-KR, en-US)
+    public static func getDeviceResionLanguage() -> String? {
+        return Locale.preferredLanguages.first
     }
 }

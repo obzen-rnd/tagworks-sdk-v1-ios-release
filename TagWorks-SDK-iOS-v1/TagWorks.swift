@@ -8,6 +8,7 @@
 import UIKit
 import Foundation
 import AdSupport
+import AppTrackingTransparency
 
 /// TagWorks 클래스는 SDK 모듈내에서 가장 최상위에 존재하는 클래스입니다.
 @objc final public class TagWorks: NSObject {
@@ -96,8 +97,16 @@ import AdSupport
     /// - 값이 없을 경우에는 내부적으로 Display Bundle Name을 사용합니다.
     @objc public var appName: String?
     
-    /// 수집되는 사용자의 IDFA(광고식별자)
-    @objc public var adId: String = ASIdentifierManager.shared().advertisingIdentifier.uuidString
+    /// 수집되는 사용자 Device의 IDFA(광고식별자)
+    @objc public var isEnabledAdId: Bool = false
+
+//    @objc public var adId: String = ASIdentifierManager.shared().advertisingIdentifier.uuidString
+    @objc public var adId: String?
+    
+    // iOS의 광고식별자를 받아옵니다.
+    @objc public func setAdid(_ uuid: String) {
+        self.adId = uuid
+    }
     
     // 필수 설정값 end
     //-----------------------------------------
@@ -151,17 +160,20 @@ import AdSupport
         }
     }
     
-    
+    // 주기 발송을 하기 위한 타이머
     private var dispatchTimer: Timer?
     
     /// 웹뷰로부터 자바스크립트로 웹뷰 이벤트를 전달받아 처리하는 클래스 객체
     @objc public let webViewInterface: WebInterface = WebInterface()
     
-    /// Device의 광고 식별자
-    @objc public var deviceIDFA: String?
-        
+    // 수집 서버로 전송 실패 시 재전송 여부 설정 (true 설정 시 3번의 Retry 진행)
     @objc public var isDispatchRetry = false
-
+    
+    /// Interval을 사용할 경우, 앱이 예기치 않은 종료로 인해 큐에 이벤트가 남아있을 때 앱 시작 시 발송하지 못한 이벤트를 전송 - by Kevin. 2025.04.28
+    @objc public var localQueueEnabled: Bool = false
+    
+    /// 앱이 비정상 종료 시 인터페이스를 통해 에러 로그를 저장 및 앱 재실행 시 에러 로그 전송 - by Kevin. 2025.05.12
+    @objc public var errorReportEnabled: Bool = true
     
     // MARK: - 클래스 객체 함수
     
@@ -196,6 +208,12 @@ import AdSupport
 //        self.contentUrl = URL(string: "http://\(AppInfo.getApplicationInfo().bundleIdentifier ?? "")")
         
         self.webViewInterface.delegate = self
+        
+        // 로컬큐에 이벤트 스트링이 존재할 때 서버 전송
+        let _ = sendLocalQueueEvent()
+
+        // UserDefalut에 저장된 에러 로그 서버 발송
+        sendErrorReport()
     }
     
     /// 이벤트 전송에 필요한 필수 항목 입력
@@ -230,6 +248,12 @@ import AdSupport
         self.contentUrl = URL(string: "APP://\(AppInfo.getApplicationInfo().bundleIdentifier ?? "")/")
         
         self.webViewInterface.delegate = self
+        
+        // 로컬큐에 이벤트 스트링이 존재할 때 서버 전송
+        let _ = sendLocalQueueEvent()
+
+        // UserDefalut에 저장된 에러 로그 서버 발송
+        sendErrorReport()
     }
     
     /// 이벤트 전송에 필요한 필수 항목 입력
@@ -248,7 +272,8 @@ import AdSupport
                                         isManualDispatch: Bool = false,
                                         appVersion: String? = nil,
                                         appName: String? = nil,
-                                        isUseDynamicParameter: Bool = false) {
+                                        isUseDynamicParameter: Bool = false,
+                                        isEnabledAdId: Bool = false) {
         self.siteId = siteId
         self.isUseIntervals = isUseIntervals
         self.isManualDispatch = isManualDispatch
@@ -266,8 +291,22 @@ import AdSupport
         self.isUseDynamicParameter = isUseDynamicParameter
         self.tagWorksBase = TagWorksBase(suitName: "\(siteId)\(baseUrl.absoluteString)")
         self.contentUrl = URL(string: "APP://\(AppInfo.getApplicationInfo().bundleIdentifier ?? "")/")
+        self.isEnabledAdId = isEnabledAdId
         
         self.webViewInterface.delegate = self
+        
+        // 광고 식별자 사용 여부 설정에 따라 자동으로 광고 식별자 가져옴
+        if isEnabledAdId {
+            requestIDFA() { idfa in
+                self.adId = idfa
+            }
+        }
+        
+        // 로컬큐에 이벤트 스트링이 존재할 때 서버 전송
+        let _ = sendLocalQueueEvent()
+
+        // UserDefalut에 저장된 에러 로그 서버 발송
+        sendErrorReport()
     }
     
     /// 이벤트 전송에 필요한 필수 항목 입력
@@ -286,7 +325,8 @@ import AdSupport
                                         isManualDispatch: Bool = false,
                                         appVersion: String? = nil,
                                         appName: String? = nil,
-                                        isUseDynamicParameter: Bool = false) {
+                                        isUseDynamicParameter: Bool = false,
+                                        isEnabledAdId: Bool = false) {
         self.siteId = siteId
         self.isUseIntervals = isUseIntervals
         self.isManualDispatch = isManualDispatch
@@ -304,8 +344,26 @@ import AdSupport
         self.isUseDynamicParameter = isUseDynamicParameter
         self.tagWorksBase = TagWorksBase(suitName: "\(siteId)\(baseUrl.absoluteString)")
         self.contentUrl = URL(string: "APP://\(AppInfo.getApplicationInfo().bundleIdentifier ?? "")/")
+        self.isEnabledAdId = isEnabledAdId
         
         self.webViewInterface.delegate = self
+        
+        // 광고 식별자 사용 여부 설정에 따라 자동으로 광고 식별자 가져옴
+        if isEnabledAdId {
+            requestIDFA() { idfa in
+                self.adId = idfa
+            }
+        }
+        
+        // 로컬큐에 이벤트 스트링이 존재할 때 서버 전송
+        let _ = sendLocalQueueEvent()
+        
+        // UserDefalut에 저장된 에러 로그 서버 발송
+        sendErrorReport()
+        
+        //
+//        UIView.swizzleDidMoveToWindowForTracking()
+//        UIViewController.swizzleLifecycle()
     }
     
     @objc public func setManualDispatch(_ isManual: Bool) {
@@ -315,6 +373,86 @@ import AdSupport
     // userId 초기화 함수 - 명시적인 호출을 통해 userId 초기화
     @objc public func clearUserId() {
         userId = nil
+    }
+    
+    // 앱이 크래쉬가 난 경우, 해당 함수를 통해 로컬 영역에 저장
+    @objc public func saveErrorReport(errorType: String, errorMessage: String) {
+        guard isInitialize() else { return }
+        guard !isOptedOut, errorReportEnabled else { return }
+        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] saveErrorReport!!")
+        
+//        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] \(errorType)!!")
+//        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] \(errorMessage)!!")
+//        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] \(String(describing: tagWorksBase?.crashErrorLog))!!")
+        
+        // 현재 KST 타임스탬프 가져오기
+        let timestamp = CommonUtil.Formatter.getCurrentKSTimeString()
+        // 에러 정보 셋팅
+        let errorDict: [String: String] = [
+            "errorType" : errorType,
+            "errorData" : errorMessage,
+            "timestamp" : timestamp ?? ""
+        ]
+        
+        var errorArray: [[String: Any]] = []
+        if let existErrorLog = tagWorksBase?.crashErrorLog {
+            errorArray = existErrorLog
+        }
+        errorArray.append(errorDict)
+                  
+        tagWorksBase?.crashErrorLog = errorArray
+    }
+    
+    // 크래쉬 로그 핸들러 등록
+    public func setupSignalHandler() {
+        // 예외 핸들러 등록
+        NSSetUncaughtExceptionHandler { exception in
+            saveCrashExceptipn(exception)
+        }
+        
+        // 주요 fatalError 핸들러 등록
+        signal(SIGABRT) { signal in
+            saveCrashSignal("SIGABRT")
+        }
+        signal(SIGILL) { signal in
+            saveCrashSignal("SIGILL")
+        }
+        signal(SIGSEGV) { signal in
+            saveCrashSignal("SIGSEGV")
+        }
+        signal(SIGFPE) { signal in
+            saveCrashSignal("SIGFPE")
+        }
+        signal(SIGBUS) { signal in
+            saveCrashSignal("SIGBUS")
+        }
+        signal(SIGPIPE) { signal in
+            saveCrashSignal("SIGPIPE")
+        }
+    }
+    
+    // 광고 식별자를 권한 체크 후 가져오는 함수
+    private func requestIDFA(completion: @escaping (String?) -> Void) {
+        if #available(iOS 14, *) {
+            ATTrackingManager.requestTrackingAuthorization { status in
+                switch status {
+                case .authorized:
+                    let idfa = ASIdentifierManager.shared().advertisingIdentifier.uuidString
+                    completion(idfa)
+                case .denied, .restricted, .notDetermined:
+                    completion(nil)
+                @unknown default:
+                    completion(nil)
+                }
+            }
+        } else {
+            if ASIdentifierManager.shared().isAdvertisingTrackingEnabled {
+                let idfa = ASIdentifierManager.shared().advertisingIdentifier.uuidString
+                completion(idfa)
+            } else {
+                completion(nil)
+            }
+        }
     }
     
     /// 이벤트 로그 발생 주기 타이머를 시작합니다.
@@ -386,7 +524,7 @@ import AdSupport
         print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Queue Size : \(queue.size)")
     }
     
-    /// ## 이벤트 발송 관련 함수 ##
+    // MARK: ## 이벤트 발송 관련 함수 ##
     
     /// 현재 Queue에 저장되어 있는 이벤트 구조체를 즉시 발송합니다. (수동 처리) - 타이머 사용 안함.
     internal func dispatchAtOnce(event: Event) -> Bool {
@@ -465,6 +603,12 @@ import AdSupport
 
                 print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Finish dispatching events")
                 self.logger.info("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Finished dispatching events")
+                
+                // 로컬큐에 저장되어 있는 이벤트 정보 클리어.
+                tagWorksBase?.clearLocalQueue()
+                if localQueueEnabled {
+                    print("[🐹🐹🐹🐹] : \(TagWorks.sharedInstance.tagWorksBase?.eventsLocalQueue ?? "Nothing!!!")")
+                }
                 return
             }
             
@@ -524,6 +668,8 @@ import AdSupport
             })
         }
     }
+    
+    
 }
 
 
@@ -636,6 +782,75 @@ extension TagWorks {
             }
         }
         return true
+    }
+    
+    // 로컬큐를 사용하여 이벤트 정보 저장 시 전송하지 못한 이벤트 정보 수집 서버로 전송
+    private func sendLocalQueueEvent() -> Bool {
+        guard isInitialize() else { return false }
+        guard !isOptedOut else { return false }
+        guard let eventString = tagWorksBase?.eventsLocalQueue else { return false }
+        
+        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] sendLocalQueueEvent!!")
+        self.isDispatching = true
+        
+        guard let dispatcher = self.dispatcher else { return false }
+        DispatchQueue.main.async {
+            dispatcher.send(localQueueEvents: eventString, success: { [weak self] in
+                guard let self = self else { return }
+                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] sendLocalQueueEvent Send Success!!")
+                self.isDispatching = false
+                // 로컬큐에 저장되어 있는 이벤트 정보 클리어.
+                tagWorksBase?.clearLocalQueue()
+            }, failure: { [weak self] error in
+                guard let self = self else { return }
+                self.isDispatching = false
+                self.logger.warning("Failed dispatching events with error \(error)")
+            })
+        }
+        return true
+    }
+    
+    // 앱 크래시가 난 경우에 고객사에서 저장한 에러 메세지가 로컬에 저장되어 있는 경우, 수집 서버로 전송
+    private func sendErrorReport() {
+        guard isInitialize() else { return }
+        guard !isOptedOut, errorReportEnabled else { return }
+        
+        
+        var isSuccess: Bool = true
+        tagWorksBase?.crashErrorLog?.forEach { (errorLog) in
+            guard let errorType = errorLog["errorType"] as? String,
+                  var errorMessage = errorLog["errorData"] as? String,
+                  let errorTime = errorLog["timestamp"] as? String else { return }
+            
+            // errorMessage는 json 파서가 인식할 수 있도록 특수문자 replace (필요없음 - 전송할때 urlEncoding을 하기 때문)
+            // 연속된 공백만 공백 두칸으로 줄이기
+            errorMessage = errorMessage.components(separatedBy: .whitespaces).filter { !$0.isEmpty }.joined(separator: "  ")
+            let dataBundle = DataBundle()
+            dataBundle.putString(DataBundle.EVENT_TAG_NAME, StandardEventTag.ERROR)
+            dataBundle.putString(DataBundle.EVENT_TAG_PARAM_ERROR_MSG, "Crash Error Log")
+            
+            if isUseDynamicParameter {
+                dataBundle.putDynamicDimension(key: errorTypeDimensionKey, value: errorType)
+                dataBundle.putDynamicDimension(key: errorDataDimensionKey, value: errorMessage)
+                dataBundle.putDynamicDimension(key: errorTimeDimensionKey, value: errorTime)
+            } else {
+                dataBundle.putDimension(index: errorTypeDimensionIndex, value: errorType)
+                dataBundle.putDimension(index: errorDataDimensionIndex, value: errorMessage)
+                dataBundle.putDimension(index: errorTimeDimensionIndex, value: errorTime)
+            }
+            
+            let event = Event(tagWorks: self, eventType: StandardEventTag.ERROR, dimensions: dataBundle.eventDimensions, errorMsg: dataBundle.dataDictionary[DataBundle.EVENT_TAG_PARAM_ERROR_MSG])
+            if !dispatchAtOnce(event: event) {
+                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] sendErrorReport is Failed.")
+//                return
+                isSuccess = false
+            } else {
+                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] sendErrorReport is Sucessed.")
+            }
+        }
+        if isSuccess {
+            tagWorksBase?.clearCrashErrorLog()
+        }
     }
 }
 
@@ -909,9 +1124,57 @@ extension TagWorks {
             _ = dispatchAtOnce(event: campaignEvent);
         }
     }
-    
-    // iOS의 광고식별자를 받아옵니다.
-    @objc public func setAdid(_ uuid: String) {
-        self.adId = uuid
-    }
 }
+
+/// ====================================
+/// 백트레이스 수집
+///
+private func getBacktrace() -> String {
+    let maxFrames = 128
+    var symbols = [String]()
+    
+    // ⛳️ 올바른 타입: UnsafeMutablePointer<UnsafeMutableRawPointer?>
+    let buffer = UnsafeMutablePointer<UnsafeMutableRawPointer?>.allocate(capacity: maxFrames)
+    defer { buffer.deallocate() }
+
+    let frameCount = backtrace(buffer, Int32(maxFrames))
+    if let frames = backtrace_symbols(buffer, frameCount) {
+        for i in 0..<Int(frameCount) {
+            if let symbol = frames[i] {
+                symbols.append(String(cString: symbol))
+            }
+        }
+        free(frames)
+    }
+
+    return symbols.joined(separator: "\n")
+}
+
+func saveCrashExceptipn(_ exception: NSException) {
+    let tempDir = NSTemporaryDirectory()
+    let crashLogFile = URL(fileURLWithPath: tempDir).appendingPathComponent("crash_log.plist")
+    // 예외 정보와 스택 트레이스를 파일로 기록
+    let data: [String: Any] = [
+        "exceptionName": exception.name.rawValue,
+        "reason": exception.reason ?? "No reason",
+        "timestamp": Date().timeIntervalSince1970,
+        "stackTrace": exception.callStackSymbols.joined(separator: "\n")
+    ]
+
+    (data as NSDictionary).write(to: crashLogFile, atomically: true)
+}
+
+func saveCrashSignal(_ signal: String) {
+//    let url = FileManager.default.temporaryDirectory.appendingPathComponent("crash_log.plist")    // iOS 10.0 이상
+    let tempDir = NSTemporaryDirectory()
+    let crashLogFile = URL(fileURLWithPath: tempDir).appendingPathComponent("crash_log.plist")
+    let stack = getBacktrace()
+    let data: [String: Any] = [
+        "signal": signal,
+        "timestamp": Date().timeIntervalSince1970,
+        "stackTrace": stack
+    ]
+    (data as NSDictionary).write(to: crashLogFile, atomically: true)
+}
+
+// ====================================

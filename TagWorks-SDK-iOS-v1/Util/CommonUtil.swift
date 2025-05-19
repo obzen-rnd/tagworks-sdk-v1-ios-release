@@ -7,6 +7,8 @@
 
 import UIKit
 import Foundation
+import WebKit
+import CryptoKit
 //import CryptoSwift
 
 /// TagWorks SDK 내에서 사용되는 Util 클래스입니다.
@@ -24,6 +26,28 @@ final class CommonUtil {
             formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX"
             return formatter
         }()
+        
+        internal static func getCurrentUTCTimeString() -> String {
+            return iso8601DateFormatter.string(from: Date())
+        }
+        
+        internal static func getCurrentKSTimeString() -> String? {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX"
+            formatter.locale = Locale(identifier: "en_US_POSIX")
+            formatter.timeZone = TimeZone(abbreviation: "UTC")
+            
+            // Step 1: 문자열을 Date 객체로 파싱
+            let utcTimeString = getCurrentUTCTimeString()
+            guard let date = formatter.date(from: utcTimeString) else {
+                return nil
+            }
+
+            // Step 2: KST로 포맷 변경
+            formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+            formatter.timeZone = TimeZone(identifier: "Asia/Seoul")
+            return formatter.string(from: date)
+        }
     }
     
     public static func getSDKVersion() -> String? {
@@ -134,6 +158,102 @@ final class CommonUtil {
         
         return false
     }
+    
+    /// IP Adress 가져오기
+    public static func getAllIPAddresses() -> [String: String] {
+        var addresses = [String: String]()
+
+        var ifaddr: UnsafeMutablePointer<ifaddrs>?
+        guard getifaddrs(&ifaddr) == 0 else { return [:] }
+        guard let firstAddr = ifaddr else { return [:] }
+
+        var ptr = firstAddr
+        while ptr.pointee.ifa_next != nil {
+            let interface = ptr.pointee
+            let addrFamily = interface.ifa_addr.pointee.sa_family
+
+            if addrFamily == UInt8(AF_INET) || addrFamily == UInt8(AF_INET6) {
+                let name = String(cString: interface.ifa_name)
+
+                var hostname = [CChar](repeating: 0, count: Int(NI_MAXHOST))
+                getnameinfo(
+                    interface.ifa_addr,
+                    socklen_t(interface.ifa_addr.pointee.sa_len),
+                    &hostname,
+                    socklen_t(hostname.count),
+                    nil,
+                    socklen_t(0),
+                    NI_NUMERICHOST
+                )
+                let address = String(cString: hostname)
+
+                addresses[name] = address
+            }
+
+            ptr = interface.ifa_next
+        }
+
+        freeifaddrs(ifaddr)
+
+        return addresses
+    }
+    
+    // Wifi IP
+    public static func getWiFiIPv4Address() -> String? {
+        let addresses = getAllIPAddresses()
+        for (interface, address) in addresses {
+            if interface == "en0", address.contains(".") {          // IPv4는 점(.)이 있음
+                return address
+            }
+        }
+        return nil
+    }
+    
+    /// Cellular IP (LTE, 5G)
+    public static func getCellularIPv4Address() -> String? {
+        let addresses = getAllIPAddresses()
+        for (interface, address) in addresses {
+            if interface == "pdp_ip0", address.contains(".") {      // IPv4는 점(.)이 있음
+                return address
+            }
+        }
+        return nil
+    }
+    
+    // 현재 시간대를 가져옴.
+    public static func getCurrentTimeZone() -> String {
+        return TimeZone.current.identifier
+    }
+}
+
+/// 웹브라우저를 통해 간단하게 UserAgent를 가져오기
+public class UserAgentFetcher: NSObject, WKNavigationDelegate {
+    private var webView: WKWebView?
+    private var completion: ((String?) -> Void)?
+
+    public func getUserAgent(completion: @escaping (String?) -> Void) {
+        self.completion = completion
+        let webView = WKWebView(frame: .zero)
+        webView.navigationDelegate = self
+        self.webView = webView
+
+        // 아주 가벼운 HTML을 로드
+        webView.loadHTMLString("<html></html>", baseURL: nil)
+//        webView.load(URLRequest(url: URL(string: "https://www.obzen.com")!))
+    }
+
+    // 로드가 끝난 뒤 호출
+    // User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 18_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+    public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        webView.evaluateJavaScript("navigator.userAgent") { [weak self] result, error in
+            if let userAgent = result as? String {
+                self?.completion?(userAgent)
+            } else {
+                self?.completion?(nil)
+            }
+            self?.webView = nil  // 끝났으면 메모리 정리
+        }
+    }
 }
 
 extension Locale {
@@ -234,5 +354,10 @@ public class AES256Util {
         let aesObject = try! AES(key: keyDecodes, blockMode: CBC(iv: ivDecodes), padding: .pkcs5)
  
         return aesObject
+    }
+    
+    // SHA256을 이용해 Key 스트링을 가지고 유니크한 hash 스트링을 리턴
+    func uniqueString(from key: String) -> String {
+        return key.sha256()
     }
 }

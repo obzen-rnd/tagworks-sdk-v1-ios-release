@@ -9,7 +9,7 @@
   <span style="font-size: 24px;">개발자 메뉴얼</span>
   <br><br>
   <br><br>
-  ver. 1.1.25
+  ver. 1.1.26
 </p>
 
 
@@ -29,15 +29,13 @@
 
 ![TagWorks SDK iOS](https://capsule-render.vercel.app/api?type=Soft&color=gradient&height=150&section=header&text=TagWorks-SDK-iOS&fontSize=50&animation=fadeOut)
 
-![Generic badge](https://img.shields.io/badge/version-v1.1.25-green.svg)
+![Generic badge](https://img.shields.io/badge/version-v1.1.26-green.svg)
 ![Generic badge](https://img.shields.io/badge/license-ApacheLicense2.0-blue.svg)
 ![Generic badge](https://img.shields.io/badge/Platform-iOS-red.svg)
 ![Generic badge](https://img.shields.io/badge/support-swift-yellow.svg)
 ![Generic badge](https://img.shields.io/badge/support-objective--c-yellow.svg)
 
 <br>
-
-
 
 ## 목차
 - [Mobile Tag 수집](#mobile-tag-수집)
@@ -60,6 +58,8 @@
   - [로그 전송](#로그-전송)
   - [Web View 연동](#web-view-연동)
   - [딥링크 (유입 경로 추적)](#딥링크-유입-경로-추적)
+  - [Crash Error Report (앱 크래시 발생 시 크래시 로그 저장 및 발송)](#crash-error-report-앱-크래시-발생-시-크래시-로그-저장-및-발송)
+    - [메소드 파라미터 설명](#메소드-파라미터-설명)
 - [InAppMessage](#inappmessage)
   - [onCMS Popup](#oncms-popup)
     - [onCMS Popup을 노출하기 위해 필요한 파라미터](#oncms-popup을-노출하기-위해-필요한-파라미터)
@@ -96,7 +96,7 @@ touch Podfile
 
 ```bash
 target '[Project Name]' do
-    pod 'TagWorks-SDK-iOS', :git => 'https://github.com/obzen-rnd/tagworks-sdk-v1-ios-release.git', :tag => 'release 최신 버전'
+    pod 'TagWorks-SDK-iOS', :git => 'https://github.com/obzen-rnd/tagworks-sdk-v1-ios-release.git', :tag => 'release 최신 버전(문서 버전 참조)'
 end
 ```
 
@@ -156,26 +156,29 @@ pod install --repo-update
 | ---------------- | ------- | ------ | -------------------------------------------------------  |
 | siteId           | String  | null   | 행동 정보 수집 대상 사이트 식별자                                |
 | baseUrl          | String  | null   | 행동 정보 데이터 수집 서버 url 주소                             |
-| isUseIntervals   | Bool    | false  | 주기 발송 사용 여부, false 일 경우 dispatchInterval 값이 무시되고 항상 즉시 발송된다.     |
-| dispatchInterval | Double  | 3      | 행동 정보 데이터 발송 주기 (최소 3초, 최대 10초 설정), 초단위        |
-| sessionTimeOut   | Double  | 5      | 행동 정보 데이터 수집 서버의 연결 대기 시간 (second), <b>최소 3초, 최대 60초 설정                          |
+| isUseIntervals   | Bool    | false  | 주기 발송 사용 여부, false 일 경우 dispatchIntervalWithSeconds 값이 무시되고 항상 즉시 발송된다.     |
+| dispatchIntervalWithSeconds | Double  | 3      | 행동 정보 데이터 발송 주기 (최소 3초, 최대 10초 설정), 초단위        |
+| sessionTimeOutWithSeconds   | Double  | 5      | 행동 정보 데이터 수집 서버의 연결 대기 시간 (second), <b>최소 3초, 최대 60초 설정                          |
 | isManualDispatch | Bool    | false  | 행동 정보 데이터 수동 발송 여부                                 |
 | userAgent        | String  | null   | user Agent 정보, 설정할 경우 설정된 값으로 전달                  |
 | appVersion       | String  | null   | Application 버전 정보, 설정하지 않을 경우 short version 전송     |
 | appName          | String  | null   | Application 이름, 설정하지 않을 경우 bundle name 전송           |
-| isUseDynamicParameter | Bool   | false | Dimension 동적 파라미터 사용 여부 (기본값 : false)           |
+| isUseDynamicParameter | Bool   | false | Dimension 동적 파라미터 사용 여부                           |
+| isEnabledAdId    | Bool    | false  | IDFA(광고식별자) 자동 수집 여부                                |
 |                                                                                                |
 
 <br>
 
 -   **siteId** 및 **baseUrl** 을 설정하지 않는 경우 SDK 초기화 과정에서 오류가 발생합니다.
--   **isUseIntervals** 값을 false로 설정할 경우에는 dispatchInterval 값이 무시되고 항상 즉시 발송됩니다. <br>true로 설정할 경우에는 dispatchInterval 값에 지정된 초를 주기로 데이터를 발송합니다.
--   **dispatchInterval** 은 큐에 저장된 행동 정보 데이터를 지정한 초만큼 발송하기 때문에, 지정한 시간 사이에 어플리케이션이 종료되는 경우 발송 할 수 없으니 적절한 시간으로 지정해야 합니다.
+-   **isUseIntervals** 값을 false로 설정할 경우에는 dispatchIntervalWithSeconds 값이 무시되고 항상 즉시 발송됩니다. <br>true로 설정할 경우에는 dispatchIntervalWithSeconds 값에 지정된 초를 주기로 데이터를 발송합니다.
+-   **dispatchIntervalWithSeconds** 는 큐에 저장된 행동 정보 데이터를 지정한 초만큼 주기로 발송하기 때문에, 지정한 시간 사이에 어플리케이션이 종료되는 경우 발송 할 수 없으니 적절한 시간으로 지정해야 합니다.
 -   이러한 경우를 대비하기 위하여 sceneWillResignActive 함수 내부(어플리케이션이 background 상태로 진입하는 부분)에서 dispatch() 메서드 호출을 권장합니다.
 -   isManualDispatch 값을 true 로 설정한 경우에는, 명시적으로 dispatch() 함수를 호출해야만 태깅 로그가 발송됩니다.
 -   **isUseDynamicParameter** 값을 true로 설정할 경우 Dimension의 key값을 문자형으로 사용하고, false로 설정할 경우 key값을 정수형으로 사용해야 합니다.
     - **isUseDynamicParameter** 에 <span style="color:rgb(223, 95, 56)">설정한 값에 따른 해당 메소드와는 다른 Dimension 메소드를 사용 시 데이터가 올바르게 전송되지 않을 수 있습니다.</span>
+-   <span style="color:rgb(223, 95, 56)">App에 광고식별자 사용 권한 설정이 되어 있는 경우</span>, isEnabledAdId 값을 true로 설정하면 SDK에서 자동으로 광고식별자를 수집합니다.
 -   **TagWorks.sharedInstance** 객체를 통하여 Singleton Instance를 제공하며, 전역에서 호출 가능합니다.
+-   AppDelegate의 application(_:,didFinishLaunchingWithOptions:) 메소드 최상단에 초기화 메소드를 호출합니다.
 
 <br>
 
@@ -190,26 +193,37 @@ import TagWorks_SDK_iOS
 import TagWorks_SDK_iOS_v1
 
 
+@main
+class AppDelegate: UIResponder, UIApplicationDelegate {
+    
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        // TagWorks instance 설정
+        TagWorks.sharedInstance.setInstanceConfig(siteId: "00,AAAAAAAA",
+                                                  baseUrl: URL(string: "http://obzen.com/obzenTagWorks")!,
+                                                  isUseIntervals: false,
+                                                  dispatchIntervalWithSeconds: 5,
+                                                  sessionTimeOutWithSeconds: 5,
+                                                  userAgent: nil,
+                                                  isManualDispatch: false,
+                                                  appVersion: "앱 버전",
+                                                  appName: "앱 이름",
+                                                  isUseDynamicParameter: true,
+                                                  isEnabledAdId: false)
+        ...
+    }
+}
 
-// TagWorks instance 설정
-TagWorks.sharedInstance.setInstanceConfig(siteId: "00,AAAAAAAA",
-                                          baseUrl: URL(string: "http://obzen.com/obzenTagWorks")!,
-                                          isUseIntervals: false,
-                                          dispatchIntervalWithSeconds: 5,
-                                          sessionTimeOutWithSeconds: 5,
-                                          userAgent: nil,
-                                          isManualDispatch: false,
-                                          appVersion: "앱 버전",
-                                          appName: "앱 이름",
-                                          isUseDynamicParameter: true)
 
 //
 // *** isUseIntervals : true 로 설정한 경우에만 설정 필요 ***
 //
 // SceneDelegate class 내부
-func sceneWillResignActive(_ scene: UIScene) {
-    // 어플리케이션이 background 상태 진입시 태깅 큐에 남아있는 데이터 모두 전송
-    TagWorks.sharedInstance.dispatch()
+class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+  
+    func sceneWillResignActive(_ scene: UIScene) {
+        // 어플리케이션이 background 상태 진입시 태깅 큐에 남아있는 데이터 모두 전송
+        TagWorks.sharedInstance.dispatch()
+    }
 }
 ```
 
@@ -237,23 +251,31 @@ if TagWorks.sharedInstance.isInitialize() == false {
 #import <TagWorks_SDK_iOS_v1/TagWorks_SDK_iOS_v1-Swift.h>
 
 
+@implementation AppDelegate
 
-// TagWorks instance 설정
-TagWorks *tagWorksInstance = TagWorks.sharedInstance;
-[tagWorksInstance setInstanceConfigWithSiteId:@"00,AAAAAAAA"
-                                      baseUrl:[NSURL URLWithString:@"http://obzen.com/obzenTagWorks"]
-                               isUseIntervals:NO
-                  dispatchIntervalWithSeconds:5
-                    sessionTimeOutWithSeconds:5
-                                    userAgent:nil
-                                   appVersion:@"1.1.0"
-                                      appName:@"obzen APP"
-                        isUseDynamicParameter:YES];
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    // TagWorks instance 설정
+    TagWorks *tagWorksInstance = TagWorks.sharedInstance;
+    [tagWorksInstance setInstanceConfigWithSiteId:@"00,AAAAAAAA"
+                                          baseUrl:[NSURL URLWithString:@"http://obzen.com/obzenTagWorks"]
+                                   isUseIntervals:NO
+                      dispatchIntervalWithSeconds:5
+                        sessionTimeOutWithSeconds:5
+                                        userAgent:nil
+                                       appVersion:@"1.1.0"
+                                          appName:@"obzen APP"
+                            isUseDynamicParameter:YES
+                                    isEnabledAdId:NO];
+    ...
+}
+
 
 //
 // *** isUseIntervals : true 로 설정한 경우에만 설정 필요 ***
 //
 // SceneDelegate class 내부
+@implementation SceneDelegate
+
 - (void) sceneWillResignActive:(UIScene *)scene {
     // 어플리케이션이 background 상태 진입시 태깅 큐에 남아있는 데이터 모두 전송
     TagWorks *tagWorksInstance = TagWorks.sharedInstance;
@@ -273,7 +295,12 @@ if (TagWorks.sharedInstance.isInitialize == false) {
 
 ## 사용자 설정
 
--   행동 데이터 수집 대상이 되는 사용자를 설정하고 수집 여부를 지정합니다.
+- 행동 데이터 수집 대상이 되는 사용자를 설정하고 수집 여부를 지정합니다.
+- userId 설정 시 주의 사항
+  - <span style="color: #ff0000">SDK 초기화 시점에 TagWorks.sharedInstance.userId = nil 로 초기화 합니다. </span>
+  - <span style="color: #ff0000">사용자가 로그인 시점에 userId를 설정 후 로그 아웃 시점에 userId = nil 로 초기화 합니다. </span>
+  - <span style="color: #ff0000">앱이 백그라운드로 진입 후 앱이 다시 활성화가 된 경우, 로그인 세션 체크 후 로그아웃 상태라면 userId = nil 로 초기화 합니다. </span>
+
 
 | 옵션        | 타입    | 기본값        | 설명                                                           |
 | ---------- | ------ | ----------- | ------------------------------------------------------------- |
@@ -284,6 +311,7 @@ if (TagWorks.sharedInstance.isInitialize == false) {
 | isDebugLogPrint | Bool | false    | SDK 디버그 용도로 로그 출력 여부                                    | 
 |                                                                                                   |
 
+
 <br>
 
 
@@ -293,7 +321,7 @@ if (TagWorks.sharedInstance.isInitialize == false) {
 // 수집 대상자 고객 식별자 지정 (로그인 완료 시점에 설정)
 TagWorks.sharedInstance.userId = "userid"
 
-// 수집 대상자 광고 식별자 지정
+// 수집 대상자 광고 식별자 지정 (기본적으로 가져오도록 설정됨.)
 TagWorks.sharedInstance.adId = "광고식별자 UUID"
 
 // 고객이 설정한 개인정보 수집 여부에 따라 수집 여부 지정
@@ -315,7 +343,7 @@ TagWorks.sharedInstance.isDebugLogPrint = true
 // 수집 대상자 고객 식별자 지정 (로그인 완료 시점에 설정)
 [TagWorks.sharedInstance setUserId:@"userid"];
 
-// 수집 대상자 광고 식별자 지정
+// 수집 대상자 광고 식별자 지정 (기본적으로 가져오도록 설정됨.)
 TagWorks.sharedInstance.adId = @"광고식별자 UUID";
 
 // 고객이 설정한 개인정보 수집 여부에 따라 수집 여부 지정
@@ -865,6 +893,34 @@ TagWorks.sharedInstance.sendReferrerEvent(openURL: <referrer url>)
 ```
 
 <br>
+
+## Crash Error Report (앱 크래시 발생 시 크래시 로그 저장 및 발송)
+
+-   앱에서 크래시(비정상종료) 발생 시 앱 내 설정한 NSSetUncaughtExceptionHandler 핸들러 또는 signal 핸들러를 통해 콜백이 발생한 경우, 해당 메소드를 통해 크래시 로그를 로컬에 저장합니다.
+-   앱이 재실행되면서 setInstanceConfig() 메소드가 호출되는 시점에 로컬에 저장되어 있는 크래시 로그를 SDK에서 자동으로 수집 서버로 전송합니다.
+-   현재 해당 기능은 DataBundle의 커스텀 디멘젼을 이용해 발송하기 때문에 동적 파라미터를 설정해서 사용을 하는 경우, <mark>TagManager -> 수집 항목 -> SDK 에서 항목 추가</mark>를 통해 다음 세가지 컬럼을 추가하여야만 해당 로그를 확인할 수 있습니다.
+    -   obz_err_type (에러 구분 코드)
+    -   obz_err_data (에러 메세지)
+    -   obz_err_time (에러 발생 시간 (KST))
+
+### 메소드 파라미터 설명
+
+| 파라미터          | 타입    | 설명                                                        |
+| --------------- | ------ | --------------------------------------------------------- |
+| errorType       | String | 에러 구분 코드 (exception / signal / fatalerror 등등)          |
+| errorMessage    | String | stack track 스트링 또는 크래시 발생 시 해당 조건값/로그 등등         |
+|                                                                                      |
+
+> **Swift**
+
+```swift
+TagWorks.sharedInstance.saveErrorReport(errorType: "에러 타입", errorMessage: "에러 메세지")
+```
+> **Objective-C**
+```objc
+[TagWorks.sharedInstance saveErrorReportWithErrorType: @"에러 타입" errorMessage: @"에러 메세지"];
+```
+<br>
 <br>
 
 # InAppMessage 
@@ -877,10 +933,10 @@ TagWorks.sharedInstance.sendReferrerEvent(openURL: <referrer url>)
 
 | 파라미터                        | 타입    | 설명                                                 |
 | ----------------------------- | ------ | --------------------------------------------------- |
-| onCMSUrl                      | String | 고객사에 설치된 onCMS 서버 URL (예: "https://lab.obzen.com/oncms")     |
+| onCmsUrl                      | String | 고객사에 설치된 onCMS 서버 URL (예: "https://lab.obzen.com/oncms")     |
 | cust_id                       | String | 고객 번호                                             |
 | rcmd_area_cd                  | String | 추천 영역 코드                                         |
-| viewController 객체            | 객체 포인터 | 팝업을 띄우기 위한 현재 ViewController의 객체 포인터       |
+| owner                         | 객체 포인터 | 팝업을 띄우기 위한 현재 ViewController의 객체 포인터       |
 |                                                                                              |
 
 > **Swift**
@@ -901,6 +957,7 @@ TagWorksPopup.sharedInstance.onCMSPopup
                                     rcmd_area_cd: @"추천영역코드" 
                                            owner: self];
 ```
+<br>
 
 ## onCMS Banner
 - onCMS 연동을 통해 앱 내 설정한 네이티브 영역에 배너를 노출할 수 있습니다.

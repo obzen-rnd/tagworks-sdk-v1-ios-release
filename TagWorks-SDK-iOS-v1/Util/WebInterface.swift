@@ -37,12 +37,12 @@ protocol WebInterfaceDelegate: AnyObject {
         contentController.add(self, name: messageHandlerName)
     }
     
- 
+    
     // MARK: WKScriptMessgeHandler Protocol
     /// 실제로 WebView Javascript에서 호출한 메세지 핸들러를 처리하는 부분
     /// 웹뷰에서만 쓰는 고유 Key 값 : tag_id (서버에서는 바이패스)
     public func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-//        print(message.name)
+        //        print(message.name)
         print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] WebInterface: \(message.body)")
         if (!TagWorks.sharedInstance.isInitialize()) {
             return
@@ -105,7 +105,7 @@ protocol WebInterfaceDelegate: AnyObject {
             }
         }
     }
-    
+}
 
     
     
@@ -122,5 +122,72 @@ protocol WebInterfaceDelegate: AnyObject {
     ///    key1: 'value1',
     ///    key2: 'value2'
     /// ])
-}
+    
+
+    // 웹브라우저 쿠키 설정 관련 코드
+//    func prepareWebConfiguration(completion: @escaping (WKWebViewConfiguration?) -> Void) {
+//        let urlString = "www.obzen.com"
+//        guard let url = URL(string: urlString) else { return }
+//
+//        if #available(iOS 11.0, *) {
+//            let uidCookie = HTTPCookie(properties: [
+//                .domain: "쿠키대상 domain(xxx.com)",
+//                .path: "/",
+//                .name: "uid",
+//                .value: "<사용자 식별자>",
+//                .secure: "TRUE",
+//                .expires: NSDate(timeIntervalSinceNow: 31556926) // 파라미터 값은 second
+//            ])!
+//            let ozvidCookie = HTTPCookie(properties: [
+//                .domain: "쿠키대상 domain(xxx.com)",
+//                .path: "/",
+//                .name: "ozvid",
+//                .value: TagWorks.instance.visitorId,
+//                .secure: "TRUE",
+//                .expires: NSDate(timeIntervalSinceNow: 31556926) // 파라미터 값은 second
+//            ])!
+//            let config = WKWebViewConfiguration()
+//            var wkPool = WKProcessPool()
+//            config.processPool = wkPool
+//            var webView = WKWebView(frame: .zero, configuration: config)
+//            webView.configuration.websiteDataStore.httpCookieStore.setCookie(uidCookie)
+//            webView.configuration.websiteDataStore.httpCookieStore.setCookie(ozvidCookie)
+//
+//            let request = URLRequest(url: url)
+//            webView.load(request)
+//
+//        } else {
+//            // frameRect는 맞춰서 작성
+//            var webView = WKWebView(frame: .zero)
+//            var request: NSMutableURLRequest = NSMutableURLRequest(url: url)
+//            var valueString = "uid='사용자 식별자';ozvid=\(TagWorks.instance.visitorId)"
+//            request.addValue(valueString, forHTTPHeaderField: "Cookie")
+//            webView.load(request as URLRequest)
+//        }
+//    }
+//}
+
+//@available(iOS 11.0, *)
+//extension WKWebViewConfiguration {
+//    static func includeCookie(cookies: [HTTPCookie], completion: @escaping (WKWebViewConfiguration?) -> Void) {
+//        let config = WKWebViewConfiguration()
+//        let dataStore = WKWebsiteDataStore.nonPersistent()
+//
+//        DispatchQueue.main.async {
+//            let waitGroup = DispatchGroup()
+//
+//            for cookie in cookies {
+//                waitGroup.enter()
+//                dataStore.httpCookieStore.setCookie(cookie) {
+//                    waitGroup.leave()
+//                }
+//            }
+//
+//            waitGroup.notify(queue: DispatchQueue.main) {
+//                config.websiteDataStore = dataStore
+//                completion(config)
+//            }
+//        }
+//    }
+//}
 

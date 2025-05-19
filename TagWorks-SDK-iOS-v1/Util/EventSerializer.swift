@@ -19,11 +19,17 @@ final class EventSerializer: Serializer {
         }
     }
     
+    internal func queryItemsWithLocalQueue(for event: Event) -> [String : String] {
+        event.queryItemsWithLocalQueue.reduce(into: [String : String]()) {
+            $0[$1.name] = $1.value
+        }
+    }
+    
     /// queue에서 이벤트 구조체를 반환합니다.
     /// - Parameter events: 이벤트 구조체 컬렉션
     /// - Returns: Json Data
-    internal func toJsonData(for events: [Event]) throws -> Data {
-        let eventsAsQueryItems: [[String: String]] = events.map { self.queryItems(for: $0) }
+    internal func toJsonData(for events: [Event], isLocalQueue: Bool = false) throws -> Data {
+        let eventsAsQueryItems: [[String: String]] = events.map { isLocalQueue == false ? self.queryItems(for: $0) : self.queryItemsWithLocalQueue(for: $0) }
         let serializedEvents = eventsAsQueryItems.map { items in
             items.map {
                 "\($0.key)=\($0.value)"
@@ -279,6 +285,41 @@ fileprivate extension Event {
                 URLQueryItem(name: URLQueryParams.clientDateTime, value: CommonUtil.Formatter.iso8601DateFormatter.string(from: clientDateTime)),
                 URLQueryItem(name: URLQueryParams.screenSize, value: String(format: "%1.0fx%1.0f", screenResolution.width, screenResolution.height)),
                 URLQueryItem(name: URLQueryParams.event, value: serializeEventString().stringByAddingPercentEncoding)
+            ]
+        }
+    }
+    
+    /// URLQuery 파라미터를 저장하는 컬렉션입니다.
+    var queryItemsWithLocalQueue: [URLQueryItem] {
+        get {
+            if let e_c = eventCategory {
+                // 웹뷰에서 호출이 되었을 경우, e_c 값 맨 뒤에 deviceType, AppVersion과 AppName을 덧붙인다.
+                // App의 웹뷰에서 발송할때 deviceType을 전송하지 않는 경우, 하나의 이벤트로 인식하기 때문에 필히 추가
+                let serializeDimensionString = TagWorks.sharedInstance.isUseDynamicParameter ? serializeDynamicCommonDimensions() : serializeCommonDimensions()
+                let eventString = e_c + "∞" + serializeDimensionString + "∞" + serializeAppInfo() + "∞" + "obz_unsent≡1"
+                return [
+                    URLQueryItem(name: URLQueryParams.siteId, value: siteId.stringByAddingPercentEncoding),
+                    URLQueryItem(name: URLQueryParams.userId, value: userId?.stringByAddingPercentEncoding),
+                    URLQueryItem(name: URLQueryParams.adId, value: adId?.stringByAddingPercentEncoding),
+                    URLQueryItem(name: URLQueryParams.url, value: (url?.absoluteString.decodeUrl())?.stringByAddingPercentEncoding),
+                    URLQueryItem(name: URLQueryParams.urlReferer, value: (urlReferer?.absoluteString.decodeUrl())?.stringByAddingPercentEncoding),
+                    URLQueryItem(name: URLQueryParams.language, value: language?.addingPercentEncoding(withAllowedCharacters: .alphanumerics)?.stringByAddingPercentEncoding),
+                    URLQueryItem(name: URLQueryParams.clientDateTime, value: CommonUtil.Formatter.iso8601DateFormatter.string(from: clientDateTime)),
+                    URLQueryItem(name: URLQueryParams.screenSize, value: String(format: "%1.0fx%1.0f", screenResolution.width, screenResolution.height)),
+                    URLQueryItem(name: URLQueryParams.event, value: eventString.stringByAddingPercentEncoding),
+                ]
+            }
+            
+            return [
+                URLQueryItem(name: URLQueryParams.siteId, value: siteId.stringByAddingPercentEncoding),
+                URLQueryItem(name: URLQueryParams.userId, value: userId?.stringByAddingPercentEncoding),
+                URLQueryItem(name: URLQueryParams.adId, value: adId?.stringByAddingPercentEncoding),
+                URLQueryItem(name: URLQueryParams.url, value: (url?.absoluteString.decodeUrl())?.stringByAddingPercentEncoding),
+                URLQueryItem(name: URLQueryParams.urlReferer, value: (urlReferer?.absoluteString.decodeUrl())?.stringByAddingPercentEncoding),
+                URLQueryItem(name: URLQueryParams.language, value: language?.addingPercentEncoding(withAllowedCharacters: .alphanumerics)?.stringByAddingPercentEncoding),
+                URLQueryItem(name: URLQueryParams.clientDateTime, value: CommonUtil.Formatter.iso8601DateFormatter.string(from: clientDateTime)),
+                URLQueryItem(name: URLQueryParams.screenSize, value: String(format: "%1.0fx%1.0f", screenResolution.width, screenResolution.height)),
+                URLQueryItem(name: URLQueryParams.event, value: (serializeEventString() + "∞" + "obz_unsent≡1").stringByAddingPercentEncoding)
             ]
         }
     }
