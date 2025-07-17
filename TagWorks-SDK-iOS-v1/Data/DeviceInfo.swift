@@ -14,7 +14,7 @@ public struct DeviceInfo {
     /// 디바이스 플랫폼
     public let devicePlatform: String
     
-    /// 디바이스 플랫폼
+    /// 디바이스 모델명
     public let deviceModelName: String
     
     /// 디바이스 OS
@@ -82,7 +82,7 @@ extension DeviceInfo {
     // 기기식별자를 이용한 기기모델명 맵핑 후 전달
     private static func getDeviceModelName() -> String {
         let identifier = DeviceInfo.getDevicePlatform()
-
+        
         switch identifier {
             case "iPhone17,5": return "iPhone 16e"
             case "iPhone17,2": return "iPhone 16 Pro Max"
