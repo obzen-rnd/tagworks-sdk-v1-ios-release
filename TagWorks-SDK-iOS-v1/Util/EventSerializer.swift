@@ -54,17 +54,32 @@ fileprivate extension Event {
         eventCommonItems.append(URLQueryItem(name: EventParams.triggerType, value: eventType))
         eventCommonItems.append(URLQueryItem(name: EventParams.visitorId, value: visitorId))
         
-        if pageTitle != nil {
+        if let pageTitle = self.pageTitle {
             eventCommonItems.append(URLQueryItem(name: EventParams.pageTitle, value: pageTitle))
         }
-        if searchKeyword != nil {
+        if let searchKeyword = self.searchKeyword {
             eventCommonItems.append(URLQueryItem(name: EventParams.searchKeyword, value: searchKeyword))
         }
-        if customUserPath != nil {
+        if let customUserPath = self.customUserPath {
             eventCommonItems.append(URLQueryItem(name: EventParams.customUserPath, value: customUserPath))
         }
-        if errorMsg != nil {
+        if let errorMsg = self.errorMsg {
             eventCommonItems.append(URLQueryItem(name: EventParams.errorMessage, value: errorMsg))
+        }
+        if let inflow = self.inflow {
+            eventCommonItems.append(URLQueryItem(name: EventParams.inflowChannel, value: inflow))
+        }
+        if let errorType = self.errorType {
+            eventCommonItems.append(URLQueryItem(name: EventParams.errorType, value: errorType))
+        }
+        if let errorData = self.errorData {
+            eventCommonItems.append(URLQueryItem(name: EventParams.errorData, value: errorData))
+        }
+        if let errorTime = self.errorTime {
+            eventCommonItems.append(URLQueryItem(name: EventParams.errorTime, value: errorTime))
+        }
+        if let evtPlatform = self.evtPlatform {
+            eventCommonItems.append(URLQueryItem(name: EventParams.eventPlatform, value: evtPlatform))
         }
 
         eventCommonItems.append(URLQueryItem(name: EventParams.deviceType, value: "app"))
@@ -117,7 +132,9 @@ fileprivate extension Event {
 //            }
         } else {
             // 동적 파라미터
-            customDimensionItems.append(URLQueryItem(name: EventParams.dynamicDimension, value: convertJsonStringWithDynamicCommonDimensions()))
+            if !self.dimensions.isEmpty {
+                customDimensionItems.append(URLQueryItem(name: EventParams.dynamicDimension, value: convertJsonStringWithDynamicCommonDimensions()))
+            }
         }
         let eventsAsQueryItems = eventCommonItems + customDimensionItems
         let serializedEvents = eventsAsQueryItems.reduce(into: [String:String]()) {
@@ -130,6 +147,7 @@ fileprivate extension Event {
     
     private func serializeAppInfo() -> String {
         var eventCommonItems: [URLQueryItem] = []
+        eventCommonItems.append(URLQueryItem(name: EventParams.eventPlatform, value: "2"))      // 웹뷰에서 보내온 로그 수집
         eventCommonItems.append(URLQueryItem(name: EventParams.deviceType, value: "app"))
         eventCommonItems.append(URLQueryItem(name: EventParams.appVersion, value: TagWorks.sharedInstance.appVersion ?? AppInfo.getBundleShortVersion()))
         eventCommonItems.append(URLQueryItem(name: EventParams.appName, value: TagWorks.sharedInstance.appName ?? AppInfo.getBundleName()))
@@ -264,8 +282,8 @@ fileprivate extension Event {
                     URLQueryItem(name: URLQueryParams.adId, value: adId?.stringByAddingPercentEncoding),
 //                    URLQueryItem(name: URLQueryParams.url, value: url?.absoluteString.stringByAddingPercentEncoding),
 //                    URLQueryItem(name: URLQueryParams.urlReferer, value: urlReferer?.absoluteString.stringByAddingPercentEncoding),
-                    URLQueryItem(name: URLQueryParams.url, value: (url?.absoluteString.decodeUrl())?.stringByAddingPercentEncoding),
-                    URLQueryItem(name: URLQueryParams.urlReferer, value: (urlReferer?.absoluteString.decodeUrl())?.stringByAddingPercentEncoding),
+                    URLQueryItem(name: URLQueryParams.url, value: (url?.absoluteString.decodeUrl())?.stringByAddingPercentEncodingWithContainEqual),
+                    URLQueryItem(name: URLQueryParams.urlReferer, value: (urlReferer?.absoluteString.decodeUrl())?.stringByAddingPercentEncodingWithContainEqual),
                     URLQueryItem(name: URLQueryParams.language, value: language?.addingPercentEncoding(withAllowedCharacters: .alphanumerics)?.stringByAddingPercentEncoding),
                     URLQueryItem(name: URLQueryParams.clientDateTime, value: CommonUtil.Formatter.iso8601DateFormatter.string(from: clientDateTime)),
                     URLQueryItem(name: URLQueryParams.screenSize, value: String(format: "%1.0fx%1.0f", screenResolution.width, screenResolution.height)),
@@ -279,8 +297,8 @@ fileprivate extension Event {
                 URLQueryItem(name: URLQueryParams.adId, value: adId?.stringByAddingPercentEncoding),
 //                URLQueryItem(name: URLQueryParams.url, value: url?.absoluteString.stringByAddingPercentEncoding),
 //                URLQueryItem(name: URLQueryParams.urlReferer, value: urlReferer?.absoluteString.stringByAddingPercentEncoding),
-                URLQueryItem(name: URLQueryParams.url, value: (url?.absoluteString.decodeUrl())?.stringByAddingPercentEncoding),
-                URLQueryItem(name: URLQueryParams.urlReferer, value: (urlReferer?.absoluteString.decodeUrl())?.stringByAddingPercentEncoding),
+                URLQueryItem(name: URLQueryParams.url, value: (url?.absoluteString.decodeUrl())?.stringByAddingPercentEncodingWithContainEqual),
+                URLQueryItem(name: URLQueryParams.urlReferer, value: (urlReferer?.absoluteString.decodeUrl())?.stringByAddingPercentEncodingWithContainEqual),
                 URLQueryItem(name: URLQueryParams.language, value: language?.addingPercentEncoding(withAllowedCharacters: .alphanumerics)?.stringByAddingPercentEncoding),
                 URLQueryItem(name: URLQueryParams.clientDateTime, value: CommonUtil.Formatter.iso8601DateFormatter.string(from: clientDateTime)),
                 URLQueryItem(name: URLQueryParams.screenSize, value: String(format: "%1.0fx%1.0f", screenResolution.width, screenResolution.height)),
@@ -301,8 +319,8 @@ fileprivate extension Event {
                     URLQueryItem(name: URLQueryParams.siteId, value: siteId.stringByAddingPercentEncoding),
                     URLQueryItem(name: URLQueryParams.userId, value: userId?.stringByAddingPercentEncoding),
                     URLQueryItem(name: URLQueryParams.adId, value: adId?.stringByAddingPercentEncoding),
-                    URLQueryItem(name: URLQueryParams.url, value: (url?.absoluteString.decodeUrl())?.stringByAddingPercentEncoding),
-                    URLQueryItem(name: URLQueryParams.urlReferer, value: (urlReferer?.absoluteString.decodeUrl())?.stringByAddingPercentEncoding),
+                    URLQueryItem(name: URLQueryParams.url, value: (url?.absoluteString.decodeUrl())?.stringByAddingPercentEncodingWithContainEqual),
+                    URLQueryItem(name: URLQueryParams.urlReferer, value: (urlReferer?.absoluteString.decodeUrl())?.stringByAddingPercentEncodingWithContainEqual),
                     URLQueryItem(name: URLQueryParams.language, value: language?.addingPercentEncoding(withAllowedCharacters: .alphanumerics)?.stringByAddingPercentEncoding),
                     URLQueryItem(name: URLQueryParams.clientDateTime, value: CommonUtil.Formatter.iso8601DateFormatter.string(from: clientDateTime)),
                     URLQueryItem(name: URLQueryParams.screenSize, value: String(format: "%1.0fx%1.0f", screenResolution.width, screenResolution.height)),
@@ -314,8 +332,8 @@ fileprivate extension Event {
                 URLQueryItem(name: URLQueryParams.siteId, value: siteId.stringByAddingPercentEncoding),
                 URLQueryItem(name: URLQueryParams.userId, value: userId?.stringByAddingPercentEncoding),
                 URLQueryItem(name: URLQueryParams.adId, value: adId?.stringByAddingPercentEncoding),
-                URLQueryItem(name: URLQueryParams.url, value: (url?.absoluteString.decodeUrl())?.stringByAddingPercentEncoding),
-                URLQueryItem(name: URLQueryParams.urlReferer, value: (urlReferer?.absoluteString.decodeUrl())?.stringByAddingPercentEncoding),
+                URLQueryItem(name: URLQueryParams.url, value: (url?.absoluteString.decodeUrl())?.stringByAddingPercentEncodingWithContainEqual),
+                URLQueryItem(name: URLQueryParams.urlReferer, value: (urlReferer?.absoluteString.decodeUrl())?.stringByAddingPercentEncodingWithContainEqual),
                 URLQueryItem(name: URLQueryParams.language, value: language?.addingPercentEncoding(withAllowedCharacters: .alphanumerics)?.stringByAddingPercentEncoding),
                 URLQueryItem(name: URLQueryParams.clientDateTime, value: CommonUtil.Formatter.iso8601DateFormatter.string(from: clientDateTime)),
                 URLQueryItem(name: URLQueryParams.screenSize, value: String(format: "%1.0fx%1.0f", screenResolution.width, screenResolution.height)),
@@ -327,8 +345,8 @@ fileprivate extension Event {
 
 fileprivate extension CharacterSet {
     
-    /// URLQuery 파라미터에 허용되는 특수문자를 반환합니다.
-    static var urlQueryParameterAllowed: CharacterSet {
-        return CharacterSet.urlQueryAllowed.subtracting(CharacterSet(charactersIn: ###"&/?;',+"!^()=@*$"###))
-    }
+//    /// URLQuery 파라미터에 허용되는 특수문자를 반환합니다.
+//    static var urlQueryParameterAllowed: CharacterSet {
+//        return CharacterSet.urlQueryAllowed.subtracting(CharacterSet(charactersIn: ###"&/?;',+"!^()=@*$"###))
+//    }
 }

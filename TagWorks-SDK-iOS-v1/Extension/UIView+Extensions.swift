@@ -11,6 +11,33 @@ import ObjectiveC
 
 internal extension UIView {
     
+    // 해당 뷰가 속해 있는 ViewController를 리턴
+    var viewController: UIViewController? {
+        var responder: UIResponder? = self
+        while let next = responder?.next {
+            if let vc = next as? UIViewController {
+                return vc
+            }
+            responder = next
+        }
+        return nil
+    }
+    
+    // UIView에 roundRadius를 적용
+    func roundCorners(corners: UIRectCorner, radius: CGFloat) {
+        let path = UIBezierPath(
+            roundedRect: bounds,
+            byRoundingCorners: corners,
+            cornerRadii: CGSize(width: radius, height: radius)
+        )
+        let shapeLayer = CAShapeLayer()
+        shapeLayer.path = path.cgPath
+        layer.mask = shapeLayer
+    }
+    
+    ///
+    /// 스위즐링 Part
+    ///
     // MARK: 감지 여부 저장용 Associated Object
     private struct AssociatedKeys {
         static var hasTrackedKey : UInt8 = 0
@@ -75,15 +102,6 @@ internal extension UIView {
                 }
             }
     }
-    
-    func roundCorners(corners: UIRectCorner, radius: CGFloat) {
-        let path = UIBezierPath(
-            roundedRect: bounds,
-            byRoundingCorners: corners,
-            cornerRadii: CGSize(width: radius, height: radius)
-        )
-        let shapeLayer = CAShapeLayer()
-        shapeLayer.path = path.cgPath
-        layer.mask = shapeLayer
-    }
 }
+
+

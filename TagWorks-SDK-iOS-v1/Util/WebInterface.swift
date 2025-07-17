@@ -15,7 +15,7 @@ protocol WebInterfaceDelegate: AnyObject {
 
 @objc final public class WebInterface: NSObject, WKScriptMessageHandler {
     
-    public let messageHandlerName = "TagWorksJSInterfaces"
+    @objc public let messageHandlerName = "TagWorksJSInterfaces"
     
     weak var delegate: WebInterfaceDelegate?
     
@@ -42,8 +42,8 @@ protocol WebInterfaceDelegate: AnyObject {
     /// 실제로 WebView Javascript에서 호출한 메세지 핸들러를 처리하는 부분
     /// 웹뷰에서만 쓰는 고유 Key 값 : tag_id (서버에서는 바이패스)
     public func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        //        print(message.name)
         print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] WebInterface: \(message.body)")
+        
         if (!TagWorks.sharedInstance.isInitialize()) {
             return
         }
@@ -135,7 +135,7 @@ protocol WebInterfaceDelegate: AnyObject {
 //                .path: "/",
 //                .name: "uid",
 //                .value: "<사용자 식별자>",
-//                .secure: "TRUE",
+//                .secure: true,
 //                .expires: NSDate(timeIntervalSinceNow: 31556926) // 파라미터 값은 second
 //            ])!
 //            let ozvidCookie = HTTPCookie(properties: [
@@ -143,7 +143,7 @@ protocol WebInterfaceDelegate: AnyObject {
 //                .path: "/",
 //                .name: "ozvid",
 //                .value: TagWorks.instance.visitorId,
-//                .secure: "TRUE",
+//                .secure: true,
 //                .expires: NSDate(timeIntervalSinceNow: 31556926) // 파라미터 값은 second
 //            ])!
 //            let config = WKWebViewConfiguration()

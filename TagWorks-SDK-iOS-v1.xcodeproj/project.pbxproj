@@ -13,6 +13,10 @@
 		9815590D2D7989A600AA8B9F /* TagWorksPopup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9815590C2D7989A600AA8B9F /* TagWorksPopup.swift */; };
 		981559102D79A23C00AA8B9F /* UI+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9815590F2D79A23C00AA8B9F /* UI+Extensions.swift */; };
 		981559122D79B05F00AA8B9F /* WebPopupStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 981559112D79B05F00AA8B9F /* WebPopupStyle.swift */; };
+		9820E08B2E01580F00D74BD2 /* FingerprintManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9820E08A2E01580F00D74BD2 /* FingerprintManager.swift */; };
+		983CC3942DDF2830001BCB6B /* UIApplication+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 983CC3922DDF2830001BCB6B /* UIApplication+Extensions.swift */; };
+		983CC3952DDF2830001BCB6B /* UIControl+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 983CC3932DDF2830001BCB6B /* UIControl+Extensions.swift */; };
+		984B0D682DE6FC2900A49D98 /* CrashLogManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 984B0D672DE6FC2900A49D98 /* CrashLogManager.swift */; };
 		9850EAF42D019BF300701F00 /* Bit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9850EAC82D019BF300701F00 /* Bit.swift */; };
 		9850EAF52D019BF300701F00 /* UInt8+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9850EAEB2D019BF300701F00 /* UInt8+Extension.swift */; };
 		9850EAF62D019BF300701F00 /* BlockCipher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9850EAC92D019BF300701F00 /* BlockCipher.swift */; };
@@ -89,6 +93,10 @@
 		9850EB3D2D019BF300701F00 /* Int+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9850EADB2D019BF300701F00 /* Int+Extension.swift */; };
 		9850EB3E2D019BF300701F00 /* NoPadding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9850EADE2D019BF300701F00 /* NoPadding.swift */; };
 		9850EB3F2D019BF300701F00 /* PBKDF2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9850EABE2D019BF300701F00 /* PBKDF2.swift */; };
+		9862455E2DE99743006D8FB0 /* SwizzlingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9862455D2DE99743006D8FB0 /* SwizzlingManager.swift */; };
+		9869AE8E2E13AD080050968C /* DeeplinkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9869AE8D2E13AD080050968C /* DeeplinkManager.swift */; };
+		989930F02DF6DF020057D37C /* UIWindowScene+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 989930EF2DF6DF020057D37C /* UIWindowScene+Extensions.swift */; };
+		989930F22DF8135E0057D37C /* BackgroundTaskManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 989930F12DF8135E0057D37C /* BackgroundTaskManager.swift */; };
 		98A273FE2D8BA1AA0072A10C /* DetailWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98A273FD2D8BA1AA0072A10C /* DetailWebViewController.swift */; };
 		98A2740D2D8CFAEF0072A10C /* close_416.png in Resources */ = {isa = PBXBuildFile; fileRef = 98A2740B2D8CFAEF0072A10C /* close_416.png */; };
 		98A2740E2D8CFAEF0072A10C /* close_white_416.png in Resources */ = {isa = PBXBuildFile; fileRef = 98A2740C2D8CFAEF0072A10C /* close_white_416.png */; };
@@ -140,6 +148,10 @@
 		9815590C2D7989A600AA8B9F /* TagWorksPopup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagWorksPopup.swift; sourceTree = "<group>"; };
 		9815590F2D79A23C00AA8B9F /* UI+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UI+Extensions.swift"; sourceTree = "<group>"; };
 		981559112D79B05F00AA8B9F /* WebPopupStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebPopupStyle.swift; sourceTree = "<group>"; };
+		9820E08A2E01580F00D74BD2 /* FingerprintManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FingerprintManager.swift; sourceTree = "<group>"; };
+		983CC3922DDF2830001BCB6B /* UIApplication+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication+Extensions.swift"; sourceTree = "<group>"; };
+		983CC3932DDF2830001BCB6B /* UIControl+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIControl+Extensions.swift"; sourceTree = "<group>"; };
+		984B0D672DE6FC2900A49D98 /* CrashLogManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrashLogManager.swift; sourceTree = "<group>"; };
 		9850EAA32D019BF300701F00 /* AEAD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEAD.swift; sourceTree = "<group>"; };
 		9850EAA42D019BF300701F00 /* AEADChaCha20Poly1305.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AEADChaCha20Poly1305.swift; sourceTree = "<group>"; };
 		9850EAA62D019BF300701F00 /* BlockMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockMode.swift; sourceTree = "<group>"; };
@@ -216,6 +228,10 @@
 		9850EAF02D019BF300701F00 /* Updatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Updatable.swift; sourceTree = "<group>"; };
 		9850EAF12D019BF300701F00 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		9850EAF22D019BF300701F00 /* ZeroPadding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZeroPadding.swift; sourceTree = "<group>"; };
+		9862455D2DE99743006D8FB0 /* SwizzlingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwizzlingManager.swift; sourceTree = "<group>"; };
+		9869AE8D2E13AD080050968C /* DeeplinkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeeplinkManager.swift; sourceTree = "<group>"; };
+		989930EF2DF6DF020057D37C /* UIWindowScene+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIWindowScene+Extensions.swift"; sourceTree = "<group>"; };
+		989930F12DF8135E0057D37C /* BackgroundTaskManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundTaskManager.swift; sourceTree = "<group>"; };
 		98A273FD2D8BA1AA0072A10C /* DetailWebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailWebViewController.swift; sourceTree = "<group>"; };
 		98A2740B2D8CFAEF0072A10C /* close_416.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = close_416.png; sourceTree = "<group>"; };
 		98A2740C2D8CFAEF0072A10C /* close_white_416.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = close_white_416.png; sourceTree = "<group>"; };
@@ -274,9 +290,12 @@
 		9815590E2D79A21C00AA8B9F /* Extension */ = {
 			isa = PBXGroup;
 			children = (
-				9815590F2D79A23C00AA8B9F /* UI+Extensions.swift */,
+				983CC3922DDF2830001BCB6B /* UIApplication+Extensions.swift */,
+				989930EF2DF6DF020057D37C /* UIWindowScene+Extensions.swift */,
 				98CFA01C2DD7271900D347C3 /* UIViewController+Extensions.swift */,
 				98CFA01E2DD7274B00D347C3 /* UIView+Extensions.swift */,
+				983CC3932DDF2830001BCB6B /* UIControl+Extensions.swift */,
+				9815590F2D79A23C00AA8B9F /* UI+Extensions.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -401,6 +420,11 @@
 			children = (
 				981559062D79898B00AA8B9F /* RestApiManager.swift */,
 				981559072D79898B00AA8B9F /* WebViewManager.swift */,
+				984B0D672DE6FC2900A49D98 /* CrashLogManager.swift */,
+				9862455D2DE99743006D8FB0 /* SwizzlingManager.swift */,
+				989930F12DF8135E0057D37C /* BackgroundTaskManager.swift */,
+				9820E08A2E01580F00D74BD2 /* FingerprintManager.swift */,
+				9869AE8D2E13AD080050968C /* DeeplinkManager.swift */,
 			);
 			path = Manager;
 			sourceTree = "<group>";
@@ -672,6 +696,7 @@
 				9850EB042D019BF300701F00 /* AES.Cryptors.swift in Sources */,
 				9850EB052D019BF300701F00 /* Authenticator.swift in Sources */,
 				9815590D2D7989A600AA8B9F /* TagWorksPopup.swift in Sources */,
+				989930F02DF6DF020057D37C /* UIWindowScene+Extensions.swift in Sources */,
 				9850EB062D019BF300701F00 /* CBC.swift in Sources */,
 				9850EB072D019BF300701F00 /* StreamEncryptor.swift in Sources */,
 				9850EB082D019BF300701F00 /* Rabbit.swift in Sources */,
@@ -684,8 +709,10 @@
 				9850EB0F2D019BF300701F00 /* String+Extension.swift in Sources */,
 				9850EB102D019BF300701F00 /* ChaCha20+Foundation.swift in Sources */,
 				9850EB112D019BF300701F00 /* CBCMAC.swift in Sources */,
+				9862455E2DE99743006D8FB0 /* SwizzlingManager.swift in Sources */,
 				9850EB122D019BF300701F00 /* Updatable.swift in Sources */,
 				981559082D79898B00AA8B9F /* RestApiManager.swift in Sources */,
+				9820E08B2E01580F00D74BD2 /* FingerprintManager.swift in Sources */,
 				981559092D79898B00AA8B9F /* WebViewManager.swift in Sources */,
 				9850EB132D019BF300701F00 /* OCB.swift in Sources */,
 				9850EB142D019BF300701F00 /* BlockModeOptions.swift in Sources */,
@@ -705,11 +732,14 @@
 				9850EB202D019BF300701F00 /* CMAC.swift in Sources */,
 				9850EB212D019BF300701F00 /* ZeroPadding.swift in Sources */,
 				9850EB222D019BF300701F00 /* Padding.swift in Sources */,
+				983CC3942DDF2830001BCB6B /* UIApplication+Extensions.swift in Sources */,
+				983CC3952DDF2830001BCB6B /* UIControl+Extensions.swift in Sources */,
 				9850EB232D019BF300701F00 /* CFB.swift in Sources */,
 				9850EB242D019BF300701F00 /* MD5.swift in Sources */,
 				9850EB252D019BF300701F00 /* CompactMap.swift in Sources */,
 				9850EB262D019BF300701F00 /* Array+Foundation.swift in Sources */,
 				9850EB272D019BF300701F00 /* ChaCha20.swift in Sources */,
+				989930F22DF8135E0057D37C /* BackgroundTaskManager.swift in Sources */,
 				9850EB282D019BF300701F00 /* SHA2.swift in Sources */,
 				9850EB292D019BF300701F00 /* CTR.swift in Sources */,
 				9850EB2A2D019BF300701F00 /* PKCS7Padding.swift in Sources */,
@@ -740,12 +770,14 @@
 				98CE85372C50CDF500245400 /* Serializer.swift in Sources */,
 				98CE85302C50CDF500245400 /* CommonUtil.swift in Sources */,
 				98CE85312C50CDF500245400 /* DefaultLogger.swift in Sources */,
+				9869AE8E2E13AD080050968C /* DeeplinkManager.swift in Sources */,
 				98CE853B2C50CDF500245400 /* Dimension.swift in Sources */,
 				98CE85342C50CDF500245400 /* Dispatcher.swift in Sources */,
 				9815590B2D79899900AA8B9F /* WebPopupViewController.swift in Sources */,
 				98CE853A2C50CDF500245400 /* DeviceInfo.swift in Sources */,
 				98CE84FF2C50CD7700245400 /* TagWorks_SDK_iOS_v1.docc in Sources */,
 				98CE853C2C50CDF500245400 /* Event.swift in Sources */,
+				984B0D682DE6FC2900A49D98 /* CrashLogManager.swift in Sources */,
 				98CE85362C50CDF500245400 /* Queue.swift in Sources */,
 				98CE85332C50CDF500245400 /* EventSerializer.swift in Sources */,
 				98CE852F2C50CDF500245400 /* LogLevel.swift in Sources */,
@@ -908,11 +940,11 @@
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.1.26;
+				CURRENT_PROJECT_VERSION = 1.1.27;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = SD2JH29386;
 				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1.1.26;
+				DYLIB_CURRENT_VERSION = 1.1.27;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
@@ -925,7 +957,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.26;
+				MARKETING_VERSION = 1.1.27;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
 				OTHER_LDFLAGS = "$(inherited)";
@@ -946,11 +978,11 @@
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.1.26;
+				CURRENT_PROJECT_VERSION = 1.1.27;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = SD2JH29386;
 				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1.1.26;
+				DYLIB_CURRENT_VERSION = 1.1.27;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
@@ -963,7 +995,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.26;
+				MARKETING_VERSION = 1.1.27;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
 				OTHER_LDFLAGS = "$(inherited)";

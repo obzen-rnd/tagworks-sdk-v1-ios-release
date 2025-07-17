@@ -51,6 +51,19 @@ func print(_ items: Any..., separator: String = " ", terminator: String = "\n") 
 #endif
 }
 
+// 해당 함수를 호출한 함수의 정보를 출력하는 메소드
+func debugPrint(_ message: String, file: String = #file, line: Int = #line, function: String = #function) {
+    let log = "💥 Debug: \(message)\n📄 File: \(file)\n🔢 Line: \(line)\n🔧 Function: \(function)\n"
+    print(log)
+}
+
+// 해당 함수를 호출한 함수의 정보를 가져오는 메소드
+func logCrashContext(_ message: String, file: String = #file, line: Int = #line, function: String = #function) -> String {
+    let log = "💥 Crash Context: \(message)\n📄 File: \(file)\n🔢 Line: \(line)\n🔧 Function: \(function)\n"
+    return log
+}
+
+
 // 📌 로그 업데이트용 Notification 이름 정의
 extension Notification.Name {
     static public let logUpdated = Notification.Name("logUpdated")

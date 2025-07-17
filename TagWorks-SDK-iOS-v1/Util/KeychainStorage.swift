@@ -15,9 +15,21 @@ final public class KeychainStorage {
     private init() {}
     
     private let account = "TagWorks/Account"
-    private let service = Bundle.main.bundleIdentifier
+    private let service = Bundle.main.bundleIdentifier ?? "TagWorks.DefaultService"
     private var accessGroup: String?
-    public var lastErrorStatus: OSStatus = noErr;
+    public var lastErrorStatus: OSStatus = noErr {
+        didSet {
+            if lastErrorStatus != noErr {
+                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Keychain error occurred: \(lastErrorDescription)")
+            }
+        }
+    }
+    public var lastErrorDescription: String {
+        if #available(iOS 11.3, *) {
+            return SecCopyErrorMessageString(lastErrorStatus, nil) as String? ?? "Unknown error"
+        }
+        return "Error code: \(lastErrorStatus)"
+    }
     
     // MARK: - Public Methods
     
@@ -25,8 +37,10 @@ final public class KeychainStorage {
         self.lastErrorStatus = noErr
         let UUIDString = find()
         if UUIDString != nil {
+            DeeplinkManager.sharedInstance.isFirstInstall = false
             return UUIDString
         }
+        DeeplinkManager.sharedInstance.isFirstInstall = true
         return create()
     }
     
@@ -73,7 +87,7 @@ final public class KeychainStorage {
         return [
             kSecClass: kSecClassGenericPassword,
             kSecAttrAccount: account,
-            kSecAttrService: service!,
+            kSecAttrService: service,
             kSecMatchLimit: kSecMatchLimitOne,      // 하나의 아이템만 검색
             kSecReturnAttributes: true,
             kSecReturnData: true
@@ -87,7 +101,7 @@ final public class KeychainStorage {
             kSecAttrAccessible: kSecAttrAccessibleAfterFirstUnlock,
             kSecValueData: UUIDString.data(using: .utf8)!,
             kSecAttrDescription: "",
-            kSecAttrService: service!,
+            kSecAttrService: service,
             kSecAttrComment: ""]
         if (self.accessGroup != nil) && self.accessGroup!.count > 0 {
             items[kSecAttrAccessGroup] = self.accessGroup
@@ -99,7 +113,7 @@ final public class KeychainStorage {
         return [
             kSecClass: kSecClassGenericPassword,
             kSecAttrAccount: account,
-            kSecAttrService: service!,
+            kSecAttrService: service,
         ]
     }
     

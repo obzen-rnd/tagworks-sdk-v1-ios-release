@@ -42,8 +42,9 @@ public final class DefaultDispatcher: Dispatcher {
         self.timeOut = tOut
         self.session = URLSession.shared
         self.baseUrl = baseUrl
-//        self.userAgent = userAgent ?? UserAgent(appInfo: AppInfo.getApplicationInfo(), deviceInfo: DeviceInfo.getDeviceInfo()).userAgentString
+        // userAgent를 설정해도 아카이브에서는 기본 정보만 사용하기에 필요가 없다 판단해 파라미터로 설정하는 기능 제거.. - 2025.07.10 by Kevin
         self.userAgent = (userAgent == nil || userAgent == "") ? UserAgent(appInfo: AppInfo.getApplicationInfo(), deviceInfo: DeviceInfo.getDeviceInfo()).userAgentString : userAgent
+//        self.userAgent = UserAgent(appInfo: AppInfo.getApplicationInfo(), deviceInfo: DeviceInfo.getDeviceInfo()).userAgentString
     }
     
     /// Http Request객체를 생성하여 반환합니다.

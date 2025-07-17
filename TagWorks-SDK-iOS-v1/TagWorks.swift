@@ -151,7 +151,7 @@ import AppTrackingTransparency
     
     @objc public var isUseDynamicParameter: Bool = false
     
-    @objc public var userAgent: String? {
+    @objc private var userAgent: String? {
         get {
             return self.dispatcher?.userAgent
         }
@@ -175,45 +175,48 @@ import AppTrackingTransparency
     /// 앱이 비정상 종료 시 인터페이스를 통해 에러 로그를 저장 및 앱 재실행 시 에러 로그 전송 - by Kevin. 2025.05.12
     @objc public var errorReportEnabled: Bool = true
     
+    // 화면 전환 시 자동 감지 로그 수집 여부 (스위즐링 감시 여부)
+    @objc public var autoTrackingPage: Bool = true
+    @objc public var autoTrackingButtonClick: Bool = false
+    @objc public var autoTrackingApplication: Bool = true
+    @objc public var autoTrackingScene: Bool = true
+    
+    // 화면 전환 자동 수집 시 수집하길 원하지 않는 ViewController들을 저장하는 변수
+    private var excludedPages: [String] = []
+    
+    // UIButton의 객체를 등록하여 태깅을 하기 위한 변수
+    // 객체를 weak로 참조하기에 메모리 릭 발생 위험 없음.
+    private var registeredTagButtons: NSHashTable<UIButton> = NSHashTable.weakObjects()
+    
+    private let fingerprintManager = FingerprintManager()
+    
     // MARK: - 클래스 객체 함수
+    
+    // MARK: InstanceConfig (초기 버전부터 버전별 Config 사용)
     
     /// 이벤트 전송에 필요한 필수 항목 입력
     /// - Parameters:
     ///   - siteId: 수집 대상이 되는 사이트(고객사) 식별자
     ///   - baseUrl: 수집 로그 발송을 위한 서버 URL
     ///   - userAgent: 수집 대상의 userAgent 객체 String
-//    public func setEnvironment(siteId: String, baseUrl: URL, userAgent: String?) {
     @objc public func setInstanceConfig(siteId: String,
                                         baseUrl: URL,
                                         isUseIntervals: Bool,
-                                        dispatchInterval: TimeInterval,
+                                        dispatchInterval: TimeInterval = 3.0,
                                         userAgent: String? = nil,
                                         appVersion: String? = nil,
                                         appName: String? = nil) {
-        self.siteId = siteId
-        self.isUseIntervals = isUseIntervals
-        var interval = dispatchInterval
-        if interval <= 1 {
-            interval = 1
-        } else if interval >= 10 {
-            interval = 10
-        }
-        self.dispatchInterval = interval
-        self.queue = DefaultQueue()
-        self.dispatcher = DefaultDispatcher(serializer: EventSerializer(), baseUrl: baseUrl, userAgent: userAgent)
-        self.appVersion = appVersion
-        self.appName = appName
-        self.tagWorksBase = TagWorksBase(suitName: "\(siteId)\(baseUrl.absoluteString)")
-        self.contentUrl = URL(string: "APP://\(AppInfo.getApplicationInfo().bundleIdentifier ?? "")/")
-//        self.contentUrl = URL(string: "http://\(AppInfo.getApplicationInfo().bundleIdentifier ?? "")")
         
-        self.webViewInterface.delegate = self
-        
-        // 로컬큐에 이벤트 스트링이 존재할 때 서버 전송
-        let _ = sendLocalQueueEvent()
-
-        // UserDefalut에 저장된 에러 로그 서버 발송
-        sendErrorReport()
+        setInstanceConfig(siteId: siteId,
+                          baseUrl: baseUrl,
+                          isUseIntervals: isUseIntervals,
+                          dispatchIntervalWithSeconds: dispatchInterval,
+                          sessionTimeOutWithSeconds: 5.0,
+                          isManualDispatch: false,
+                          appVersion: appVersion,
+                          appName: appName,
+                          isUseDynamicParameter: false,
+                          isEnabledAdId: false)
     }
     
     /// 이벤트 전송에 필요한 필수 항목 입력
@@ -222,110 +225,102 @@ import AppTrackingTransparency
     ///   - siteId: 수집 대상이 되는 사이트(고객사) 식별자
     ///   - baseUrl: 수집 로그 발송을 위한 서버 URL
     ///   - userAgent: 수집 대상의 userAgent 객체 String
-//    public func setEnvironment(siteId: String, baseUrl: URL, userAgent: String?) {
     @objc public func setInstanceConfig(siteId: String,
                                         baseUrl: URL,
                                         isUseIntervals: Bool,
-                                        dispatchInterval: TimeInterval,
+                                        dispatchInterval: TimeInterval = 3.0,
                                         sessionTimeOut: TimeInterval = 5.0,
                                         userAgent: String? = nil,
                                         appVersion: String? = nil,
                                         appName: String? = nil) {
-        self.siteId = siteId
-        self.isUseIntervals = isUseIntervals
-        var interval = dispatchInterval
-        if interval <= 1 {
-            interval = 1
-        } else if interval >= 10 {
-            interval = 10
-        }
-        self.dispatchInterval = interval
-        self.queue = DefaultQueue()
-        self.dispatcher = DefaultDispatcher(serializer: EventSerializer(), timeOut: sessionTimeOut, baseUrl: baseUrl, userAgent: userAgent)
-        self.appVersion = appVersion
-        self.appName = appName
-        self.tagWorksBase = TagWorksBase(suitName: "\(siteId)\(baseUrl.absoluteString)")
-        self.contentUrl = URL(string: "APP://\(AppInfo.getApplicationInfo().bundleIdentifier ?? "")/")
         
-        self.webViewInterface.delegate = self
-        
-        // 로컬큐에 이벤트 스트링이 존재할 때 서버 전송
-        let _ = sendLocalQueueEvent()
-
-        // UserDefalut에 저장된 에러 로그 서버 발송
-        sendErrorReport()
+        setInstanceConfig(siteId: siteId,
+                          baseUrl: baseUrl,
+                          isUseIntervals: isUseIntervals,
+                          dispatchIntervalWithSeconds: dispatchInterval,
+                          sessionTimeOutWithSeconds: sessionTimeOut,
+                          isManualDispatch: false,
+                          appVersion: appVersion,
+                          appName: appName,
+                          isUseDynamicParameter: false,
+                          isEnabledAdId: false)
     }
     
     /// 이벤트 전송에 필요한 필수 항목 입력
-    ///  1.1.10 버전 이후 추가 - 파라미터에 sesstionTimeOut 값 추가
+    ///  1.1.22 버전 이후 추가 - 파라미터에 isUseDynamicParameter 값 추가
     /// - Parameters:
     ///   - siteId: 수집 대상이 되는 사이트(고객사) 식별자
     ///   - baseUrl: 수집 로그 발송을 위한 서버 URL
     ///   - userAgent: 수집 대상의 userAgent 객체 String
-//    public func setEnvironment(siteId: String, baseUrl: URL, userAgent: String?) {
     @objc public func setInstanceConfig(siteId: String,
                                         baseUrl: URL,
                                         isUseIntervals: Bool,
-                                        dispatchInterval: TimeInterval,
+                                        dispatchInterval: TimeInterval = 3.0,
                                         sessionTimeOut: TimeInterval = 5.0,
                                         userAgent: String? = nil,
                                         isManualDispatch: Bool = false,
                                         appVersion: String? = nil,
                                         appName: String? = nil,
-                                        isUseDynamicParameter: Bool = false,
+                                        isUseDynamicParameter: Bool = true,
                                         isEnabledAdId: Bool = false) {
-        self.siteId = siteId
-        self.isUseIntervals = isUseIntervals
-        self.isManualDispatch = isManualDispatch
-        var interval = dispatchInterval
-        if interval <= 1 {
-            interval = 1
-        } else if interval >= 10 {
-            interval = 10
-        }
-        self.dispatchInterval = interval
-        self.queue = DefaultQueue()
-        self.dispatcher = DefaultDispatcher(serializer: EventSerializer(), timeOut: sessionTimeOut, baseUrl: baseUrl, userAgent: userAgent)
-        self.appVersion = appVersion
-        self.appName = appName
-        self.isUseDynamicParameter = isUseDynamicParameter
-        self.tagWorksBase = TagWorksBase(suitName: "\(siteId)\(baseUrl.absoluteString)")
-        self.contentUrl = URL(string: "APP://\(AppInfo.getApplicationInfo().bundleIdentifier ?? "")/")
-        self.isEnabledAdId = isEnabledAdId
         
-        self.webViewInterface.delegate = self
-        
-        // 광고 식별자 사용 여부 설정에 따라 자동으로 광고 식별자 가져옴
-        if isEnabledAdId {
-            requestIDFA() { idfa in
-                self.adId = idfa
-            }
-        }
-        
-        // 로컬큐에 이벤트 스트링이 존재할 때 서버 전송
-        let _ = sendLocalQueueEvent()
-
-        // UserDefalut에 저장된 에러 로그 서버 발송
-        sendErrorReport()
+        setInstanceConfig(siteId: siteId,
+                          baseUrl: baseUrl,
+                          isUseIntervals: isUseIntervals,
+                          dispatchIntervalWithSeconds: dispatchInterval,
+                          sessionTimeOutWithSeconds: sessionTimeOut,
+                          isManualDispatch: isManualDispatch,
+                          appVersion: appVersion,
+                          appName: appName,
+                          isUseDynamicParameter: isUseDynamicParameter,
+                          isEnabledAdId: isEnabledAdId)
     }
     
     /// 이벤트 전송에 필요한 필수 항목 입력
-    ///  1.1.10 버전 이후 추가 - 파라미터에 sesstionTimeOut 값 추가
     /// - Parameters:
     ///   - siteId: 수집 대상이 되는 사이트(고객사) 식별자
     ///   - baseUrl: 수집 로그 발송을 위한 서버 URL
     ///   - userAgent: 수집 대상의 userAgent 객체 String
-//    public func setEnvironment(siteId: String, baseUrl: URL, userAgent: String?) {
     @objc public func setInstanceConfig(siteId: String,
                                         baseUrl: URL,
                                         isUseIntervals: Bool,
-                                        dispatchIntervalWithSeconds: TimeInterval,
+                                        dispatchIntervalWithSeconds: TimeInterval = 3.0,
                                         sessionTimeOutWithSeconds: TimeInterval = 5.0,
                                         userAgent: String? = nil,
                                         isManualDispatch: Bool = false,
                                         appVersion: String? = nil,
                                         appName: String? = nil,
-                                        isUseDynamicParameter: Bool = false,
+                                        isUseDynamicParameter: Bool = true,
+                                        isEnabledAdId: Bool = false) {
+        
+        setInstanceConfig(siteId: siteId,
+                          baseUrl: baseUrl,
+                          isUseIntervals: isUseIntervals,
+                          dispatchIntervalWithSeconds: dispatchIntervalWithSeconds,
+                          sessionTimeOutWithSeconds: sessionTimeOutWithSeconds,
+                          isManualDispatch: isManualDispatch,
+                          appVersion: appVersion,
+                          appName: appName,
+                          isUseDynamicParameter: isUseDynamicParameter,
+                          isEnabledAdId: isEnabledAdId)
+    }
+    
+    /// 이벤트 전송에 필요한 필수 항목 입력
+    ///  1.1.28 버전 이후 제거 - 파라미터에 userAgent 값 제거
+    ///  isUseDynamicParameter 디폴트 값을 true로 설정
+    /// - Parameters:
+    ///   - siteId: 수집 대상이 되는 사이트(고객사) 식별자
+    ///   - baseUrl: 수집 로그 발송을 위한 서버 URL
+    ///   - userAgent: 수집 대상의 userAgent 객체 String
+    @objc public func setInstanceConfig(siteId: String,
+                                        baseUrl: URL,
+                                        isUseIntervals: Bool,
+                                        dispatchIntervalWithSeconds: TimeInterval = 3.0,
+                                        sessionTimeOutWithSeconds: TimeInterval = 5.0,
+                                        isManualDispatch: Bool = false,
+                                        appVersion: String? = nil,
+                                        appName: String? = nil,
+                                        isUseDynamicParameter: Bool = true,
                                         isEnabledAdId: Bool = false) {
         self.siteId = siteId
         self.isUseIntervals = isUseIntervals
@@ -338,7 +333,8 @@ import AppTrackingTransparency
         }
         self.dispatchInterval = interval
         self.queue = DefaultQueue()
-        self.dispatcher = DefaultDispatcher(serializer: EventSerializer(), timeOut: sessionTimeOutWithSeconds, baseUrl: baseUrl, userAgent: userAgent)
+//        self.dispatcher = DefaultDispatcher(serializer: EventSerializer(), timeOut: sessionTimeOutWithSeconds, baseUrl: baseUrl, userAgent: userAgent)
+        self.dispatcher = DefaultDispatcher(serializer: EventSerializer(), timeOut: sessionTimeOutWithSeconds, baseUrl: baseUrl, userAgent: nil)
         self.appVersion = appVersion
         self.appName = appName
         self.isUseDynamicParameter = isUseDynamicParameter
@@ -347,6 +343,9 @@ import AppTrackingTransparency
         self.isEnabledAdId = isEnabledAdId
         
         self.webViewInterface.delegate = self
+        
+        // 앱 크래쉬 자동 탐지
+        CrashLogManager.sharedInstance.setupGlobalSignalHandler()
         
         // 광고 식별자 사용 여부 설정에 따라 자동으로 광고 식별자 가져옴
         if isEnabledAdId {
@@ -360,10 +359,15 @@ import AppTrackingTransparency
         
         // UserDefalut에 저장된 에러 로그 서버 발송
         sendErrorReport()
+        sendCrashReport()
         
-        //
-//        UIView.swizzleDidMoveToWindowForTracking()
-//        UIViewController.swizzleLifecycle()
+        // 스위즐링
+        SwizzlingManager.sharedInstance.lifecycleTracking()
+        
+        // 디퍼드 딥링크 체크 - 추후 개방
+//        DispatchQueue.main.async {
+//            self.checkIsAppFirstLaunch()
+//        }
     }
     
     @objc public func setManualDispatch(_ isManual: Bool) {
@@ -375,63 +379,31 @@ import AppTrackingTransparency
         userId = nil
     }
     
-    // 앱이 크래쉬가 난 경우, 해당 함수를 통해 로컬 영역에 저장
-    @objc public func saveErrorReport(errorType: String, errorMessage: String) {
-        guard isInitialize() else { return }
-        guard !isOptedOut, errorReportEnabled else { return }
-        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] saveErrorReport!!")
-        
-//        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] \(errorType)!!")
-//        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] \(errorMessage)!!")
-//        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] \(String(describing: tagWorksBase?.crashErrorLog))!!")
-        
-        // 현재 KST 타임스탬프 가져오기
-        let timestamp = CommonUtil.Formatter.getCurrentKSTimeString()
-        // 에러 정보 셋팅
-        let errorDict: [String: String] = [
-            "errorType" : errorType,
-            "errorData" : errorMessage,
-            "timestamp" : timestamp ?? ""
-        ]
-        
-        var errorArray: [[String: Any]] = []
-        if let existErrorLog = tagWorksBase?.crashErrorLog {
-            errorArray = existErrorLog
-        }
-        errorArray.append(errorDict)
-                  
-        tagWorksBase?.crashErrorLog = errorArray
+    // MARK: 화면 전환 자동 수집 시 예외 클래스 처리 (클래스명을 Array로 저장)
+    @objc public func excludeAutoTrackingPages(_ pageClasses: [AnyClass]) {
+        excludedPages = pageClasses.map { String(describing: $0) }
     }
     
-    // 크래쉬 로그 핸들러 등록
-    public func setupSignalHandler() {
-        // 예외 핸들러 등록
-        NSSetUncaughtExceptionHandler { exception in
-            saveCrashExceptipn(exception)
-        }
-        
-        // 주요 fatalError 핸들러 등록
-        signal(SIGABRT) { signal in
-            saveCrashSignal("SIGABRT")
-        }
-        signal(SIGILL) { signal in
-            saveCrashSignal("SIGILL")
-        }
-        signal(SIGSEGV) { signal in
-            saveCrashSignal("SIGSEGV")
-        }
-        signal(SIGFPE) { signal in
-            saveCrashSignal("SIGFPE")
-        }
-        signal(SIGBUS) { signal in
-            saveCrashSignal("SIGBUS")
-        }
-        signal(SIGPIPE) { signal in
-            saveCrashSignal("SIGPIPE")
+    internal func isContainsExcludedPage(_ vcName: String) -> Bool {
+        return excludedPages.contains(vcName)
+    }
+    
+    // MARK: 버튼 객체를 넘겨 받아 해당 버튼들에 대해서만 스위즐링을 통해 자동 이벤트 발생 처리
+    @objc public func registerButtons(_ buttons: [UIButton]) {
+        for button in buttons {
+            registeredTagButtons.add(button)
         }
     }
     
-    // 광고 식별자를 권한 체크 후 가져오는 함수
+    public func removeAllRegisterButtons() {
+        registeredTagButtons.removeAllObjects()
+    }
+
+    internal func isRegistered(_ button: UIButton) -> Bool {
+        return registeredTagButtons.contains(button)
+    }
+    
+    // MARK: 광고 식별자를 권한 체크 후 가져오는 함수
     private func requestIDFA(completion: @escaping (String?) -> Void) {
         if #available(iOS 14, *) {
             ATTrackingManager.requestTrackingAuthorization { status in
@@ -453,6 +425,96 @@ import AppTrackingTransparency
                 completion(nil)
             }
         }
+    }
+    
+    // MARK: 딥링크 관련 함수
+    // 앱 설치 후 최초 실행 여부에 따라 디퍼드 딥링크 정보 수신
+    private func checkIsAppFirstLaunch() {
+        // 앱이 최초 실행 시 동작
+        // 1. isAppFirstLaunch == false 일 경우에만 동작
+        guard tagWorksBase?.isAppFirstLaunch == false else { return }
+        
+        // 2. 특정 폴더 생성 시간 가져와서 3일이 지났다면 패스, 아니면 디퍼드 딥링크 Rest api 호출, 예)2025-07-01 10:06:23 UTC
+        let installDate = CommonUtil.getAppInstallDateFromLibrary() ?? Date()
+        let calendar = Calendar.current
+        // 두 날짜 사이의 차이를 일(day) 단위로 계산 - 날짜가 바뀐 횟수를 기준으로 차이를 구하기 때문에 비교 기준값에 -1을 해줘야 함 (예: 07-01, 07-10 비교 시 결과값은 8)
+        if let daysBetween = calendar.dateComponents([.day], from: installDate, to: Date()).day {
+            if daysBetween <= 2 {
+                // 디바이스 FingerPrint 수집
+                fingerprintManager.getScriptFingerprint() { result in
+                    print("🎉 모든 정보 수집 완료: \(result)")
+                    
+        //            let fingerprint = result as FingerprintManager.FingerprintResult
+        //            let screenResolution = DeviceInfo.getDeviceScreenResolution()
+        //            print("🌽 : " + result.userAgent! + "|" + CommonUtil.getCurrentTimeZone() + "|" + Locale.httpAcceptLanguage + "|" + CommonUtil.getIPAddressForCurrentInterface()! + "|" + "\(screenResolution.width),\(screenResolution.height)")
+                    
+                    // 앱 처음 실행 디퍼드 딥링크 Rest API 호출
+                    let restApiManager = RestApiManager()
+                    var isDeferredDeeplink = false
+                    var deeplinkInfo: String = ""
+                    // MARK: 파라미터 정보에 앱 실행 시간은 Rest API 호출하는 시간으로 API에서 처리..
+                    restApiManager.requestDeferredDeeplinkInfo(fp_basic: result.requiredHash ?? "",
+                                                               fp_canvas: result.canvasHash ?? "",
+                                                               fp_webgl: result.webGLHash ?? "",
+                                                               fp_audio: result.audioHash ?? "") { success, resultData in
+                        print(resultData)
+                        if let resultDict = resultData as? [String: String] {
+                            let isReinstallResult = resultDict["is_reinstall"]!     // 해당 값은 AOS에서만 서버 체크 후 사용하는 값임.
+                            let deeplinkInfoResult = resultDict["oz_deeplink"]!
+                            
+                            if deeplinkInfoResult.isEmpty == false {
+                                // 디퍼드 딥링크 정보 있음
+                                isDeferredDeeplink = true
+                                deeplinkInfo = deeplinkInfoResult
+                            } else {
+                                // 디퍼드 딥링크 정보 없음
+                                isDeferredDeeplink = false
+                                deeplinkInfo = ""
+                            }
+                        }
+                        
+                        if isDeferredDeeplink == true {
+                            // 디퍼드 딥링크 정보 존재할 때
+                            DeeplinkManager.sharedInstance.isDeferredDeeplinkInstalled = true
+                            DeeplinkManager.sharedInstance.handleDeeplink(URL(string: deeplinkInfo)!, isDeferredDeeplink: true )
+                        }
+                    }
+                    
+                    // 수집 서버 로그 전송
+                    
+                    // 받은 정보 파싱 후 딥링크 정보 처리
+    //                DeeplinkManager.sharedInstance.checkAppFirstLaunch()
+//                    DeeplinkManager.sharedInstance.handleDeeplink(URL(string: "obzenapp://prod/20054?oz_landing=key1%3Dvlaue1&oz_dlk_id=dlk1646856&oz_ref_channel=TG1128092&oz_camp_id=C000001")!)
+                    
+                }
+            } else {
+                // 앱 설치 후 3일이 지났다고 판단..
+                let isFirstInstall = DeeplinkManager.sharedInstance.isFirstInstall
+                let isDeeplinkOpened = DeeplinkManager.sharedInstance.isDeeplinkOpened
+                
+                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] isFirstInstall: \(isFirstInstall), isDeeplinkOpened: \(isDeeplinkOpened)")
+            }
+        }
+        
+        
+        
+        // 최초 실행 완료 플래그 셋팅
+//        tagWorksBase?.isAppFirstLaunch = true
+    }
+    
+    ///
+    /// 딥링크나 푸시를 통해 앱이 실행이 된 경우, 파라미터를 받아서 파싱 후 분석하여 로그 수집
+    ///
+    @objc public func launchWithOptions(url: URL?, userInfo: [AnyHashable: Any]?) {
+        DeeplinkManager.sharedInstance.receiveLaunchParams(url: url, userInfo: userInfo)
+    }
+    
+    ///
+    /// 딥링크로 앱이 실행이 된 경우, 앱에서 등록한 콜백 함수를 통해 앱의 랜딩 페이지로 이동시킴
+    ///
+    @objc public func registerDeeplinkCallback(_ callback: @escaping @convention(block) (Bool, URL) -> Void) {
+//    @objc public func registerDeeplinkCallback(_ callback: DeeplinkCallback) {
+        DeeplinkManager.sharedInstance.registerDeeplinkCallback(callback)
     }
     
     /// 이벤트 로그 발생 주기 타이머를 시작합니다.
@@ -848,8 +910,45 @@ extension TagWorks {
                 print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] sendErrorReport is Sucessed.")
             }
         }
+        
         if isSuccess {
             tagWorksBase?.clearCrashErrorLog()
+        }
+    }
+    
+    // 앱 크래시가 발생하여 자동 수집된 크래쉬 로그가 로컬에 저장되어 있는 경우, 수집 서버로 전송
+    private func sendCrashReport() {
+        guard isInitialize() else { return }
+        guard !isOptedOut, errorReportEnabled else { return }
+        
+        // fatalError Check
+//        CrashLogManager.sharedInstance.checkAndSaveCrashIfNeeded()
+        
+        var isSuccess: Bool = true
+        tagWorksBase?.crashErrorReport?.forEach { (errorLog) in
+            guard let errorType = errorLog["errorType"] as? String,
+                  var errorMessage = errorLog["errorData"] as? String,
+                  let errorTime = errorLog["timestamp"] as? String else { return }
+            
+            // errorMessage는 json 파서가 인식할 수 있도록 특수문자 replace (필요없음 - 전송할때 urlEncoding을 하기 때문)
+            // 연속된 공백만 공백 두칸으로 줄이기
+            errorMessage = errorMessage.components(separatedBy: .whitespaces).filter { !$0.isEmpty }.joined(separator: "  ")
+            let dataBundle = DataBundle()
+            dataBundle.putString(DataBundle.EVENT_TAG_NAME, StandardEventTag.ERROR)
+//            dataBundle.putString(DataBundle.EVENT_TAG_PARAM_ERROR_MSG, "Crash Error Log")
+            
+            let event = Event(tagWorks: self, eventType: StandardEventTag.ERROR, errorType: errorType, errorData: errorMessage, errorTime: errorTime)
+            if !dispatchAtOnce(event: event) {
+                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] sendErrorReport is Failed.")
+//                return
+                isSuccess = false
+            } else {
+                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] sendErrorReport is Sucessed.")
+            }
+        }
+        
+        if isSuccess {
+            tagWorksBase?.clearCrashErrorReport()
         }
     }
 }
@@ -1068,24 +1167,6 @@ extension TagWorks {
     }
 }
 
-// MARK: 이벤트 타입 Define
-extension TagWorks {
-    @objc static public let EVENT_TYPE_PAGE: String          = "EVENT_TYPE_PAGE"
-    @objc static public let EVENT_TYPE_USER_EVENT: String    = "EVENT_TYPE_USER_EVENT"
-
-    /// 필수 파라미터 정의
-    /// 1. EVENT_TYPE_PAGE
-    ///  - EVENT_TAG_NAME
-    ///  - EVENT_TAG_PARAM_PAGE_PATH
-    ///  - EVENT_TAG_PARAM_TITLE
-    ///
-    /// 2. EVENT_TYPE_USER_EVENT
-    ///  - EVENT_TAG_NAME
-    ///  - # EVENT_TAG_NAME 이 EventTag.search.description 인 경우,
-    ///   -> EVENT_TAG_PARAM_KEYWORD
-    ///
-}
-
 // MARK: WebView 인터페이스
 /// WebView Interface
 extension TagWorks: WebInterfaceDelegate {
@@ -1112,8 +1193,8 @@ extension TagWorks: WebInterfaceDelegate {
 /// 2차 - Defferred Deep Link까지 구현하여 설치 경로까지 이벤트 발송
 extension TagWorks {
     
+    // 유입 경로가 URL로 넘어올 경우,
     @objc public func sendReferrerEvent(openURL: URL) {
-        
         let eventType = EventTag.REFERRER.description
         let urlref = openURL
         
@@ -1124,57 +1205,34 @@ extension TagWorks {
             _ = dispatchAtOnce(event: campaignEvent);
         }
     }
-}
-
-/// ====================================
-/// 백트레이스 수집
-///
-private func getBacktrace() -> String {
-    let maxFrames = 128
-    var symbols = [String]()
     
-    // ⛳️ 올바른 타입: UnsafeMutablePointer<UnsafeMutableRawPointer?>
-    let buffer = UnsafeMutablePointer<UnsafeMutableRawPointer?>.allocate(capacity: maxFrames)
-    defer { buffer.deallocate() }
-
-    let frameCount = backtrace(buffer, Int32(maxFrames))
-    if let frames = backtrace_symbols(buffer, frameCount) {
-        for i in 0..<Int(frameCount) {
-            if let symbol = frames[i] {
-                symbols.append(String(cString: symbol))
-            }
+    // 유입 경로가 특정 항목일 경우,
+    @objc public func sendReferrerEvent(referrer: String) {
+        let eventType = EventTag.REFERRER.description
+        let referrerEvent = Event(tagWorks: self, eventType: eventType, inflow: referrer)
+        
+        if self.isUseIntervals || isManualDispatch {
+            addQueue(event: referrerEvent)
+        } else {
+            _ = dispatchAtOnce(event: referrerEvent);
         }
-        free(frames)
     }
-
-    return symbols.joined(separator: "\n")
 }
 
-func saveCrashExceptipn(_ exception: NSException) {
-    let tempDir = NSTemporaryDirectory()
-    let crashLogFile = URL(fileURLWithPath: tempDir).appendingPathComponent("crash_log.plist")
-    // 예외 정보와 스택 트레이스를 파일로 기록
-    let data: [String: Any] = [
-        "exceptionName": exception.name.rawValue,
-        "reason": exception.reason ?? "No reason",
-        "timestamp": Date().timeIntervalSince1970,
-        "stackTrace": exception.callStackSymbols.joined(separator: "\n")
-    ]
-
-    (data as NSDictionary).write(to: crashLogFile, atomically: true)
+// MARK: 앱 크래쉬 로그 수집 및 저장
+extension TagWorks {
+    
+    // MARK: 앱 크래시 발생한 경우, 해당 인터페이스를 통해 로컬 저장 및 재실행 시 서버 전송
+    // 앱이 크래쉬가 난 경우, 해당 함수를 통해 로컬 영역에 저장
+    // 공통 디멘전을 이용하기 위한 저장
+    @objc public func saveErrorReport(errorType: String, errorMessage: String) {
+        guard !isOptedOut, errorReportEnabled else { return }
+        CrashLogManager.sharedInstance.saveErrorStackTrace(errorType: errorType, errorMessage: errorMessage)
+    }
+    
+    // TagWorks SDK에서 자동 수집되어 저장
+    func saveCrashReport(errorType: String, errorMessage: String) {
+        guard !isOptedOut, errorReportEnabled else { return }
+        CrashLogManager.sharedInstance.saveErrorStackTrace(errorType: errorType, errorMessage: errorMessage, isTagWorks: true)
+    }
 }
-
-func saveCrashSignal(_ signal: String) {
-//    let url = FileManager.default.temporaryDirectory.appendingPathComponent("crash_log.plist")    // iOS 10.0 이상
-    let tempDir = NSTemporaryDirectory()
-    let crashLogFile = URL(fileURLWithPath: tempDir).appendingPathComponent("crash_log.plist")
-    let stack = getBacktrace()
-    let data: [String: Any] = [
-        "signal": signal,
-        "timestamp": Date().timeIntervalSince1970,
-        "stackTrace": stack
-    ]
-    (data as NSDictionary).write(to: crashLogFile, atomically: true)
-}
-
-// ====================================

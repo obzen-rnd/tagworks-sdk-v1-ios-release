@@ -12,7 +12,7 @@ import CryptoKit
 //import CryptoSwift
 
 /// TagWorks SDK 내에서 사용되는 Util 클래스입니다.
-final class CommonUtil {
+final public class CommonUtil {
     
     /// UTC 날짜 변환을 위한 Formatter 구조체 입니다.
     internal struct Formatter {
@@ -198,6 +198,21 @@ final class CommonUtil {
         return addresses
     }
     
+    // 현재 연결 상태에 따른 IP 주소를 가져옴.
+    public static func getIPAddressForCurrentInterface() -> String? {
+        let addresses = getAllIPAddresses()
+
+        // 우선순위: Wi-Fi → Cellular
+        if let wifiIP = addresses["en0"] {
+            return wifiIP
+        } else if let cellularIP = addresses["pdp_ip0"] {
+            return cellularIP
+        } else {
+            // fallback: 아무거나 첫 번째 IP 리턴
+            return addresses.first?.value
+        }
+    }
+    
     // Wifi IP
     public static func getWiFiIPv4Address() -> String? {
         let addresses = getAllIPAddresses()
@@ -223,6 +238,19 @@ final class CommonUtil {
     // 현재 시간대를 가져옴.
     public static func getCurrentTimeZone() -> String {
         return TimeZone.current.identifier
+    }
+    
+    // 앱이 기존에 먼저 설치되었는지 여부를 판단하기 위해 앱이 처음 실행 시 만들어지는
+    // Library/Application Support 디렉토리 생성일 확인
+    static func getAppInstallDateFromLibrary() -> Date? {
+        let fileManager = FileManager.default
+        if let supportURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
+            if let attrs = try? fileManager.attributesOfItem(atPath: supportURL.path),
+               let creationDate = attrs[.creationDate] as? Date {
+                return creationDate
+            }
+        }
+        return nil
     }
 }
 
@@ -258,7 +286,8 @@ public class UserAgentFetcher: NSObject, WKNavigationDelegate {
 
 extension Locale {
     
-    static var httpAcceptLanguage: String {
+    // 단말기의 선호하는 언어를 가져옴, quality는 선호도를 1.0을 기준으로 0.5까지만 가져옴
+    static public var httpAcceptLanguage: String {
         var components: [String] = []
         for (index, languageCode) in preferredLanguages.enumerated() {
             let quality = 1.0 - (Double(index) * 0.1)
@@ -287,6 +316,17 @@ extension String {
     var stringByAddingPercentEncoding: String {
         // 허용할 문자열
         let unreserved = "!$\\()*+-./:;=?@_~"
+        let allowed = NSMutableCharacterSet.alphanumeric()
+        allowed.addCharacters(in: unreserved)
+        
+        return self.addingPercentEncoding(withAllowedCharacters: allowed as CharacterSet) ?? self
+    }
+    
+    /// 유입 경로 urlref 값으로 URL이 넘어가는데 URL 파라미터에 "&" 가 들어갈 수 있기 때문에 &도 인코딩이 필요하기에 허용 문자에서 예외시킴.
+    /// '&' 를 제외한 URL 인코딩 사용 함수 ("="은 인코드 포함 - URL 쿼리 파라미터인 경우, = 을 사용하기 때문)
+    var stringByAddingPercentEncodingWithContainEqual: String {
+        // 허용할 문자열
+        let unreserved = "!$\\()*+-./:;?@_~"
         let allowed = NSMutableCharacterSet.alphanumeric()
         allowed.addCharacters(in: unreserved)
         

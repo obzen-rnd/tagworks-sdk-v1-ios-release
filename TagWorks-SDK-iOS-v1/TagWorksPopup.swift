@@ -217,8 +217,8 @@ import WebKit
     
     
     
-    
-    public func onCMSPopupCenter(
+    // 테스트 확인 용도로 사용
+    public func onCMSPopupTest(
         onCmsUrl: String, cust_id: String, rcmd_area_cd: String, _ owner: UIViewController
     ) {
         currentViewController = owner
@@ -399,6 +399,9 @@ import WebKit
     }
 }
 
+///
+/// WebViewManagerDelegate 프로토콜
+///
 extension TagWorksPopup: WebViewManagerDelegate {
     
     func webViewDidFinishLoad(_ webView: WKWebView) {
@@ -406,16 +409,7 @@ extension TagWorksPopup: WebViewManagerDelegate {
         if bannerView != nil {
             defaultWebView!.isHidden = true
             onCMSBannerWebView!.isHidden = false
-//            return
         }
-        
-//        if currentViewController == nil {
-//            // rootViewController를 가져오기
-//            guard let rootViewController = UIApplication.shared.keyWindow?.rootViewController else {
-//                return
-//            }
-//            currentViewController = rootViewController
-//        }
         
         // 현재 보여지고 있는 ViewController가 유효한지 체크
         guard let viewController = currentViewController,

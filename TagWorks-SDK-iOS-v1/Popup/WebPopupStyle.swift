@@ -14,7 +14,7 @@ class WebPopupStyle: NSObject {
     let dupDisplayDelay: Int            // 동일 팝업 노출 방지를 위한 설정값 (seconds)
     let popupTitleUse: String           // 타이틀바 사용 여부
     let popupType: String!              // 팝업 타입
-    let closeBtnGrpType: String!        // 닫기 버튼 타이
+    let closeBtnGrpType: String!        // 닫기 버튼 타입
     let autoCloseSec: Int!              // 자동 닫기 시간(초)
     let closeBtnPosition: String        // 닫기 버튼 위치 (bottom, top)
     

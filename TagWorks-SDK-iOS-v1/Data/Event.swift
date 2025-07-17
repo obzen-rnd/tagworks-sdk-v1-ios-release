@@ -60,6 +60,21 @@ public struct Event: Codable {
     /// IDFA - 광고식별자
     let adId: String?
     
+    /// 유입 경로
+    /// 앱이 실행될 때 유입 경로의 정보만을 수집하기 위해 해당 변수 추가 - 2025.05.31 by Kevin
+    let inflow: String?
+    
+    /// 앱 크래쉬 로그 수집
+    /// 1.1.26 버전 - IBK 고객여정 요청으로 공용디멘전에 값을 추가하여 수집 서버로 값을 전송 - 2025.05.23 by Kevin
+    /// 1.1.27 버전 - SDK 내부에서 자체적으로 오류 로그 수집하도록 기능 추가 - by Kevin
+    let errorType: String?
+    let errorData: String?
+    let errorTime: String?
+    
+    /// Native 수집 로그인지, WebView 수집 로그인지 분별
+    /// 2025-07-07 현진 차장 요청으로 해당 값 추가 - by Kevin
+    var evtPlatform: String? = "1"
+    
     ///================================================
     /// 웹뷰로부터 받은 파라미터를 통해 이벤트를 생성하기 위한 변수들
     
@@ -88,7 +103,12 @@ extension Event {
                 dimensions: [Dimension] = [],
                 eventCategory: String? = nil,
                 siteId: String? = nil,
-                errorMsg: String? = nil) {
+                errorMsg: String? = nil,
+                inflow: String? = nil,
+                errorType: String? = nil,
+                errorData: String? = nil,
+                errorTime: String? = nil,
+                evtPlatform: String? = "1") {
         self.uuid = UUID()
 //        self.siteId = tagWorks.siteId ?? ""
         if let tagWorksSiteid = tagWorks.siteId {
@@ -109,6 +129,12 @@ extension Event {
         self.customUserPath = customUserPath
         self.eventCategory = eventCategory
         self.errorMsg = errorMsg
+        self.inflow = inflow
+        self.errorType = errorType
+        self.errorData = errorData
+        self.errorTime = errorTime
+        self.evtPlatform = eventCategory != nil ? "2" : evtPlatform
+        
 //        self.dimensions = tagWorks.dimensions + dimensions
         self.dimensions = mergeDimensions(dimensions)
     }

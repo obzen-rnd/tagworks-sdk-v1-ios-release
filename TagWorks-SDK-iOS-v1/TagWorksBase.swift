@@ -34,6 +34,14 @@ internal struct TagWorksBase {
         // 기존에 userId 저장된 값이 있을 경우, 삭제 로직 추가 - 2025. 04.18 by Kevin
         userDefaults.removeObject(forKey: UserDefaultKey.userId)
         userDefaults.synchronize()
+        
+//        keychainStorage.remove()
+        
+        // Deeplink 정보를 서버에 전송하기 위해 미리 체크 해야할 부분 설정 - 중요!!!
+        // 먼저 호출하지 않으면 디퍼드 딥링크 설치 시 처음 설치/재설치 여부 알 수 없음
+        if let _ = visitorId {
+            
+        }
     }
     
     /// 유저 식별자 (고객 식별자)를 저장 및 반환합니다.
@@ -51,7 +59,7 @@ internal struct TagWorksBase {
     
     /// 방문자 식별자를 저장 및 반환합니다.
     /// 앱을 삭제해도 변하지 않도록 키체인을 이용하여 저장 및 반환하도록 변경 - by Kevin 2024.07.16
-    public var visitorId: String? {
+    internal var visitorId: String? {
         get {
             //            return userDefaults.string(forKey: UserDefaultKey.visitorId)
             return keychainStorage.findOrCreate()
@@ -90,6 +98,7 @@ internal struct TagWorksBase {
         userDefaults.synchronize()
     }
     
+    // IBK 고객여정의 공통 디멘젼을 이용한 크래쉬 로그 저장
     internal var crashErrorLog: [[String: Any]]? {
         get {
             return userDefaults.array(forKey: UserDefaultKey.errorLog) as? [[String: Any]]
@@ -103,5 +112,41 @@ internal struct TagWorksBase {
     internal func clearCrashErrorLog() {
         userDefaults.removeObject(forKey: UserDefaultKey.errorLog)
         userDefaults.synchronize()
+    }
+    
+    // TagWorks SDK 크래쉬 자동 탐지를 통한 크래쉬 로그 저장
+    internal var crashErrorReport: [[String: Any]]? {
+        get {
+            return userDefaults.array(forKey: UserDefaultKey.errorReport) as? [[String: Any]]
+        }
+        set {
+            userDefaults.setValue(newValue, forKey: UserDefaultKey.errorReport)
+            userDefaults.synchronize()
+        }
+    }
+    
+    internal func clearCrashErrorReport() {
+        userDefaults.removeObject(forKey: UserDefaultKey.errorReport)
+        userDefaults.synchronize()
+    }
+    
+    internal var isAppFirstLaunch: Bool {
+        get {
+            return userDefaults.bool(forKey: UserDefaultKey.isAppFirstLaunch)
+        }
+        set {
+            userDefaults.setValue(newValue, forKey: UserDefaultKey.isAppFirstLaunch)
+            userDefaults.synchronize()
+        }
+    }
+    
+    internal var appInstallTime: String? {
+        get {
+            return userDefaults.string(forKey: UserDefaultKey.appInstallTime)
+        }
+        set {
+            userDefaults.setValue(newValue, forKey: UserDefaultKey.appInstallTime)
+            userDefaults.synchronize()
+        }
     }
 }

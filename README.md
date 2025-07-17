@@ -9,7 +9,7 @@
   <span style="font-size: 24px;">개발자 메뉴얼</span>
   <br><br>
   <br><br>
-  ver. 1.1.26
+  ver. 1.1.27
 </p>
 
 
@@ -29,7 +29,7 @@
 
 ![TagWorks SDK iOS](https://capsule-render.vercel.app/api?type=Soft&color=gradient&height=150&section=header&text=TagWorks-SDK-iOS&fontSize=50&animation=fadeOut)
 
-![Generic badge](https://img.shields.io/badge/version-v1.1.26-green.svg)
+![Generic badge](https://img.shields.io/badge/version-v1.1.27-green.svg)
 ![Generic badge](https://img.shields.io/badge/license-ApacheLicense2.0-blue.svg)
 ![Generic badge](https://img.shields.io/badge/Platform-iOS-red.svg)
 ![Generic badge](https://img.shields.io/badge/support-swift-yellow.svg)
@@ -44,7 +44,7 @@
     - [CocoaPods](#cocoapods)
     - [SPM](#spm)
     - [직접 설치](#직접-설치)
-  - [SDK 설정](#sdk-설정)
+  - [SDK 초기화 설정](#sdk-초기화-설정)
   - [사용자 설정](#사용자-설정)
   - [데이터 구성](#데이터-구성)
     - [Dimension](#dimension)
@@ -150,27 +150,26 @@ pod install --repo-update
 
 <br>
 
-## SDK 설정
+## SDK 초기화 설정
 
 | 옵션              | 타입     | 기본값   | 설명                                                      |
 | ---------------- | ------- | ------ | -------------------------------------------------------  |
 | siteId           | String  | null   | 행동 정보 수집 대상 사이트 식별자                                |
-| baseUrl          | String  | null   | 행동 정보 데이터 수집 서버 url 주소                             |
+| baseUrl          | String  | null   | 행동 정보 데이터 수집 Proxy 서버 url                           |
 | isUseIntervals   | Bool    | false  | 주기 발송 사용 여부, false 일 경우 dispatchIntervalWithSeconds 값이 무시되고 항상 즉시 발송된다.     |
-| dispatchIntervalWithSeconds | Double  | 3      | 행동 정보 데이터 발송 주기 (최소 3초, 최대 10초 설정), 초단위        |
+| dispatchIntervalWithSeconds | Double  | 3      | 행동 정보 데이터 발송 주기 (최소 1초, 최대 10초 설정), 초단위        |
 | sessionTimeOutWithSeconds   | Double  | 5      | 행동 정보 데이터 수집 서버의 연결 대기 시간 (second), <b>최소 3초, 최대 60초 설정                          |
 | isManualDispatch | Bool    | false  | 행동 정보 데이터 수동 발송 여부                                 |
-| userAgent        | String  | null   | user Agent 정보, 설정할 경우 설정된 값으로 전달                  |
 | appVersion       | String  | null   | Application 버전 정보, 설정하지 않을 경우 short version 전송     |
 | appName          | String  | null   | Application 이름, 설정하지 않을 경우 bundle name 전송           |
-| isUseDynamicParameter | Bool   | false | Dimension 동적 파라미터 사용 여부                           |
+| isUseDynamicParameter | Bool   | true | Dimension 동적 파라미터 사용 여부                           |
 | isEnabledAdId    | Bool    | false  | IDFA(광고식별자) 자동 수집 여부                                |
 |                                                                                                |
 
 <br>
 
 -   **siteId** 및 **baseUrl** 을 설정하지 않는 경우 SDK 초기화 과정에서 오류가 발생합니다.
--   **isUseIntervals** 값을 false로 설정할 경우에는 dispatchIntervalWithSeconds 값이 무시되고 항상 즉시 발송됩니다. <br>true로 설정할 경우에는 dispatchIntervalWithSeconds 값에 지정된 초를 주기로 데이터를 발송합니다.
+-   **isUseIntervals** 값을 false로 설정할 경우에는 dispatchIntervalWithSeconds 값이 무시되고 항상 즉시 발송됩니다. <br> true로 설정할 경우에는 dispatchIntervalWithSeconds 값에 지정된 초를 주기로 데이터를 발송합니다.
 -   **dispatchIntervalWithSeconds** 는 큐에 저장된 행동 정보 데이터를 지정한 초만큼 주기로 발송하기 때문에, 지정한 시간 사이에 어플리케이션이 종료되는 경우 발송 할 수 없으니 적절한 시간으로 지정해야 합니다.
 -   이러한 경우를 대비하기 위하여 sceneWillResignActive 함수 내부(어플리케이션이 background 상태로 진입하는 부분)에서 dispatch() 메서드 호출을 권장합니다.
 -   isManualDispatch 값을 true 로 설정한 경우에는, 명시적으로 dispatch() 함수를 호출해야만 태깅 로그가 발송됩니다.
@@ -203,7 +202,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                                                   isUseIntervals: false,
                                                   dispatchIntervalWithSeconds: 5,
                                                   sessionTimeOutWithSeconds: 5,
-                                                  userAgent: nil,
                                                   isManualDispatch: false,
                                                   appVersion: "앱 버전",
                                                   appName: "앱 이름",
@@ -261,7 +259,6 @@ if TagWorks.sharedInstance.isInitialize() == false {
                                    isUseIntervals:NO
                       dispatchIntervalWithSeconds:5
                         sessionTimeOutWithSeconds:5
-                                        userAgent:nil
                                        appVersion:@"1.1.0"
                                           appName:@"obzen APP"
                             isUseDynamicParameter:YES
@@ -296,10 +293,11 @@ if (TagWorks.sharedInstance.isInitialize == false) {
 ## 사용자 설정
 
 - 행동 데이터 수집 대상이 되는 사용자를 설정하고 수집 여부를 지정합니다.
-- userId 설정 시 주의 사항
-  - <span style="color: #ff0000">SDK 초기화 시점에 TagWorks.sharedInstance.userId = nil 로 초기화 합니다. </span>
-  - <span style="color: #ff0000">사용자가 로그인 시점에 userId를 설정 후 로그 아웃 시점에 userId = nil 로 초기화 합니다. </span>
-  - <span style="color: #ff0000">앱이 백그라운드로 진입 후 앱이 다시 활성화가 된 경우, 로그인 세션 체크 후 로그아웃 상태라면 userId = nil 로 초기화 합니다. </span>
+- **⚠️ userId 설정 시 주의 사항**
+  - <span style="color: #ff00ff">SDK 초기화 시점에 **TagWorks.sharedInstance.userId = nil** 로 초기화 합니다. </span>
+  - <span style="color: #ff00ff">사용자가 로그인 시점에 **userId**를 설정 후 로그 아웃 시점에 **userId = nil** 로 초기화 합니다. </span>
+  - <span style="color: #ff00ff">앱이 백그라운드로 진입 후 앱이 다시 활성화가 된 경우, 로그인 세션 체크 후 로그아웃 상태라면 **userId = nil** 로 초기화 합니다. </span>
+- adId는 SDK 초기화 시 <b>isEnabledAdId</b>를 true로 설정한 경우 자동으로 수집하여 수집 서버에 전송합니다.
 
 
 | 옵션        | 타입    | 기본값        | 설명                                                           |
@@ -383,7 +381,7 @@ TagWorks.sharedInstance.isDebugLogPrint = YES;
 let dim01 = Dimension(index: 1, value: "설정정보01")
 let dim02 = Dimension(index: 2, numValue: 5000.0)
 
-// # Dimension - 동적 파라미터 사용 시
+// # Dimension - 동적 파라미터 사용 시 (isUseDynamicParameter 값이 true인 경우)
 let dim03 = Dimension(key: "사용자행동01", value: "설정정보02")
 let dim04 = Dimension(key: "사용자행동02", numValue: 10000.0)
 ```
@@ -398,7 +396,7 @@ let dim04 = Dimension(key: "사용자행동02", numValue: 10000.0)
 Dimension *dim01 = [[Dimension alloc] initWithIndex: 1 value: @"설정정보01"];
 Dimension *dim02 = [[Dimension alloc] initWithIndex: 2 numValue: 5000.0];
 
-// # Dimension - 동적 파라미터 사용 시
+// # Dimension - 동적 파라미터 사용 시 (isUseDynamicParameter 값이 true인 경우)
 Dimension *dim03 = [[Dimension alloc] initWithKey:@"사용자행동01" value:@"설정정보02"];
 Dimension *dim04 = [[Dimension alloc] initWithKey:@"사용자행동02" numValue:10000.0];
 ```
@@ -773,13 +771,14 @@ Dimension *dimension = [bundle getDynamicDimensionWithKey:@"사용자행동01"];
 
 ## 로그 전송
 
--   logEvent 함수를 호출하여 로그를 전송합니다.
--   <mark>기본적으로 EVENT_TAG_NAME 값을 설정하지 않는 경우, 수집 로그 전송이 이루어지지 않습니다.</mark>
--   로그 타입에는 페이지뷰 태그, 사용자 태그 두 가지 타입이 존재합니다.
+-   앱 내에서 화면 이동 및 앱 상태(백그라운드/포어그라운드 전환) 값을 기본적으로 자동수집합니다.
+-   추가로 로그를 수집하기 위해서는 Databundle을 이용해 데이터를 설정 후 logEvent 함수를 호출하여 로그를 전송합니다.
+-   <mark>기본적으로 Databundle의 EVENT_TAG_NAME 값을 설정하지 않는 경우, 수집 로그 전송이 이루어지지 않습니다.</mark>
+-   로그 타입에는 페이지뷰 태그, 사용자 태그 두 가지 타입이 존재합니다. (화면 정보 로그 수집 외에는 사용자 태그를 사용)
 -   로그 타입이 TagWorks.EVENT_TYPE_PAGE 인 경우
-    -   `EVENT_TAG_NAME 값이 StandardEvent.PAGE_VIEW 인 경우, EVENT_TAG_PARAM_PAGE_PATH 값은 필수 파라미터입니다.`
+    -   `EVENT_TAG_NAME 값이 StandardEventTag.PAGE_VIEW 인 경우, EVENT_TAG_PARAM_TITLE 값과 EVENT_TAG_PARAM_PAGE_PATH 값은 필수 파라미터입니다.`
 -   로그 타입이 TagWorks.EVENT_TYPE_USER_EVENT 인 경우
-    -   `EVENT_TAG_NAME 값이 StandardEvent.SEARCH 인 설정한 경우, EVENT_TAG_PARAM_KEYWORD 값은 필수 파라미터입니다.`
+    -   `EVENT_TAG_NAME 값이 StandardEventTag.SEARCH 인 설정한 경우, EVENT_TAG_PARAM_KEYWORD 값은 필수 파라미터입니다.`
     <br>
     <br>
 
@@ -791,7 +790,6 @@ let bundle = DataBundle()
 bundle.putString(DataBundle.EVENT_TAG_NAME, StandardEventTag.PAGE_VIEW)
 bundle.putString(DataBundle.EVENT_TAG_PARAM_TITLE, "화면이름")
 bundle.putString(DataBundle.EVENT_TAG_PARAM_PAGE_PATH, "/화면경로")
-bundle.putString(DataBundle.EVENT_TAG_PARAM_CUSTOM_PATH, "/사용자정의경로")
 
 // # 1.페이지뷰 태깅 로그 전송하는 경우
 TagWorks.sharedInstance.logEvent(TagWorks.EVENT_TYPE_PAGE, bundle: bundle)
@@ -812,7 +810,6 @@ DataBundle *bundle = [[DataBundle alloc] init];
 [bundle putString: DataBundle.EVENT_TAG_NAME value: StandardEventTag.PAGE_VIEW];
 [bundle putString: DataBundle.EVENT_TAG_PARAM_TITLE value:@"화면이름"];
 [bundle putString: DataBundle.EVENT_TAG_PARAM_PAGE_PATH value:@"/화면경로"];
-[bundle putString: DataBundle.EVENT_TAG_PARAM_CUSTOM_PATH value:@"/사용자정의경로"];
 
 // # 1.페이지뷰 태깅 로그 전송하는 경우
 [TagWorks.sharedInstance logEvent:TagWorks.EVENT_TYPE_PAGE bundle:bundle];
@@ -828,7 +825,7 @@ DataBundle *bundle = [[DataBundle alloc] init];
 ## Web View 연동
 
 -   Web / App 연동을 위한 interface 를 제공합니다.
--   앱에서 Tag Manager Code Snippet 이 포함된 웹뷰를 실행하면, 웹뷰에서 발생된 태깅 로그는 SDK를 통하여 앱으로 전송됩니다.
+-   앱에서 Tag Manager Code Snippet 이 포함된 웹뷰를 실행하면, 웹뷰에서 발생된 태깅 로그는 SDK를 통하여 앱으로 전송됩니다. 로그 수집을 하는 웹뷰가 있는 경우에는 모든 웹뷰에 interface 연결을 해야 합니다.
 -   WKWebViewConfiguration 설정 이외의 다른 설정은 필요하지 않습니다.
 -   로그인 시 사용자 맵핑을 위해 로그인 시점에 userId 설정하는 부분과 App에서 설정한 Dimension 값을 WebView에서 사용하기 위해 쿠키를<br>
 설정하는 부분에 있어 부분적인 대응 개발이 필요할 수 있습니다.
@@ -896,6 +893,8 @@ TagWorks.sharedInstance.sendReferrerEvent(openURL: <referrer url>)
 
 ## Crash Error Report (앱 크래시 발생 시 크래시 로그 저장 및 발송)
 
+-   <mark>SDK에서는 기본적으로 앱 크래시 로그를 수집합니다.</mark>
+-   수동으로 앱 크래시 로그를 수집 서버로 전송하고 싶은 경우에 해당 인터페이스를 사용합니다.
 -   앱에서 크래시(비정상종료) 발생 시 앱 내 설정한 NSSetUncaughtExceptionHandler 핸들러 또는 signal 핸들러를 통해 콜백이 발생한 경우, 해당 메소드를 통해 크래시 로그를 로컬에 저장합니다.
 -   앱이 재실행되면서 setInstanceConfig() 메소드가 호출되는 시점에 로컬에 저장되어 있는 크래시 로그를 SDK에서 자동으로 수집 서버로 전송합니다.
 -   현재 해당 기능은 DataBundle의 커스텀 디멘젼을 이용해 발송하기 때문에 동적 파라미터를 설정해서 사용을 하는 경우, <mark>TagManager -> 수집 항목 -> SDK 에서 항목 추가</mark>를 통해 다음 세가지 컬럼을 추가하여야만 해당 로그를 확인할 수 있습니다.

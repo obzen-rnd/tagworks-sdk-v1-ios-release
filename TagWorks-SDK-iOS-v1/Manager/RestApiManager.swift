@@ -9,6 +9,12 @@ import Foundation
 
 class RestApiManager: NSObject {
     
+//    public var deferredDepplinkURL = URL(string: "http://192.168.20.51:29201")
+    public var deferredDepplinkURL = "https://dxlab.obzen.com/ozsmlinkg"
+    
+    ///
+    /// onCMS를 이용한 InAppMessage API 호출
+    ///
     public func onCMSBridgePopup(onCmsUrl: String, cust_id: String, rcmd_area_cd: String, vstor_id: String, cntn_id: String, completionHandler: @escaping (Bool, Any) -> Void)  {
         // get url
         let parameters: [String: Any] = [
@@ -41,6 +47,33 @@ class RestApiManager: NSObject {
             completionHandler(success, data)
         }
     }
+    
+    ///
+    /// onCMS를 이용한 InAppMessage API 호출
+    ///
+    public func requestDeferredDeeplinkInfo(fp_basic: String, fp_canvas: String, fp_webgl: String, fp_audio: String, completionHandler: @escaping (Bool, Any) -> Void) {
+        
+        let fpDetails: [String: String] = [
+            "canvasHash": fp_canvas,
+            "webglHash": fp_webgl,
+            "audioHash": fp_audio
+        ]
+        
+        let parameters: [String: Any] = [
+            "oz_method": "get_install_info",
+            "oz_fingerprint_basic": fp_basic,
+            "oz_fingerprint_detail": fpDetails,
+            "oz_ssaid": ""
+        ]
+        
+        request(deferredDepplinkURL, "POST", parameters) { success, data in
+            completionHandler(success, data)
+        }
+    }
+}
+
+// 통신 호출 방식과 리턴 방식에 따른 통신 유틸리티 helper
+extension RestApiManager {
     
     /* 메소드별 동작 분리 */
     func request(_ url: String, _ method: String, _ param: [String: Any]? = nil, completionHandler: @escaping (Bool, Any) -> Void) {
@@ -85,7 +118,7 @@ class RestApiManager: NSObject {
     }
     
     ///
-    ///
+    /// Rest API 호출 방식과 리턴값에 따른 Helper
     ///
     func requestGet(url: String, completionHandler: @escaping (Bool, Any) -> Void) {
         guard let url = URL(string: url) else {
@@ -157,7 +190,7 @@ class RestApiManager: NSObject {
             }
             if data.count != 0 {
                 let htmlString = String(decoding: data, as: UTF8.self)
-                print(htmlString)
+//                print("response data String: \n" + htmlString)
                 completionHandler(true, htmlString)
             }
             
@@ -192,7 +225,7 @@ class RestApiManager: NSObject {
                 print(error!)
                 return
             }
-            guard let data = data else {
+            guard let data = data, data.isEmpty == false else {
                 print("Error: Did not receive data")
                 return
             }
