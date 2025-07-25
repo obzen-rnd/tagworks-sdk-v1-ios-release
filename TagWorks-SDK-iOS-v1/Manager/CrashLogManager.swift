@@ -103,17 +103,21 @@ public final class CrashLogManager {
         
         print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] saveErrorStackTrace! isTagWorks: \(isTagWorks)")
         print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] saveErrorStackTrace! errorType: \(errorType)")
-//        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] \(errorMessage)!!")
-//        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] \(String(describing: tagWorksBase?.crashErrorLog))!!")
+//        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] saveErrorStackTrace! errorMessage: \(errorMessage)")
+//        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] \(String(describing: tagWorksBase?.crashErrorLog))")
         
         // 현재 KST 타임스탬프 가져오기
-        let timestamp = CommonUtil.Formatter.getCurrentKSTimeString()
+        let timestamp = isTagWorks ? CommonUtil.Formatter.getCurrentUTCTimeString() : CommonUtil.Formatter.getCurrentKSTimeString()
+        var base64ErrorMessage: String?
+        if let data = errorMessage.data(using: .utf8) {
+            base64ErrorMessage = data.base64EncodedString()
+        }
         // 에러 정보 셋팅
         let errorDict: [String: String] = [
             "errorType" : errorType,
-            "errorData" : errorMessage,
+            "errorData" : base64ErrorMessage ?? errorMessage,
             "timestamp" : timestamp ?? ""
-        ]
+        ]        
         
         var errorArray: [[String: Any]] = []
 

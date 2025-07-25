@@ -35,12 +35,15 @@ internal struct TagWorksBase {
         userDefaults.removeObject(forKey: UserDefaultKey.userId)
         userDefaults.synchronize()
         
+        // 테스트 용도로 visitorId를 삭제 (사용 후에는 절대로 주석처리 꼭 확인할 것!!!)
 //        keychainStorage.remove()
         
         // Deeplink 정보를 서버에 전송하기 위해 미리 체크 해야할 부분 설정 - 중요!!!
         // 먼저 호출하지 않으면 디퍼드 딥링크 설치 시 처음 설치/재설치 여부 알 수 없음
-        if let _ = visitorId {
-            
+        if keychainStorage.isCheckFirstInstall() == true {
+            DeeplinkManager.sharedInstance.isFirstInstall = true
+        } else {
+            DeeplinkManager.sharedInstance.isFirstInstall = false
         }
     }
     
@@ -130,7 +133,8 @@ internal struct TagWorksBase {
         userDefaults.synchronize()
     }
     
-    internal var isAppFirstLaunch: Bool {
+    // 앱 최초 실행 여부
+    internal var isAppFirstLaunched: Bool {
         get {
             return userDefaults.bool(forKey: UserDefaultKey.isAppFirstLaunch)
         }

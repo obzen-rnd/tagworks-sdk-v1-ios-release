@@ -81,7 +81,35 @@ fileprivate extension Event {
         if let evtPlatform = self.evtPlatform {
             eventCommonItems.append(URLQueryItem(name: EventParams.eventPlatform, value: evtPlatform))
         }
-
+        if let adId = self.adId {
+            eventCommonItems.append(URLQueryItem(name: EventParams.adId, value: adId))
+        }
+        // 딥링크 정보
+        if let isDeepLink = self.isDeepLink {
+            eventCommonItems.append(URLQueryItem(name: EventParams.isDeepLink, value: isDeepLink))
+        }
+        if let isDeferredDeepLink = self.isDeferredDeepLink {
+            eventCommonItems.append(URLQueryItem(name: EventParams.isDeferredDeepLink, value: isDeferredDeepLink))
+        }
+        if let deeplinkId = self.deeplinkId {
+            eventCommonItems.append(URLQueryItem(name: EventParams.deeplinkId, value: deeplinkId))
+        }
+        if let isFirstInstall = self.isFirstInstall {
+            eventCommonItems.append(URLQueryItem(name: EventParams.isFirstInstall, value: isFirstInstall))
+        }
+        if let isReinstall = self.isReinstall {
+            eventCommonItems.append(URLQueryItem(name: EventParams.isReinstall, value: isReinstall))
+        }
+        if let campaignId = self.campaignId {
+            eventCommonItems.append(URLQueryItem(name: EventParams.campaignId, value: campaignId))
+        }
+        if let refChannel = self.refChannel {
+            eventCommonItems.append(URLQueryItem(name: EventParams.refChannel, value: refChannel))
+        }
+        if let landingPageUrl = self.landingPageUrl {
+            eventCommonItems.append(URLQueryItem(name: EventParams.landingPageUrl, value: landingPageUrl))
+        }
+        
         eventCommonItems.append(URLQueryItem(name: EventParams.deviceType, value: "app"))
         eventCommonItems.append(URLQueryItem(name: EventParams.appVersion, value: TagWorks.sharedInstance.appVersion ?? AppInfo.getBundleShortVersion()))
         eventCommonItems.append(URLQueryItem(name: EventParams.appName, value: TagWorks.sharedInstance.appName ?? AppInfo.getBundleName()))
@@ -279,7 +307,6 @@ fileprivate extension Event {
                 return [
                     URLQueryItem(name: URLQueryParams.siteId, value: siteId.stringByAddingPercentEncoding),
                     URLQueryItem(name: URLQueryParams.userId, value: userId?.stringByAddingPercentEncoding),
-                    URLQueryItem(name: URLQueryParams.adId, value: adId?.stringByAddingPercentEncoding),
 //                    URLQueryItem(name: URLQueryParams.url, value: url?.absoluteString.stringByAddingPercentEncoding),
 //                    URLQueryItem(name: URLQueryParams.urlReferer, value: urlReferer?.absoluteString.stringByAddingPercentEncoding),
                     URLQueryItem(name: URLQueryParams.url, value: (url?.absoluteString.decodeUrl())?.stringByAddingPercentEncodingWithContainEqual),
@@ -294,7 +321,6 @@ fileprivate extension Event {
             return [
                 URLQueryItem(name: URLQueryParams.siteId, value: siteId.stringByAddingPercentEncoding),
                 URLQueryItem(name: URLQueryParams.userId, value: userId?.stringByAddingPercentEncoding),
-                URLQueryItem(name: URLQueryParams.adId, value: adId?.stringByAddingPercentEncoding),
 //                URLQueryItem(name: URLQueryParams.url, value: url?.absoluteString.stringByAddingPercentEncoding),
 //                URLQueryItem(name: URLQueryParams.urlReferer, value: urlReferer?.absoluteString.stringByAddingPercentEncoding),
                 URLQueryItem(name: URLQueryParams.url, value: (url?.absoluteString.decodeUrl())?.stringByAddingPercentEncodingWithContainEqual),
@@ -318,7 +344,6 @@ fileprivate extension Event {
                 return [
                     URLQueryItem(name: URLQueryParams.siteId, value: siteId.stringByAddingPercentEncoding),
                     URLQueryItem(name: URLQueryParams.userId, value: userId?.stringByAddingPercentEncoding),
-                    URLQueryItem(name: URLQueryParams.adId, value: adId?.stringByAddingPercentEncoding),
                     URLQueryItem(name: URLQueryParams.url, value: (url?.absoluteString.decodeUrl())?.stringByAddingPercentEncodingWithContainEqual),
                     URLQueryItem(name: URLQueryParams.urlReferer, value: (urlReferer?.absoluteString.decodeUrl())?.stringByAddingPercentEncodingWithContainEqual),
                     URLQueryItem(name: URLQueryParams.language, value: language?.addingPercentEncoding(withAllowedCharacters: .alphanumerics)?.stringByAddingPercentEncoding),
@@ -331,7 +356,6 @@ fileprivate extension Event {
             return [
                 URLQueryItem(name: URLQueryParams.siteId, value: siteId.stringByAddingPercentEncoding),
                 URLQueryItem(name: URLQueryParams.userId, value: userId?.stringByAddingPercentEncoding),
-                URLQueryItem(name: URLQueryParams.adId, value: adId?.stringByAddingPercentEncoding),
                 URLQueryItem(name: URLQueryParams.url, value: (url?.absoluteString.decodeUrl())?.stringByAddingPercentEncodingWithContainEqual),
                 URLQueryItem(name: URLQueryParams.urlReferer, value: (urlReferer?.absoluteString.decodeUrl())?.stringByAddingPercentEncodingWithContainEqual),
                 URLQueryItem(name: URLQueryParams.language, value: language?.addingPercentEncoding(withAllowedCharacters: .alphanumerics)?.stringByAddingPercentEncoding),

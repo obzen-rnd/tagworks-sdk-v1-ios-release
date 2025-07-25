@@ -37,10 +37,8 @@ final public class KeychainStorage {
         self.lastErrorStatus = noErr
         let UUIDString = find()
         if UUIDString != nil {
-            DeeplinkManager.sharedInstance.isFirstInstall = false
             return UUIDString
         }
-        DeeplinkManager.sharedInstance.isFirstInstall = true
         return create()
     }
     
@@ -73,6 +71,15 @@ final public class KeychainStorage {
         
         let status = SecItemAdd(queryForCreate(UUIDString: UUIDString!) as CFDictionary, nil)
         return verifyStatusAndStoreLastError(status: status)
+    }
+    
+    public func isCheckFirstInstall() -> Bool {
+        let UUIDString = find()
+        if UUIDString != nil {
+            return false
+        }
+        
+        return true
     }
 
     

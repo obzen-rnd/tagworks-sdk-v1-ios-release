@@ -14,9 +14,9 @@ class WebPopupStyle: NSObject {
     let dupDisplayDelay: Int            // 동일 팝업 노출 방지를 위한 설정값 (seconds)
     let popupTitleUse: String           // 타이틀바 사용 여부
     let popupType: String!              // 팝업 타입
-    let closeBtnGrpType: String!        // 닫기 버튼 타입
+    let closeBtnGrpType: String!        // 닫기 버튼 타입 (1: Only 닫기, 2: 옵션 포함 닫기)
     let autoCloseSec: Int!              // 자동 닫기 시간(초)
-    let closeBtnPosition: String        // 닫기 버튼 위치 (bottom, top)
+    let closeBtnPosition: String        // 닫기 버튼 위치 (bottom, top, intop)
     
     // 바디
     let webViewWidth: CGFloat!
@@ -163,7 +163,7 @@ class WebPopupStyle: NSObject {
         closeBtnGrpType = styleJson["closeBtnGrpType"] as? String ?? "1"
         autoCloseSec = styleJson["autoCloseSec"] as? Int ?? 0
         closeBtnPosition = styleJson["closeBtnPosition"] as? String ?? "bottom"
-//        closeBtnPosition = "top"
+//        closeBtnPosition = "intop"
         
         webViewWidth = styleJson["webViewWidth"] as? CGFloat ?? 320
         webViewHeight = styleJson["webViewHeight"] as? CGFloat ?? 350

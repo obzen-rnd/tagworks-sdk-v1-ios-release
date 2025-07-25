@@ -23,13 +23,6 @@ class DetailWebViewController: UIViewController {
         }
     }
     
-//    convenience public init(loadUrl: String, isModal: Bool = false) {
-//        self.init()
-//        
-//        requestUrl = loadUrl
-//        self.isModal = isModal
-//    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationController?.navigationBar.isHidden = false

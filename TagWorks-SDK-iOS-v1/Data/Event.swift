@@ -79,6 +79,17 @@ public struct Event: Codable {
     /// 웹뷰로부터 받은 파라미터를 통해 이벤트를 생성하기 위한 변수들
     
     let eventCategory: String?      // e_c
+    
+    ///================================================
+    /// 딥링크 관련 이벤트 정보를 전송하기 위한 변수들
+    let isDeepLink: String?
+    let isDeferredDeepLink: String?
+    let deeplinkId: String?
+    let isFirstInstall: String?
+    let isReinstall: String?
+    let campaignId: String?
+    let refChannel: String?
+    let landingPageUrl: String?
 }
 
 extension Event {
@@ -108,7 +119,16 @@ extension Event {
                 errorType: String? = nil,
                 errorData: String? = nil,
                 errorTime: String? = nil,
-                evtPlatform: String? = "1") {
+                evtPlatform: String? = "1",
+                isDeepLink: String? = nil,
+                isDeferredDeepLink: String? = nil,
+                deeplinkId: String? = nil,
+                isFirstInstall: String? = nil,
+                isReinstall: String? = nil,
+                campaignId: String? = nil,
+                refChannel: String? = nil,
+                landingPageUrl: String? = nil
+    ) {
         self.uuid = UUID()
 //        self.siteId = tagWorks.siteId ?? ""
         if let tagWorksSiteid = tagWorks.siteId {
@@ -134,6 +154,14 @@ extension Event {
         self.errorData = errorData
         self.errorTime = errorTime
         self.evtPlatform = eventCategory != nil ? "2" : evtPlatform
+        self.isDeepLink = isDeepLink
+        self.isDeferredDeepLink = isDeferredDeepLink
+        self.deeplinkId = deeplinkId
+        self.isFirstInstall = isFirstInstall
+        self.isReinstall = isReinstall
+        self.campaignId = campaignId
+        self.refChannel = refChannel
+        self.landingPageUrl = landingPageUrl
         
 //        self.dimensions = tagWorks.dimensions + dimensions
         self.dimensions = mergeDimensions(dimensions)

@@ -8,8 +8,7 @@
 import Foundation
 
 class RestApiManager: NSObject {
-    
-//    public var deferredDepplinkURL = URL(string: "http://192.168.20.51:29201")
+    // MARK: Deeplink Proxy 서버 URL을 SDK 초기화 시에 입력 받도록 추가할 것!!!
     public var deferredDepplinkURL = "https://dxlab.obzen.com/ozsmlinkg"
     
     ///
@@ -27,11 +26,6 @@ class RestApiManager: NSObject {
         request(onCmsUrl, "GET", parameters) { success, data in
             completionHandler(success, data)
         }
-        
-        
-        //        requestForResultString("http://192.168.20.53:89/oncms?cust_id=testuser&rcmd_area_cd=M_POP_MAIN_002", "GET") { success, data in
-        //        requestForResultString("http://192.168.20.53:89/oncms?cust_id=testuser&rcmd_area_cd=NEW_AREA_1", "GET") { success, data in
-        //        request("https://dxlab.obzen.com/oncms2?rcmd_area_cd=POPUP_TEST_AREA&cust_id=C0000004933", "GET") { success, data in
     }
     
     public func onCMSBridgePopupBanner(onCmsUrl: String, cust_id: String, rcmd_area_cd: String, vstor_id: String, cntn_id: String, completionHandler: @escaping (Bool, Any) -> Void)  {
@@ -51,7 +45,7 @@ class RestApiManager: NSObject {
     ///
     /// onCMS를 이용한 InAppMessage API 호출
     ///
-    public func requestDeferredDeeplinkInfo(fp_basic: String, fp_canvas: String, fp_webgl: String, fp_audio: String, completionHandler: @escaping (Bool, Any) -> Void) {
+    public func requestDeferredDeeplinkInfo(fp_basic: String, fp_canvas: String, fp_webgl: String, fp_audio: String, cntn_id: String, completionHandler: @escaping (Bool, Any) -> Void) {
         
         let fpDetails: [String: String] = [
             "canvasHash": fp_canvas,
@@ -59,8 +53,10 @@ class RestApiManager: NSObject {
             "audioHash": fp_audio
         ]
         
+        // parameter에 컨테이너 ID를 API에 보내야함.(필히)
         let parameters: [String: Any] = [
             "oz_method": "get_install_info",
+            "oz_cntn_id": cntn_id,
             "oz_fingerprint_basic": fp_basic,
             "oz_fingerprint_detail": fpDetails,
             "oz_ssaid": ""

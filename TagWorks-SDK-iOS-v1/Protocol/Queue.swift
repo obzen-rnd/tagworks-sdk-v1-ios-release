@@ -23,13 +23,13 @@ public protocol Queue {
     /// - Parameters:
     ///   - events: 이벤트 구조체 컬렉션
     ///   - completion: 완료 CallBack
-    mutating func remove(events: [Event], completion: @escaping () ->Void)
+    mutating func remove(events: [Event], completion: @escaping () -> Void)
     
     /// queue에서 이벤트 구조체를 반환합니다.
     /// - Parameters:
     ///   - limit: 이벤트 구조체의 최대수
     ///   - completion: 완료 CallBack
-    func first(limit: Int, completion: @escaping (_ items: [Event]) ->Void)
+    func first(limit: Int, completion: @escaping (_ items: [Event]) -> Void)
 }
 
 extension Queue {

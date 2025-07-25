@@ -75,7 +75,7 @@ public class WebPopupViewController: UIViewController {
             }
         }
         
-        popupStyle = WebPopupStyle(styleJson: styleDic)
+        popupStyle = WebPopupStyle(styleJson: self.styleDic)
         
         // Popup WebView 생성
         let contentController = WKUserContentController()
@@ -135,6 +135,11 @@ public class WebPopupViewController: UIViewController {
         containerView.translatesAutoresizingMaskIntoConstraints = false
         containerView.backgroundColor = .clear
         self.view.addSubview(containerView)
+        
+        // 타이틀 바 초기화
+        // 라벨이 뷰에 추가되도록 하기 전에 Auto Layout 활성화
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        containerView.addSubview(titleLabel)
         
         // 웹뷰 초기화
         webView.translatesAutoresizingMaskIntoConstraints = false
@@ -218,7 +223,7 @@ public class WebPopupViewController: UIViewController {
     @objc func showBottomPopup() {
         // 팝업을 위한 웹뷰 생성
         createWebView(type: InAppPopupType.bottomPopup)
-        
+//        
         if popupStyle.popupTitleUse == "1" {
             createTitleView()
         }
@@ -289,7 +294,10 @@ public class WebPopupViewController: UIViewController {
                 var newCloseBtnGrpHeight: CGFloat = popupStyle.getCalcNewCloseBtnGrpHeight(currentWidth: containerViewWidth)
                 if popupStyle.closeBtnPosition == "top" && newCloseBtnGrpHeight == 0 {
                     newCloseBtnGrpHeight = popupStyle.getCalcNewTopCloseBtnHeight(currentWidth: containerViewWidth) + 20
+                } else if popupStyle.closeBtnPosition == "intop" {
+                    newCloseBtnGrpHeight = 0
                 }
+                
                 let containerViewHeight: CGFloat = newWebViewHeight + newTitleViewHeight + newCloseBtnGrpHeight
                 
                 // 팝업 제약 조건 설정 (화면 바닥으로 배치)
@@ -412,10 +420,6 @@ public class WebPopupViewController: UIViewController {
 //        let label = PaddedLabel()
         let label = titleLabel
         label.frame = CGRect(x: 0, y: 0, width: 100, height: 10)
-        
-        // 라벨이 뷰에 추가되도록 하기 전에 Auto Layout 활성화
-        label.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(label)
 
         let newHeight: CGFloat = popupStyle.getCalcNewTitleViewHeight(currentWidth: webView.bounds.width)
         
@@ -566,7 +570,7 @@ public class WebPopupViewController: UIViewController {
             NSLayoutConstraint.activate([
                 // 닫기 버튼의 LayoutConstraint
                 closeButton.trailingAnchor.constraint(equalTo: webView.trailingAnchor),
-                closeButton.bottomAnchor.constraint(equalTo: popupStyle.popupTitleUse == "1" ? titleLabel.topAnchor : webView.topAnchor, constant: -20),
+                closeButton.bottomAnchor.constraint(equalTo: popupStyle.popupTitleUse == "1" ? titleLabel.topAnchor : webView.topAnchor, constant: -16),
                 closeButton.widthAnchor.constraint(equalToConstant: newButtonHeight),
                 closeButton.heightAnchor.constraint(equalToConstant: newButtonHeight)
             ])
@@ -574,6 +578,30 @@ public class WebPopupViewController: UIViewController {
             closeButton.backgroundColor = .clear
             let bundle = Bundle(for: WebPopupViewController.self)
             let image = UIImage(named: "close_white_416.png", in: bundle, compatibleWith: nil)
+            
+            closeButton.setImage(image, for: .normal)
+            closeButton.addTarget(self, action: #selector(closePopup), for: .touchUpInside)
+        }
+        // 닫기 버튼이 웹뷰 또는 타이틀 바 안에 노출
+        else if popupStyle.closeBtnPosition == "intop" {
+            // 버튼 레이아웃
+            let newButtonHeight = popupStyle.getCalcNewCloseBtnGrpHeight(currentWidth: webView.bounds.width)
+//            let newButtonHeight = 26.0
+            // 팝업 제약 조건 설정
+            NSLayoutConstraint.activate([
+                // 닫기 버튼의 LayoutConstraint
+                closeButton.trailingAnchor.constraint(equalTo: webView.trailingAnchor,
+                                                      constant: popupStyle.popupTitleUse == "1" ? -12 : -12),
+                closeButton.topAnchor.constraint(equalTo: popupStyle.popupTitleUse == "1" ? titleLabel.topAnchor : webView.topAnchor,
+                                                 constant: popupStyle.popupTitleUse == "1" ? 8 : 12),
+                closeButton.widthAnchor.constraint(equalToConstant: newButtonHeight),
+                closeButton.heightAnchor.constraint(equalToConstant: newButtonHeight)
+            ])
+            
+            closeButton.bringSubviewToFront(self.containerView)
+            closeButton.backgroundColor = .clear
+            let bundle = Bundle(for: WebPopupViewController.self)
+            let image = UIImage(named: "close_96.png", in: bundle, compatibleWith: nil)
             
             closeButton.setImage(image, for: .normal)
             closeButton.addTarget(self, action: #selector(closePopup), for: .touchUpInside)

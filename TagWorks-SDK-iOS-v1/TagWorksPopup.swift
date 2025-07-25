@@ -122,11 +122,27 @@ import WebKit
         ) { success, data in
             if success {
                 DispatchQueue.main.async {
-                    if let htmlString = data as? String {
+                    guard let stringData = data as? String else { return }
+                    
+                    var htmlString: String? = nil
+
+                    // 1. JSON인지 판단해서 파싱 시도 ({"view":"<html>~~"} 이렇게 넘어오는 값 예외 처리)
+                    if let jsonData = stringData.data(using: .utf8),
+                       let jsonObject = try? JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any],
+                       let view = jsonObject["view"] as? String {
+                        htmlString = view
+                    } else {
+                        // 2. JSON 파싱이 안 되면 그냥 HTML 문자열로 간주
+                        htmlString = stringData
+                    }
+
+                    // HTML 로딩
+                    if let html = htmlString {
                         self.webViewManager = WebViewManager(webView: self.onCMSBannerWebView!)
                         self.webViewManager.webViewDelegate = TagWorksPopup.sharedInstance
-                        
-                        self.onCMSBannerWebView!.loadHTMLString(htmlString, baseURL: nil)
+                        self.onCMSBannerWebView?.loadHTMLString(html, baseURL: nil)
+                    } else {
+                        print("⚠️ HTML 문자열이 유효하지 않습니다.")
                     }
                 }
             } else {
@@ -143,7 +159,7 @@ import WebKit
                 self.defaultWebView = UIImageView()
             }
             defaultWebView!.frame = CGRect(x: 0, y: 0, width: bannerView.bounds.width, height: bannerView.bounds.height)
-            //            defaultWebView.translatesAutoresizingMaskIntoConstraints = false
+//            defaultWebView.translatesAutoresizingMaskIntoConstraints = false
             defaultWebView!.contentMode = .scaleToFill
             defaultWebView!.backgroundColor = .clear
 //            setWebViewDefaultContents(webView: defaultWebView!, pngImageName: defaultImageName)
@@ -213,7 +229,6 @@ import WebKit
             detailWebViewController.dismiss(animated: true)
         }
     }
-    
     
     
     
@@ -356,8 +371,6 @@ import WebKit
                 "view": viewHtml, "style": styleValue,
             ]
             
-            //            self.popupViewController = WebPopupViewController(jsonData: data as! [String: Any])
-            //            self.popupViewController = WebPopupViewController(cust_id: cust_id, rcmd_area_cd: rcmd_area_cd, requestUrl: "onCMSPopupCenter", jsonData: dataDic)
             self.popupViewController = WebPopupViewController(
                 cust_id: cust_id,
                 rcmd_area_cd: rcmd_area_cd,

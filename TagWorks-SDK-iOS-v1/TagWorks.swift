@@ -118,7 +118,7 @@ import AppTrackingTransparency
     
     /// 수집되는 어플리케이션의 기본 Url 주소입니다.
     /// * 수집대상이 되는 어플리케이션의 bundleIdentifier 주소를 기본으로 하며, 별도 지정시 지정된 값으로 수집됩니다.
-    @objc public var contentUrl: URL?
+    @objc var contentUrl: URL?
     
     /// 수집되는 어플리케이션의 현재 Url 주소입니다.
     /// * PageView 이벤트 호출시 contentUrl + 지정된 Url 경로 순으로 수집됩니다.
@@ -133,7 +133,7 @@ import AppTrackingTransparency
     /// 이벤트 발송 주기 사용 여부입니다.
     /// false로 셋팅한 경우, 이벤트 즉시 발송
     /// true로 셋팅한 경우, 타이머를 이용한 발송
-    @objc private var isUseIntervals = false
+    @objc var isUseIntervals = false
     
     /// 이벤트 로그의 발송 주기 입니다. (단위 : 초)
     /// * 발송 주기의 기본값은 10 입니다.
@@ -428,11 +428,11 @@ import AppTrackingTransparency
     }
     
     // MARK: 딥링크 관련 함수
-    // 앱 설치 후 최초 실행 여부에 따라 디퍼드 딥링크 정보 수신
+    /// 앱 설치 시 최초 실행 여부에 따라 디퍼드 딥링크 정보 수신
     private func checkIsAppFirstLaunch() {
         // 앱이 최초 실행 시 동작
         // 1. isAppFirstLaunch == false 일 경우에만 동작
-        guard tagWorksBase?.isAppFirstLaunch == false else { return }
+        guard tagWorksBase?.isAppFirstLaunched == false else { return }
         
         // 2. 특정 폴더 생성 시간 가져와서 3일이 지났다면 패스, 아니면 디퍼드 딥링크 Rest api 호출, 예)2025-07-01 10:06:23 UTC
         let installDate = CommonUtil.getAppInstallDateFromLibrary() ?? Date()
@@ -440,66 +440,24 @@ import AppTrackingTransparency
         // 두 날짜 사이의 차이를 일(day) 단위로 계산 - 날짜가 바뀐 횟수를 기준으로 차이를 구하기 때문에 비교 기준값에 -1을 해줘야 함 (예: 07-01, 07-10 비교 시 결과값은 8)
         if let daysBetween = calendar.dateComponents([.day], from: installDate, to: Date()).day {
             if daysBetween <= 2 {
-                // 디바이스 FingerPrint 수집
-                fingerprintManager.getScriptFingerprint() { result in
-                    print("🎉 모든 정보 수집 완료: \(result)")
-                    
-        //            let fingerprint = result as FingerprintManager.FingerprintResult
-        //            let screenResolution = DeviceInfo.getDeviceScreenResolution()
-        //            print("🌽 : " + result.userAgent! + "|" + CommonUtil.getCurrentTimeZone() + "|" + Locale.httpAcceptLanguage + "|" + CommonUtil.getIPAddressForCurrentInterface()! + "|" + "\(screenResolution.width),\(screenResolution.height)")
-                    
-                    // 앱 처음 실행 디퍼드 딥링크 Rest API 호출
-                    let restApiManager = RestApiManager()
-                    var isDeferredDeeplink = false
-                    var deeplinkInfo: String = ""
-                    // MARK: 파라미터 정보에 앱 실행 시간은 Rest API 호출하는 시간으로 API에서 처리..
-                    restApiManager.requestDeferredDeeplinkInfo(fp_basic: result.requiredHash ?? "",
-                                                               fp_canvas: result.canvasHash ?? "",
-                                                               fp_webgl: result.webGLHash ?? "",
-                                                               fp_audio: result.audioHash ?? "") { success, resultData in
-                        print(resultData)
-                        if let resultDict = resultData as? [String: String] {
-                            let isReinstallResult = resultDict["is_reinstall"]!     // 해당 값은 AOS에서만 서버 체크 후 사용하는 값임.
-                            let deeplinkInfoResult = resultDict["oz_deeplink"]!
-                            
-                            if deeplinkInfoResult.isEmpty == false {
-                                // 디퍼드 딥링크 정보 있음
-                                isDeferredDeeplink = true
-                                deeplinkInfo = deeplinkInfoResult
-                            } else {
-                                // 디퍼드 딥링크 정보 없음
-                                isDeferredDeeplink = false
-                                deeplinkInfo = ""
-                            }
-                        }
-                        
-                        if isDeferredDeeplink == true {
-                            // 디퍼드 딥링크 정보 존재할 때
-                            DeeplinkManager.sharedInstance.isDeferredDeeplinkInstalled = true
-                            DeeplinkManager.sharedInstance.handleDeeplink(URL(string: deeplinkInfo)!, isDeferredDeeplink: true )
-                        }
-                    }
-                    
-                    // 수집 서버 로그 전송
-                    
-                    // 받은 정보 파싱 후 딥링크 정보 처리
-    //                DeeplinkManager.sharedInstance.checkAppFirstLaunch()
-//                    DeeplinkManager.sharedInstance.handleDeeplink(URL(string: "obzenapp://prod/20054?oz_landing=key1%3Dvlaue1&oz_dlk_id=dlk1646856&oz_ref_channel=TG1128092&oz_camp_id=C000001")!)
-                    
+                
+                // API 통신을 통해 디퍼드 딥링크 정보 존재 여부 판별
+                DeeplinkManager.sharedInstance.checkDeferredDeeplink() { result in
+                    // 결과값 - result
                 }
             } else {
                 // 앱 설치 후 3일이 지났다고 판단..
-                let isFirstInstall = DeeplinkManager.sharedInstance.isFirstInstall
-                let isDeeplinkOpened = DeeplinkManager.sharedInstance.isDeeplinkOpened
-                
-                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] isFirstInstall: \(isFirstInstall), isDeeplinkOpened: \(isDeeplinkOpened)")
+                // 아무 행동 안하기로 결정.. 장등수 상무님 의견 반영 - By Kevin 2025.07.24
+//                let isFirstInstall = DeeplinkManager.sharedInstance.isFirstInstall
+//                let isDeeplinkOpened = DeeplinkManager.sharedInstance.isDeeplinkOpened
+//                
+//                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] isFirstInstall: \(isFirstInstall), isDeeplinkOpened: \(isDeeplinkOpened)")
             }
         }
         
-        
-        
+
         // 최초 실행 완료 플래그 셋팅
-//        tagWorksBase?.isAppFirstLaunch = true
+        tagWorksBase?.isAppFirstLaunched = true
     }
     
     ///
@@ -745,6 +703,18 @@ extension TagWorks {
         return false
     }
     
+    // 설정에 따라 큐에 넣거나 바로 전송
+    func addQueueOrDispatch(_ event: Event) {
+        if self.isUseIntervals || isManualDispatch {
+            addQueue(event: event)
+            
+        } else {
+            if !dispatchAtOnce(event: event) {
+                logger.debug("dispatchAtOnce is Failed.")
+            }
+        }
+    }
+    
     /// Dictionary 형태의 DataBundle로 파라미터들을 받기 위해 새로 구현 - Added by Kevin 2024.07.22
     @objc public func logEvent(_ type: String, bundle: DataBundle) -> Bool {
         
@@ -808,13 +778,7 @@ extension TagWorks {
             }
             
             let event = Event(tagWorks: self, eventType: eventTagName, pageTitle: title, searchKeyword: eventTagParamKeyword, customUserPath: eventTagParamCustomPath, dimensions: eventTagParamDimenstions, errorMsg: eventTagParamErrorMsg)
-            if self.isUseIntervals || isManualDispatch {
-                addQueue(event: event)
-            } else {
-                if !dispatchAtOnce(event: event) {
-                    logger.debug("dispatchAtOnce is Failed.")
-                }
-            }
+            addQueueOrDispatch(event)
             
         } else {
 //            let searchKeyword: String
@@ -834,14 +798,7 @@ extension TagWorks {
 //            urlReferer: URL(string: "urlref=카카오톡"),
             let event = Event(tagWorks: self, eventType: eventTagName, pageTitle: eventTagParamTitle, searchKeyword: eventTagParamKeyword, customUserPath: eventTagParamCustomPath, dimensions: eventTagParamDimenstions, errorMsg: eventTagParamErrorMsg)
             
-            if self.isUseIntervals || isManualDispatch {
-                addQueue(event: event)
-                
-            } else {
-                if !dispatchAtOnce(event: event) {
-                    logger.debug("dispatchAtOnce is Failed.")
-                }
-            }
+            addQueueOrDispatch(event)
         }
         return true
     }
@@ -1180,11 +1137,7 @@ extension TagWorks: WebInterfaceDelegate {
     }
     
     func addWebViewEvent(event: Event) {
-        if self.isUseIntervals || isManualDispatch {
-            addQueue(event: event)
-        } else {
-            _ = dispatchAtOnce(event: event);
-        }
+        addQueueOrDispatch(event)
     }
 }
 
@@ -1199,11 +1152,7 @@ extension TagWorks {
         let urlref = openURL
         
         let campaignEvent = Event(tagWorks: self, urlReferer: urlref, eventType: eventType)
-        if self.isUseIntervals || isManualDispatch {
-            addQueue(event: campaignEvent)
-        } else {
-            _ = dispatchAtOnce(event: campaignEvent);
-        }
+        addQueueOrDispatch(campaignEvent)
     }
     
     // 유입 경로가 특정 항목일 경우,
@@ -1211,11 +1160,7 @@ extension TagWorks {
         let eventType = EventTag.REFERRER.description
         let referrerEvent = Event(tagWorks: self, eventType: eventType, inflow: referrer)
         
-        if self.isUseIntervals || isManualDispatch {
-            addQueue(event: referrerEvent)
-        } else {
-            _ = dispatchAtOnce(event: referrerEvent);
-        }
+        addQueueOrDispatch(referrerEvent)
     }
 }
 

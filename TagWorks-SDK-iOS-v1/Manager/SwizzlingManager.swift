@@ -23,7 +23,6 @@ public final class SwizzlingManager {
         guard !didSwizzle else { return }
         didSwizzle = true
         
-        
         UIViewController.swizzleVCLifecycle()
         Application.initializeApplicationTracking()
 //        UIControl.swizzleSendAction()
@@ -45,7 +44,7 @@ public final class SwizzlingManager {
                 let dataBundle = DataBundle()
                 dataBundle.putString(DataBundle.EVENT_TAG_NAME, StandardEventTag.PAGE_VIEW)
                 dataBundle.putString(DataBundle.EVENT_TAG_PARAM_TITLE, className)
-                dataBundle.putString(DataBundle.EVENT_TAG_PARAM_PAGE_PATH, "/\(UIViewController.viewControllerPathDescription())")
+                dataBundle.putString(DataBundle.EVENT_TAG_PARAM_PAGE_PATH, "\(UIViewController.viewControllerPathDescription())")
                 let _ = TagWorks.sharedInstance.logEvent(TagWorks.EVENT_TYPE_PAGE, bundle: dataBundle)
             }
         }
@@ -55,28 +54,43 @@ public final class SwizzlingManager {
         if TagWorks.sharedInstance.autoTrackingApplication {
             print("🍎[TagWorks v\(CommonUtil.getSDKVersion()!)] \(event): \(type(of: application))")
             
-            var titleValue: String?
+            let dataBundle = DataBundle()
+            var triggerValue: String?
             
             if event == "didBecomeActive" {
-                titleValue = "앱 포어그라운드"
+                triggerValue = StandardEventTag.FOREGROUND
             } else if event == "didEnterBackground" {
-                titleValue = "앱 백그라운드"
+                triggerValue = StandardEventTag.BACKGROUND
+                
+                dataBundle.putString(DataBundle.EVENT_TAG_NAME, triggerValue!)
+                dataBundle.putString(DataBundle.EVENT_TAG_PARAM_TITLE, "")
+                let _ = TagWorks.sharedInstance.logEvent(TagWorks.EVENT_TYPE_USER_EVENT, bundle: dataBundle)
+                
+                // 큐에 남은 모든 로그들을 서버에 전송
+                if TagWorks.sharedInstance.isUseIntervals == true {
+                    _ = TagWorks.sharedInstance.dispatch()
+                }
+                return
             } else if event == "willTerminate" {
-                titleValue = "앱 종료"
+                triggerValue = "앱 종료" // StandardEventTag.TERMINATE
                 
                 // 안드로이드에서는 앱 종료 시점을 포착할 수 없기에 일시적으로 종료 로그를 보내지 않음
-//                dataBundle.putString(DataBundle.EVENT_TAG_PARAM_TITLE, titleValue ?? "")
+//                dataBundle.putString(DataBundle.EVENT_TAG_NAME, triggerValue)
+//                dataBundle.putString(DataBundle.EVENT_TAG_PARAM_TITLE, "")
 //                let _ = TagWorks.sharedInstance.logEvent(TagWorks.EVENT_TYPE_USER_EVENT, bundle: dataBundle)
                 
                 // 큐에 남은 모든 로그들을 서버에 전송
-                _ = TagWorks.sharedInstance.dispatch()
+                if TagWorks.sharedInstance.isUseIntervals == true {
+                    _ = TagWorks.sharedInstance.dispatch()
+                }
                 return
             }
             
-            let dataBundle = DataBundle()
-            dataBundle.putString(DataBundle.EVENT_TAG_NAME, StandardEventTag.APP_STATUS)
-            dataBundle.putString(DataBundle.EVENT_TAG_PARAM_TITLE, titleValue ?? "")
-            let _ = TagWorks.sharedInstance.logEvent(TagWorks.EVENT_TYPE_USER_EVENT, bundle: dataBundle)
+            if triggerValue != nil {
+                dataBundle.putString(DataBundle.EVENT_TAG_NAME, triggerValue!)
+                dataBundle.putString(DataBundle.EVENT_TAG_PARAM_TITLE, "")
+                let _ = TagWorks.sharedInstance.logEvent(TagWorks.EVENT_TYPE_USER_EVENT, bundle: dataBundle)
+            }
         }
     }
     
@@ -85,29 +99,42 @@ public final class SwizzlingManager {
         if TagWorks.sharedInstance.autoTrackingScene {
             print("🍎[TagWorks v\(CommonUtil.getSDKVersion()!)] \(event): \(type(of: scene))")
             
-            var titleValue: String?
-            
             let dataBundle = DataBundle()
-            dataBundle.putString(DataBundle.EVENT_TAG_NAME, StandardEventTag.APP_STATUS)
+            var triggerValue: String?
             
             if event == "didBecomeActive" {
-                titleValue = "앱 포어그라운드"
+                triggerValue = StandardEventTag.FOREGROUND
             } else if event == "didEnterBackground" {
-                titleValue = "앱 백그라운드"
+                triggerValue = StandardEventTag.BACKGROUND
+                
+                dataBundle.putString(DataBundle.EVENT_TAG_NAME, triggerValue!)
+                dataBundle.putString(DataBundle.EVENT_TAG_PARAM_TITLE, "")
+                let _ = TagWorks.sharedInstance.logEvent(TagWorks.EVENT_TYPE_USER_EVENT, bundle: dataBundle)
+                
+                // 큐에 남은 모든 로그들을 서버에 전송
+                if TagWorks.sharedInstance.isUseIntervals == true {
+                    _ = TagWorks.sharedInstance.dispatch()
+                }
+                return
             } else if event == "didDisconnect" {
-                titleValue = "앱 종료"
+                triggerValue = "앱 종료" // StandardEventTag.TERMINATE
                 
                 // 안드로이드에서는 앱 종료 시점을 포착할 수 없기에 일시적으로 종료 로그를 보내지 않음
 //                dataBundle.putString(DataBundle.EVENT_TAG_PARAM_TITLE, titleValue ?? "")
 //                let _ = TagWorks.sharedInstance.logEvent(TagWorks.EVENT_TYPE_USER_EVENT, bundle: dataBundle)
                 
                 // 큐에 남은 모든 로그들을 서버에 전송
-                _ = TagWorks.sharedInstance.dispatch()
+                if TagWorks.sharedInstance.isUseIntervals == true {
+                    _ = TagWorks.sharedInstance.dispatch()
+                }
                 return
             }
             
-            dataBundle.putString(DataBundle.EVENT_TAG_PARAM_TITLE, titleValue ?? "")
-            let _ = TagWorks.sharedInstance.logEvent(TagWorks.EVENT_TYPE_USER_EVENT, bundle: dataBundle)
+            if triggerValue != nil {
+                dataBundle.putString(DataBundle.EVENT_TAG_NAME, triggerValue!)
+                dataBundle.putString(DataBundle.EVENT_TAG_PARAM_TITLE, "")
+                let _ = TagWorks.sharedInstance.logEvent(TagWorks.EVENT_TYPE_USER_EVENT, bundle: dataBundle)
+            }
         }
     }
     

@@ -18,7 +18,9 @@ import Foundation
     case SEARCH         = 60
     case ERROR          = 70
     case REFERRER       = 80
-    case APP_STATUS     = 90
+    case BACKGROUND     = 90
+    case FOREGROUND     = 100
+    case DEEPLINK       = 110
     
     
     public var description: String {
@@ -31,7 +33,9 @@ import Foundation
             case .SEARCH:    return "Search"
             case .ERROR:     return "Error"
             case .REFERRER:  return "Referrer"
-            case .APP_STATUS: return "AppStatus"
+            case .BACKGROUND: return "oz_Background"
+            case .FOREGROUND: return "oz_Foreground"
+            case .DEEPLINK:   return "oz_DeepLink"
         }
     }
 }
@@ -50,7 +54,9 @@ import Foundation
             case .SEARCH:    return "Search"
             case .ERROR:     return "Error"
             case .REFERRER:  return "Referrer"
-            case .APP_STATUS: return "AppStatus"
+            case .BACKGROUND: return "oz_Background"
+            case .FOREGROUND: return "oz_Foreground"
+            case .DEEPLINK:   return "oz_DeepLink"
         }
     }
     
@@ -62,7 +68,9 @@ import Foundation
     @objc static public let SEARCH = "Search"
     @objc static public let ERROR = "Error"
     @objc static public let REFERRER = "Referrer"
-    @objc static public let APP_STATUS = "AppStatus"
+    @objc static public let BACKGROUND = "oz_Background"
+    @objc static public let FOREGROUND = "oz_Foreground"
+    @objc static public let DEEPLINK = "oz_DeepLink"
 }
 
 ///
@@ -115,7 +123,6 @@ extension Event {
         static let event            = "e_c"
         static let clientDateTime   = "cdt"
         static let screenSize       = "res"
-        static let adId             = "adid"
     }
     
     /// 이벤트 카테고리 내에 지정되는 TagWorks 이벤트 파라미터를 열거합니다.
@@ -139,7 +146,17 @@ extension Event {
         static let errorType                = "obz_err_type"
         static let errorData                = "obz_err_data"
         static let errorTime                = "obz_err_time"
+        static let adId                     = "obz_ad_id"
         static let eventPlatform            = "obz_evt_platfm"          // 1 - Native, 2 - WebView
+        // 딥링크 정보
+        static let isDeepLink               = "obz_dlk"
+        static let isDeferredDeepLink       = "obz_dfrd_dlk"
+        static let deeplinkId               = "obz_dlk_id"
+        static let isFirstInstall           = "obz_frst_instl"
+        static let isReinstall              = "obz_re_instl"
+        static let campaignId               = "obz_dlk_camp_id"
+        static let refChannel               = "obz_dlk_infmd"
+        static let landingPageUrl           = "obz_dlk_dstpt"
     }
 }
 

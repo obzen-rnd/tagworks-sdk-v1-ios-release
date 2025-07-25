@@ -70,16 +70,36 @@ public final class DefaultDispatcher: Dispatcher {
     ///   - failure: http 송신 결과 실패
     private func send(request: URLRequest, success: @escaping ()->(), failure: @escaping (_ error: Error)->()) {
         let task = session.dataTask(with: request) { data, response, error in
-            
             print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Response: \(data as Any), \(response.map(\.url) as Any), Error - \(error as Any)")
+            
             if let httpResponse = response as? HTTPURLResponse {
                 print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] statusCode: \(httpResponse.statusCode)")
-            }
-            
-            if let error = error {
-                failure(error)
+                
+                if (200 ..< 300) ~= httpResponse.statusCode {
+                    if let error = error {
+                        failure(error)
+                    } else {
+                        success()
+                    }
+                } else {
+                    // ❗️여기: 상태코드가 실패일 때, Error를 생성해서 넘겨야 함
+                    let statusError = NSError(
+                        domain: "TagWorks.Network",
+                        code: httpResponse.statusCode,
+                        userInfo: [
+                            NSLocalizedDescriptionKey: HTTPURLResponse.localizedString(forStatusCode: httpResponse.statusCode)
+                        ]
+                    )
+                    failure(statusError)
+                }
             } else {
-                success()
+                // ❗️response가 HTTPURLResponse가 아닐 경우
+                let unknownResponseError = error ?? NSError(
+                    domain: "TagWorks.Network",
+                    code: -1,
+                    userInfo: [NSLocalizedDescriptionKey: "Unknown network response."]
+                )
+                failure(unknownResponseError)
             }
         }
         task.resume()

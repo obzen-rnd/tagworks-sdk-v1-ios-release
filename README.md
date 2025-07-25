@@ -9,7 +9,7 @@
   <span style="font-size: 24px;">개발자 메뉴얼</span>
   <br><br>
   <br><br>
-  ver. 1.1.27
+  ver. 1.1.28
 </p>
 
 
@@ -29,7 +29,7 @@
 
 ![TagWorks SDK iOS](https://capsule-render.vercel.app/api?type=Soft&color=gradient&height=150&section=header&text=TagWorks-SDK-iOS&fontSize=50&animation=fadeOut)
 
-![Generic badge](https://img.shields.io/badge/version-v1.1.27-green.svg)
+![Generic badge](https://img.shields.io/badge/version-v1.1.28-green.svg)
 ![Generic badge](https://img.shields.io/badge/license-ApacheLicense2.0-blue.svg)
 ![Generic badge](https://img.shields.io/badge/Platform-iOS-red.svg)
 ![Generic badge](https://img.shields.io/badge/support-swift-yellow.svg)
@@ -41,9 +41,9 @@
 - [Mobile Tag 수집](#mobile-tag-수집)
   - [Requirements](#requirements)
   - [Installation](#installation)
-    - [CocoaPods](#cocoapods)
-    - [SPM](#spm)
-    - [직접 설치](#직접-설치)
+    - [1. CocoaPods](#1-cocoapods)
+    - [2. SPM](#2-spm)
+    - [3. 직접 설치](#3-직접-설치)
   - [SDK 초기화 설정](#sdk-초기화-설정)
   - [사용자 설정](#사용자-설정)
   - [데이터 구성](#데이터-구성)
@@ -72,6 +72,15 @@
 
 # Mobile Tag 수집
 
+- Mobile iOS Platform에서 OBZEN의 로그 수집을 하기 위한 용도의 SDK
+- Native 영역에서의 발생 로그 뿐만 아니라 Webview Interface 연결을 통한 웹뷰 로그도 함께 수집 가능합니다.
+- UIViewController 기준의 화면 전환 및 앱 상태 (백그라운드/포어그라운드) 전환 시 로그를 자동 수집하는 기능을 지원합니다.
+- 앱 내에서 발생하는 크래시 로그도 자동으로 수집하는 기능을 지원합니다.
+- onCMS 와의 연동을 통한 개별화 팝업 기능도 지원합니다.
+
+<br>
+<br>
+
 ## Requirements
 
 -   최소 iOS 버전 : iOS 9+
@@ -81,7 +90,7 @@
 
 ## Installation
 
-### CocoaPods
+### 1. CocoaPods
 
 1. 명령어를 입력하여 `Podfile` 파일을 생성해주세요.
 
@@ -109,7 +118,7 @@ cd path/to/project
 pod install --repo-update
 ```
 
-### SPM
+### 2. SPM
 
 -   Swift Package Manager(SPM)을 통해 iOS SDK를 설치할 수 있습니다.
     <br>
@@ -131,7 +140,7 @@ pod install --repo-update
 3. 원하는 타겟을 선택한 이후 패키지를 추가합니다.<br>
 4. SDK가 정상적으로 설치되었다면 `Package Dependencies`에 TagWorks가 표시됩니다.
 
-### 직접 설치
+### 3. 직접 설치
 
 -   TagWorks_SDK_iOS_v1.framework : 오프라인으로 제공
 
@@ -163,21 +172,21 @@ pod install --repo-update
 | appVersion       | String  | null   | Application 버전 정보, 설정하지 않을 경우 short version 전송     |
 | appName          | String  | null   | Application 이름, 설정하지 않을 경우 bundle name 전송           |
 | isUseDynamicParameter | Bool   | true | Dimension 동적 파라미터 사용 여부                           |
-| isEnabledAdId    | Bool    | false  | IDFA(광고식별자) 자동 수집 여부                                |
+| isEnabledAdId    | Bool    | false  | IDFA(광고식별자) 자동 수집 여부 - <span style="color:rgb(223, 95, 56)">앱에서 권한 추가 시만 true로 설정</span>         |
 |                                                                                                |
 
 <br>
 
--   **siteId** 및 **baseUrl** 을 설정하지 않는 경우 SDK 초기화 과정에서 오류가 발생합니다.
+-   AppDelegate의 application(_:,didFinishLaunchingWithOptions:) 메서드 최상단에 초기화 메소드를 호출합니다.
+-   **siteId** 및 **baseUrl** 을 설정하지 않는 경우 서버로의 로그 수집이 이루어지지 않습니다.
 -   **isUseIntervals** 값을 false로 설정할 경우에는 dispatchIntervalWithSeconds 값이 무시되고 항상 즉시 발송됩니다. <br> true로 설정할 경우에는 dispatchIntervalWithSeconds 값에 지정된 초를 주기로 데이터를 발송합니다.
 -   **dispatchIntervalWithSeconds** 는 큐에 저장된 행동 정보 데이터를 지정한 초만큼 주기로 발송하기 때문에, 지정한 시간 사이에 어플리케이션이 종료되는 경우 발송 할 수 없으니 적절한 시간으로 지정해야 합니다.
--   이러한 경우를 대비하기 위하여 sceneWillResignActive 함수 내부(어플리케이션이 background 상태로 진입하는 부분)에서 dispatch() 메서드 호출을 권장합니다.
 -   isManualDispatch 값을 true 로 설정한 경우에는, 명시적으로 dispatch() 함수를 호출해야만 태깅 로그가 발송됩니다.
 -   **isUseDynamicParameter** 값을 true로 설정할 경우 Dimension의 key값을 문자형으로 사용하고, false로 설정할 경우 key값을 정수형으로 사용해야 합니다.
     - **isUseDynamicParameter** 에 <span style="color:rgb(223, 95, 56)">설정한 값에 따른 해당 메소드와는 다른 Dimension 메소드를 사용 시 데이터가 올바르게 전송되지 않을 수 있습니다.</span>
 -   <span style="color:rgb(223, 95, 56)">App에 광고식별자 사용 권한 설정이 되어 있는 경우</span>, isEnabledAdId 값을 true로 설정하면 SDK에서 자동으로 광고식별자를 수집합니다.
 -   **TagWorks.sharedInstance** 객체를 통하여 Singleton Instance를 제공하며, 전역에서 호출 가능합니다.
--   AppDelegate의 application(_:,didFinishLaunchingWithOptions:) 메소드 최상단에 초기화 메소드를 호출합니다.
+
 
 <br>
 
@@ -197,10 +206,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // TagWorks instance 설정
-        TagWorks.sharedInstance.setInstanceConfig(siteId: "00,AAAAAAAA",
+        TagWorks.sharedInstance.setInstanceConfig(siteId: "00,XXXXXXXX",
                                                   baseUrl: URL(string: "http://obzen.com/obzenTagWorks")!,
                                                   isUseIntervals: false,
-                                                  dispatchIntervalWithSeconds: 5,
+                                                  dispatchIntervalWithSeconds: 3,
                                                   sessionTimeOutWithSeconds: 5,
                                                   isManualDispatch: false,
                                                   appVersion: "앱 버전",
@@ -211,18 +220,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 }
 
-
-//
-// *** isUseIntervals : true 로 설정한 경우에만 설정 필요 ***
-//
-// SceneDelegate class 내부
-class SceneDelegate: UIResponder, UIWindowSceneDelegate {
-  
-    func sceneWillResignActive(_ scene: UIScene) {
-        // 어플리케이션이 background 상태 진입시 태깅 큐에 남아있는 데이터 모두 전송
-        TagWorks.sharedInstance.dispatch()
-    }
-}
 ```
 
  - TagWorks 초기화 상태 여부 체크
@@ -254,29 +251,16 @@ if TagWorks.sharedInstance.isInitialize() == false {
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // TagWorks instance 설정
     TagWorks *tagWorksInstance = TagWorks.sharedInstance;
-    [tagWorksInstance setInstanceConfigWithSiteId:@"00,AAAAAAAA"
+    [tagWorksInstance setInstanceConfigWithSiteId:@"00,XXXXXXXX"
                                           baseUrl:[NSURL URLWithString:@"http://obzen.com/obzenTagWorks"]
                                    isUseIntervals:NO
-                      dispatchIntervalWithSeconds:5
+                      dispatchIntervalWithSeconds:3
                         sessionTimeOutWithSeconds:5
-                                       appVersion:@"1.1.0"
-                                          appName:@"obzen APP"
+                                       appVersion:@"앱 버전"
+                                          appName:@"앱 이름"
                             isUseDynamicParameter:YES
                                     isEnabledAdId:NO];
     ...
-}
-
-
-//
-// *** isUseIntervals : true 로 설정한 경우에만 설정 필요 ***
-//
-// SceneDelegate class 내부
-@implementation SceneDelegate
-
-- (void) sceneWillResignActive:(UIScene *)scene {
-    // 어플리케이션이 background 상태 진입시 태깅 큐에 남아있는 데이터 모두 전송
-    TagWorks *tagWorksInstance = TagWorks.sharedInstance;
-    [tagWorksInstance dispatch];
 }
 ```
 - TagWorks 초기화 상태 여부 체크
@@ -292,7 +276,7 @@ if (TagWorks.sharedInstance.isInitialize == false) {
 
 ## 사용자 설정
 
-- 행동 데이터 수집 대상이 되는 사용자를 설정하고 수집 여부를 지정합니다.
+- 행동 정보 데이터 수집 대상이 되는 사용자를 설정하고 수집 여부를 지정합니다.
 - **⚠️ userId 설정 시 주의 사항**
   - <span style="color: #ff00ff">SDK 초기화 시점에 **TagWorks.sharedInstance.userId = nil** 로 초기화 합니다. </span>
   - <span style="color: #ff00ff">사용자가 로그인 시점에 **userId**를 설정 후 로그 아웃 시점에 **userId = nil** 로 초기화 합니다. </span>
@@ -305,7 +289,7 @@ if (TagWorks.sharedInstance.isInitialize == false) {
 | userId     | String | null        | 수집 대상 고객 식별자 (사용자 계정)                                   |
 | adId       | String | null        | 수집 대상 광고 식별자                                              |
 | isOptedOut | String | false       | 행동 정보 데이터 수집 여부 (true로 설정할 경우 수집하지 않음)              |
-| contentUrl | String | 패키지 주소    | 행동 정보 page Url 주소 (ex) APP://com.obzen.TagWorks-SDK-iOS    |
+| autoTrackingPage | Bool | true    | 화면 전환 시 페이지뷰 로그 자동 수집 여부 (true - 자동 수집, false -  자동 수집 안함)    |
 | isDebugLogPrint | Bool | false    | SDK 디버그 용도로 로그 출력 여부                                    | 
 |                                                                                                   |
 
@@ -319,15 +303,15 @@ if (TagWorks.sharedInstance.isInitialize == false) {
 // 수집 대상자 고객 식별자 지정 (로그인 완료 시점에 설정)
 TagWorks.sharedInstance.userId = "userid"
 
-// 수집 대상자 광고 식별자 지정 (기본적으로 가져오도록 설정됨.)
-TagWorks.sharedInstance.adId = "광고식별자 UUID"
+// 수집 대상자 광고 식별자 지정 
+TagWorks.sharedInstance.setAdid("광고식별자 UUID")
 
 // 고객이 설정한 개인정보 수집 여부에 따라 수집 여부 지정
 // 태깅 로그 전송 제어 용도로도 사용 가능합니다.
 TagWorks.sharedInstance.isOptedOut = false
 
-// page url 주소 - 설정하지 않을 경우 기본값 지정 (APP://[AppBundleIdentifier])
-TagWorks.sharedInstance.contentUrl = URL(string: "http://obzen.com/")
+// Native 영역에서 화면 전환 시 페이지뷰 로그 자동 수집 여부 
+TagWorks.sharedInstance.autoTrackingPage = false
 
 // SDK 디버그 용도 로그 출력
 TagWorks.sharedInstance.isDebugLogPrint = true
@@ -342,14 +326,14 @@ TagWorks.sharedInstance.isDebugLogPrint = true
 [TagWorks.sharedInstance setUserId:@"userid"];
 
 // 수집 대상자 광고 식별자 지정 (기본적으로 가져오도록 설정됨.)
-TagWorks.sharedInstance.adId = @"광고식별자 UUID";
+[TagWorks.sharedInstance setAdid:@"광고식별자 UUID"];
 
 // 고객이 설정한 개인정보 수집 여부에 따라 수집 여부 지정
 // 태깅 로그 전송 제어 용도로도 사용 가능합니다.
 [TagWorks.sharedInstance setIsOptedOut:NO];
 
-// page url 주소 - 설정하지 않을 경우 기본값 지정 (APP://[AppBundleIdentifier])
-[TagWorks.sharedInstance setContentUrl:[NSURL URLWithString:@"http://obzen.com/"]];
+// Native 영역에서 화면 전환 시 페이지뷰 로그 자동 수집 여부 
+TagWorks.sharedInstance.autoTrackingPage = NO;
 
 // SDK 디버그 용도 로그 출력
 TagWorks.sharedInstance.isDebugLogPrint = YES;
@@ -771,8 +755,7 @@ Dimension *dimension = [bundle getDynamicDimensionWithKey:@"사용자행동01"];
 
 ## 로그 전송
 
--   앱 내에서 화면 이동 및 앱 상태(백그라운드/포어그라운드 전환) 값을 기본적으로 자동수집합니다.
--   추가로 로그를 수집하기 위해서는 Databundle을 이용해 데이터를 설정 후 logEvent 함수를 호출하여 로그를 전송합니다.
+-   로그를 수집하기 위해서는 Databundle을 이용해 데이터를 설정 후 logEvent(_,bundle:) 메서드를 호출하여 로그를 전송합니다.
 -   <mark>기본적으로 Databundle의 EVENT_TAG_NAME 값을 설정하지 않는 경우, 수집 로그 전송이 이루어지지 않습니다.</mark>
 -   로그 타입에는 페이지뷰 태그, 사용자 태그 두 가지 타입이 존재합니다. (화면 정보 로그 수집 외에는 사용자 태그를 사용)
 -   로그 타입이 TagWorks.EVENT_TYPE_PAGE 인 경우
@@ -827,8 +810,7 @@ DataBundle *bundle = [[DataBundle alloc] init];
 -   Web / App 연동을 위한 interface 를 제공합니다.
 -   앱에서 Tag Manager Code Snippet 이 포함된 웹뷰를 실행하면, 웹뷰에서 발생된 태깅 로그는 SDK를 통하여 앱으로 전송됩니다. 로그 수집을 하는 웹뷰가 있는 경우에는 모든 웹뷰에 interface 연결을 해야 합니다.
 -   WKWebViewConfiguration 설정 이외의 다른 설정은 필요하지 않습니다.
--   로그인 시 사용자 맵핑을 위해 로그인 시점에 userId 설정하는 부분과 App에서 설정한 Dimension 값을 WebView에서 사용하기 위해 쿠키를<br>
-설정하는 부분에 있어 부분적인 대응 개발이 필요할 수 있습니다.
+-   로그인 시 사용자 맵핑을 위해 로그인 시점에 userId 설정하는 부분과 App에서 설정한 Dimension 값을 WebView에서 사용하기 위해 쿠키를 설정하는 부분은 대응 개발이 필요합니다.
 -   <span style="color: #00FFFF">만약 프로젝트에서 Precompiled Header에서 WebKit이 선언되어 있는 경우, #import <WebKit/WebKit.h> 위치를 TagWorks 프레임워크 헤더 선언하는 위치 위에 선언 후 빌드해야 합니다.</span>
 
 <br>
@@ -877,8 +859,8 @@ WKWebView *webView = [[WKWebView alloc] initWithFrame:CGRectZero configuration:c
 
 ## 딥링크 (유입 경로 추적)
 
-- Referrer 정보가 포함되어 있는 URL로 부터 앱이 실행이 된 경우, 해당 Referrer 정보를 서버로 수집이 가능합니다.
-- 앱에서 해당 URL 정보를 받아오는 함수 내부에 다음과 같은 TagWorks SDK 인터페이스를 호출합니다.
+- Referrer 정보가 포함되어 있는 스키마 URL로 부터 앱이 실행이 된 경우, 해당 스키마 URL 정보를 서버로 수집이 가능합니다.
+- 앱에서 해당 URL 정보를 받아오는 메서드 내부에 다음과 같은 TagWorks SDK 인터페이스를 호출합니다.
 > **Swift**
 
 ```swift
