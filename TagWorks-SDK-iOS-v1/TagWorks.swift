@@ -188,8 +188,6 @@ import AppTrackingTransparency
     // 객체를 weak로 참조하기에 메모리 릭 발생 위험 없음.
     private var registeredTagButtons: NSHashTable<UIButton> = NSHashTable.weakObjects()
     
-    private let fingerprintManager = FingerprintManager()
-    
     // MARK: - 클래스 객체 함수
     
     // MARK: InstanceConfig (초기 버전부터 버전별 Config 사용)
@@ -471,7 +469,6 @@ import AppTrackingTransparency
     /// 딥링크로 앱이 실행이 된 경우, 앱에서 등록한 콜백 함수를 통해 앱의 랜딩 페이지로 이동시킴
     ///
     @objc public func registerDeeplinkCallback(_ callback: @escaping @convention(block) (Bool, URL) -> Void) {
-//    @objc public func registerDeeplinkCallback(_ callback: DeeplinkCallback) {
         DeeplinkManager.sharedInstance.registerDeeplinkCallback(callback)
     }
     
@@ -866,10 +863,10 @@ extension TagWorks {
             } else {
                 print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] sendErrorReport is Sucessed.")
             }
-        }
-        
-        if isSuccess {
-            tagWorksBase?.clearCrashErrorLog()
+            
+            if isSuccess {
+                tagWorksBase?.clearCrashErrorLog()
+            }
         }
     }
     
@@ -902,10 +899,10 @@ extension TagWorks {
             } else {
                 print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] sendErrorReport is Sucessed.")
             }
-        }
-        
-        if isSuccess {
-            tagWorksBase?.clearCrashErrorReport()
+            
+            if isSuccess {
+                tagWorksBase?.clearCrashErrorReport()
+            }
         }
     }
 }

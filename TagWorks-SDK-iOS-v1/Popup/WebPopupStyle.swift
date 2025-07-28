@@ -163,7 +163,7 @@ class WebPopupStyle: NSObject {
         closeBtnGrpType = styleJson["closeBtnGrpType"] as? String ?? "1"
         autoCloseSec = styleJson["autoCloseSec"] as? Int ?? 0
         closeBtnPosition = styleJson["closeBtnPosition"] as? String ?? "bottom"
-//        closeBtnPosition = "intop"
+//        closeBtnPosition = "bottom"
         
         webViewWidth = styleJson["webViewWidth"] as? CGFloat ?? 320
         webViewHeight = styleJson["webViewHeight"] as? CGFloat ?? 350
