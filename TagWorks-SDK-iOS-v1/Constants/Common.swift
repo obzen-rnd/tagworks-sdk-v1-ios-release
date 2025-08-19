@@ -21,31 +21,11 @@ import Foundation
     case BACKGROUND     = 90
     case FOREGROUND     = 100
     case DEEPLINK       = 110
+    case APP_PUSH       = 120
     
     
     public var description: String {
         switch self {
-            case .PAGE_VIEW: return "PageView"
-            case .CLICK:     return "Click"
-            case .SCROLL:    return "Scroll"
-            case .DOWNLOAD:  return "Search"
-            case .OUT_LINK:  return "OutLink"
-            case .SEARCH:    return "Search"
-            case .ERROR:     return "Error"
-            case .REFERRER:  return "Referrer"
-            case .BACKGROUND: return "oz_Background"
-            case .FOREGROUND: return "oz_Foreground"
-            case .DEEPLINK:   return "oz_DeepLink"
-        }
-    }
-}
-
-
-/// Objective-C
-///// Objective-C에서 사용할 EventTag Class
-@objc public class StandardEventTag: NSObject {
-    @objc static public func toString(eventTag: EventTag) -> String {
-        switch eventTag {
             case .PAGE_VIEW: return "PageView"
             case .CLICK:     return "Click"
             case .SCROLL:    return "Scroll"
@@ -57,20 +37,31 @@ import Foundation
             case .BACKGROUND: return "oz_Background"
             case .FOREGROUND: return "oz_Foreground"
             case .DEEPLINK:   return "oz_DeepLink"
+            case .APP_PUSH:   return "oz_AppPush"
         }
     }
+}
+
+
+/// Objective-C
+///// Objective-C에서 사용할 EventTag Class
+@objc public class StandardEventTag: NSObject {
+    @objc static public func toString(eventTag: EventTag) -> String {
+        return eventTag.description
+    }
     
-    @objc static public let PAGE_VIEW = "PageView"
-    @objc static public let CLICK = "Click"
-    @objc static public let SCROLL = "Scroll"
-    @objc static public let DOWNLOAD = "Download"
-    @objc static public let OUT_LINK = "OutLink"
-    @objc static public let SEARCH = "Search"
-    @objc static public let ERROR = "Error"
-    @objc static public let REFERRER = "Referrer"
-    @objc static public let BACKGROUND = "oz_Background"
-    @objc static public let FOREGROUND = "oz_Foreground"
-    @objc static public let DEEPLINK = "oz_DeepLink"
+    @objc static public let PAGE_VIEW   = "PageView"
+    @objc static public let CLICK       = "Click"
+    @objc static public let SCROLL      = "Scroll"
+    @objc static public let DOWNLOAD    = "Download"
+    @objc static public let OUT_LINK    = "OutLink"
+    @objc static public let SEARCH      = "Search"
+    @objc static public let ERROR       = "Error"
+    @objc static public let REFERRER    = "Referrer"
+    @objc static public let BACKGROUND  = "oz_Background"
+    @objc static public let FOREGROUND  = "oz_Foreground"
+    @objc static public let DEEPLINK    = "oz_DeepLink"
+    @objc static public let APP_PUSH    = "oz_AppPush"
 }
 
 ///
@@ -78,14 +69,16 @@ extension TagWorksBase {
     
     /// TagWokrs UserDefault 저장 Key를 열거합니다.
     internal struct UserDefaultKey {
-        static let userId           = "TagWorksUserIdKey"
-        static let visitorId        = "TagWorksVisitorIdKey"
-        static let optOut           = "TagWorksOptOutKey"
-        static let eventsLocalQueue = "TagWorksLocalQueueKey"
-        static let errorLog         = "TagWorksErrorLogKey"             // IBK 고객여정에서 요청한 앱 크래시 경우에 에러 로그 저장 용도 - by Kevin. 2025. 05. 13
-        static let errorReport      = "TagWorksErrorReportKey"          // SDK 내부 기능으로 앱 크래시 경우 자동 탐지 후 에러 리포트 스택 트레이스를 저장 용도
-        static let isAppFirstLaunch = "TagWorksIsAppFirstLaunchKey"     // 앱이 설치 후 최초 실행 여부 판단
-        static let appInstallTime   = "TagWorksAppInstallTimeKey"
+        static let userId                   = "TagWorksUserIdKey"
+        static let visitorId                = "TagWorksVisitorIdKey"
+        static let optOut                   = "TagWorksOptOutKey"
+        static let eventsLocalQueue         = "TagWorksLocalQueueKey"
+        static let errorLog                 = "TagWorksErrorLogKey"             // IBK 고객여정에서 요청한 앱 크래시 경우에 에러 로그 저장 용도 - by Kevin. 2025. 05. 13
+        static let errorReport              = "TagWorksErrorReportKey"          // SDK 내부 기능으로 앱 크래시 경우 자동 탐지 후 에러 리포트 스택 트레이스를 저장 용도
+        static let isAppFirstLaunch         = "TagWorksIsAppFirstLaunchKey"     // 앱이 설치 후 최초 실행 여부 판단
+        static let appInstallTime           = "TagWorksAppInstallTimeKey"
+        static let pushTokenKey             = "TagWorksPushTokenKey"
+        static let lastSentPushTokenDateKey = "TagWorksLastSentPushTokenDateKey"
     }
 }
 
@@ -148,6 +141,7 @@ extension Event {
         static let errorTime                = "obz_err_time"
         static let adId                     = "obz_ad_id"
         static let eventPlatform            = "obz_evt_platfm"          // 1 - Native, 2 - WebView
+        static let pushToken                = "obz_ptoken"
         // 딥링크 정보
         static let isDeepLink               = "obz_dlk"
         static let isDeferredDeepLink       = "obz_dfrd_dlk"
@@ -162,19 +156,34 @@ extension Event {
 
 // MARK: TagWorksPopup 에서 사용될 타입들 정의
 
-@objc public class InAppPopupType: NSObject {
-    @objc static public let centerPopup         = 1
-    @objc static public let bottomPopup         = 2
-    @objc static public let pagePopup           = 3
-    @objc static public let topPopup            = 4
+//@objc public class InAppPopupType: NSObject {
+//    @objc static public let centerPopup         = 1
+//    @objc static public let bottomPopup         = 2
+//    @objc static public let pagePopup           = 3
+//    @objc static public let topPopup            = 4
+//}
+//
+//@objc public class InAppPopupButtonType: NSObject {
+//    @objc static public let none                = 0
+//    @objc static public let close               = 1
+//    @objc static public let closeAndNoMoreShow  = 2
+//    @objc static public let closeAndNoShowToday = 3
+//    @objc static public let closeAndNoShowSeven = 4
+//}
+
+@objc public enum InAppPopupType: Int {
+    case center     = 1
+    case bottom     = 2
+    case page       = 3
+    case top        = 4
 }
 
-@objc public class InAppPopupButtonType: NSObject {
-    @objc static public let none                = 0
-    @objc static public let close               = 1
-    @objc static public let closeAndNoMoreShow  = 2
-    @objc static public let closeAndNoShowToday = 3
-    @objc static public let closeAndNoShowSeven = 4
+@objc public enum InAppPopupButtonType: Int {
+    case none                = 0
+    case close               = 1
+    case closeAndNoMoreShow  = 2
+    case closeAndNoShowToday = 3
+    case closeAndNoShowSeven = 4
 }
 
 

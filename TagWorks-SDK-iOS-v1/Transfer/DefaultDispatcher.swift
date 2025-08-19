@@ -36,15 +36,17 @@ public final class DefaultDispatcher: Dispatcher {
     ///   - userAgent: UserAgent 정보
     public init(serializer: Serializer, timeOut: TimeInterval = 5.0, baseUrl: URL, userAgent: String? = nil) {
         self.serializer = serializer
-        var tOut = timeOut
-        if tOut <= 3.0 { tOut = 3.0 }
-        else if tOut >= 60.0 { tOut = 60.0 }
+        let tOut = min(max(timeOut, 3.0), 60.0)         // timeOut 값: 최소 - 3초, 최대 - 60초
         self.timeOut = tOut
         self.session = URLSession.shared
         self.baseUrl = baseUrl
         // userAgent를 설정해도 아카이브에서는 기본 정보만 사용하기에 필요가 없다 판단해 파라미터로 설정하는 기능 제거.. - 2025.07.10 by Kevin
-        self.userAgent = (userAgent == nil || userAgent == "") ? UserAgent(appInfo: AppInfo.getApplicationInfo(), deviceInfo: DeviceInfo.getDeviceInfo()).userAgentString : userAgent
-//        self.userAgent = UserAgent(appInfo: AppInfo.getApplicationInfo(), deviceInfo: DeviceInfo.getDeviceInfo()).userAgentString
+        // self.userAgent = (userAgent == nil || userAgent == "") ? UserAgent(appInfo: AppInfo.getApplicationInfo(), deviceInfo: DeviceInfo.getDeviceInfo()).userAgentString : userAgent
+        if let ua = userAgent, !ua.isEmpty {
+            self.userAgent = ua
+        } else {
+            self.userAgent = UserAgent(appInfo: AppInfo.getApplicationInfo(), deviceInfo: DeviceInfo.getDeviceInfo()).userAgentString
+        }
     }
     
     /// Http Request객체를 생성하여 반환합니다.
@@ -70,36 +72,38 @@ public final class DefaultDispatcher: Dispatcher {
     ///   - failure: http 송신 결과 실패
     private func send(request: URLRequest, success: @escaping ()->(), failure: @escaping (_ error: Error)->()) {
         let task = session.dataTask(with: request) { data, response, error in
-            print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Response: \(data as Any), \(response.map(\.url) as Any), Error - \(error as Any)")
+            TagWorks.log("📡 Response URL: \(response?.url?.absoluteString ?? "No URL")")
+            TagWorks.log("❌ Error: \(error?.localizedDescription ?? "nil")")
             
-            if let httpResponse = response as? HTTPURLResponse {
-                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] statusCode: \(httpResponse.statusCode)")
-                
-                if (200 ..< 300) ~= httpResponse.statusCode {
-                    if let error = error {
-                        failure(error)
-                    } else {
-                        success()
-                    }
-                } else {
-                    // ❗️여기: 상태코드가 실패일 때, Error를 생성해서 넘겨야 함
-                    let statusError = NSError(
-                        domain: "TagWorks.Network",
-                        code: httpResponse.statusCode,
-                        userInfo: [
-                            NSLocalizedDescriptionKey: HTTPURLResponse.localizedString(forStatusCode: httpResponse.statusCode)
-                        ]
-                    )
-                    failure(statusError)
-                }
-            } else {
-                // ❗️response가 HTTPURLResponse가 아닐 경우
-                let unknownResponseError = error ?? NSError(
-                    domain: "TagWorks.Network",
+            if let error = error {
+                failure(error)
+                return
+            }
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                let unknownResponseError = NSError(
+                    domain: "TagWorks.NetworkError",
                     code: -1,
                     userInfo: [NSLocalizedDescriptionKey: "Unknown network response."]
                 )
                 failure(unknownResponseError)
+                return
+            }
+            
+            TagWorks.log("📊 statusCode: \(httpResponse.statusCode)")
+            
+            if (200 ..< 300) ~= httpResponse.statusCode {
+                success()
+            } else {
+                // ❗️여기: 상태코드가 실패일 때, Error를 생성해서 넘겨야 함
+                let statusError = NSError(
+                    domain: "TagWorks.NetworkError",
+                    code: httpResponse.statusCode,
+                    userInfo: [
+                        NSLocalizedDescriptionKey: HTTPURLResponse.localizedString(forStatusCode: httpResponse.statusCode)
+                    ]
+                )
+                failure(statusError)
             }
         }
         task.resume()
@@ -110,25 +114,16 @@ public final class DefaultDispatcher: Dispatcher {
     ///   - events: 이벤트 구조체 컬렉션
     ///   - success: http 송신 결과 성공
     ///   - failure: http 송신 결과 실패
-    public func send(events: [Event], success: @escaping () -> (), failure: @escaping (Error) -> ()) {
-        var jsonBody: Data
+    public func send(events: [Event], success: @escaping () -> Void, failure: @escaping (Error) -> Void) {
         do {
-            jsonBody = try serializer.toJsonData(for: events, isLocalQueue: false)
-            print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Json origin: \(String(data:jsonBody, encoding: .utf8)?.decodeUrl() ?? "")")
-            print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Json Body: \(String(data:jsonBody, encoding: .utf8) ?? "")")
-            // 취약점 발견으로 인한 암호화 적용
-            // ##@ 를 붙이는 이유: 해당 패킷은 AES로 암호화 되어 있다는 표시
-            let aesJsonBody: String = "##@" + AES256Util.encrypt(data: jsonBody)
-            print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] send Json AES Body: \(aesJsonBody)")
+            let jsonData = try self.serializer.toJsonData(for: events, isLocalQueue: false)
+            TagWorks.log("Json decoded Body: \(String(data: jsonData, encoding: .utf8)?.urlDecoded() ?? "")")
+//            tagWorksPrint("Json Body: \(String(data: jsonData, encoding: .utf8) ?? "")")
             
-            jsonBody = aesJsonBody.data(using: .utf8)!
-            
+            sendEncryptedJsonBody(jsonData, success: success, failure: failure)
         } catch {
             failure(error)
-            return
         }
-        let request = buildRequest(baseURL: baseUrl!, method: "POST", contentType: "application/json; charset=utf-8", body: jsonBody)
-        send(request: request, success: success, failure: failure)
     }
     
     /// 로컬 큐에 저장된 직렬화 이벤트 수집 정보를 Http Request로 생성합니다.
@@ -137,21 +132,36 @@ public final class DefaultDispatcher: Dispatcher {
     ///   - success: http 송신 결과 성공
     ///   - failure: http 송신 결과 실패
     public func send(localQueueEvents: String, success: @escaping () -> (), failure: @escaping (Error) -> ()) {
-        var jsonBody: Data
-        if let data = localQueueEvents.data(using: .utf8) {
-            jsonBody = data
-            
-            print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Json origin: \(localQueueEvents.decodeUrl() ?? "")")
-            print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Json Body: \(localQueueEvents)")
-            // 취약점 발견으로 인한 암호화 적용
-            // ##@ 를 붙이는 이유: 해당 패킷은 AES로 암호화 되어 있다는 표시
-            let aesJsonBody: String = "##@" + AES256Util.encrypt(data: jsonBody)
-            print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] send Json AES Body: \(aesJsonBody)")
-            
-            jsonBody = aesJsonBody.data(using: .utf8)!
-            
-            let request = buildRequest(baseURL: baseUrl!, method: "POST", contentType: "application/json; charset=utf-8", body: jsonBody)
-            send(request: request, success: success, failure: failure)
+        guard let jsonData = localQueueEvents.data(using: .utf8) else {
+            failure(NSError(domain: "TagWorks.LocalQueueError", code: -3, userInfo: [NSLocalizedDescriptionKey: "Invalid local queue JSON"]))
+            return
         }
+        TagWorks.log("Json decoded Body: \(String(data: jsonData, encoding: .utf8)?.urlDecoded() ?? "")")
+//        tagWorksPrint("Json Body: \(jsonData)")
+        
+        sendEncryptedJsonBody(jsonData, success: success, failure: failure)
+    }
+    
+    // MARK: Private Func
+    
+    private func sendEncryptedJsonBody(_ jsonBody: Data, success: @escaping () -> (), failure: @escaping (Error) -> ()) {
+        let encrypted = AES256Util.encrypt(data: jsonBody)
+        guard !encrypted.isEmpty else {
+            failure(NSError(domain: "TagWorks.SecurityError", code: -2, userInfo: [NSLocalizedDescriptionKey : "AES Encryption Failed."]))
+            return
+        }
+        
+        // 취약점 발견으로 인한 암호화 적용
+        // ##@ 를 붙이는 이유: 해당 패킷은 AES로 암호화 되어 있다는 표시
+        let encryptedData: Data = ("##@" + encrypted).data(using: .utf8)!
+        TagWorks.log("send Json AES Body: \(String(data: encryptedData, encoding: .utf8)!)")
+        
+        guard let baseURL = self.baseUrl else {
+            failure(NSError(domain: "TagWorks.NetworkError", code: -999, userInfo: [NSLocalizedDescriptionKey: "Base URL is nil"]))
+            return
+        }
+        
+        let request = buildRequest(baseURL: baseURL, method: "POST", contentType: "application/json; charset=utf-8", body: encryptedData)
+        send(request: request, success: success, failure: failure)
     }
 }

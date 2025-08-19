@@ -73,7 +73,9 @@ public struct Event: Codable {
     
     /// Native 수집 로그인지, WebView 수집 로그인지 분별
     /// 2025-07-07 현진 차장 요청으로 해당 값 추가 - by Kevin
-    var evtPlatform: String? = "1"
+    var evtPlatform: String = "1"
+    
+    var pushToken: String?
     
     ///================================================
     /// 웹뷰로부터 받은 파라미터를 통해 이벤트를 생성하기 위한 변수들
@@ -119,7 +121,7 @@ extension Event {
                 errorType: String? = nil,
                 errorData: String? = nil,
                 errorTime: String? = nil,
-                evtPlatform: String? = "1",
+                evtPlatform: String = "1",
                 isDeepLink: String? = nil,
                 isDeferredDeepLink: String? = nil,
                 deeplinkId: String? = nil,
@@ -127,8 +129,9 @@ extension Event {
                 isReinstall: String? = nil,
                 campaignId: String? = nil,
                 refChannel: String? = nil,
-                landingPageUrl: String? = nil
-    ) {
+                landingPageUrl: String? = nil,
+                pushToken: String? = nil)
+    {
         self.uuid = UUID()
 //        self.siteId = tagWorks.siteId ?? ""
         if let tagWorksSiteid = tagWorks.siteId {
@@ -162,6 +165,7 @@ extension Event {
         self.campaignId = campaignId
         self.refChannel = refChannel
         self.landingPageUrl = landingPageUrl
+        self.pushToken = pushToken
         
 //        self.dimensions = tagWorks.dimensions + dimensions
         self.dimensions = mergeDimensions(dimensions)

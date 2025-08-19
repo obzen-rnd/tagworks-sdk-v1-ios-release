@@ -12,11 +12,12 @@ public class WebPopupViewController: UIViewController {
     private var cust_id: String!
     private var rcmd_area_cd: String!
     private var requestUrl: String!
-    private var jsonDic: [String: Any]!
-    private var styleDic: [String: Any]!
-    private var viewHtmlString: String!
-    private var webViewManager: WebViewManager!
     
+    private var jsonDic: [String: Any]! = [:]
+    private var styleDic: [String: Any]!
+    private var viewHtmlString: String?
+    
+    private var webViewManager: WebViewManager!
     private var containerView: UIView = UIView(frame: .zero)
 //    private var webView: WKWebView = WKWebView(frame: .zero)
     private var titleLabel = PaddedLabel()
@@ -26,7 +27,7 @@ public class WebPopupViewController: UIViewController {
     private let closeButton = UIButton(type: .custom)
     private let closeOptionButton = UIButton(type: .custom)
     
-    let popupStyle: WebPopupStyle!
+    var popupStyle: WebPopupStyle!
     
     public var backgroundAlpha: CGFloat = 0.5 {
         didSet {
@@ -66,20 +67,11 @@ public class WebPopupViewController: UIViewController {
         
         if let tempDic = jsonData as? [String : Any] {
             self.jsonDic = tempDic
-            self.viewHtmlString = tempDic["view"] as? String
-            let styleString = tempDic["style"] as? String
-            
-            if let styleString = styleString {
-                self.styleDic = try! JSONSerialization.jsonObject(with: styleString.data(using: .utf8)!, options: []) as! [String : Any]
-                print("Popup Style Info : \(styleDic.map { "\($0.key): \($0.value)" }.joined(separator: "\n"))")
-            }
         }
-        
-        popupStyle = WebPopupStyle(styleJson: self.styleDic)
         
         // Popup WebView 생성
         let contentController = WKUserContentController()
-//        // Swift에 JavaScript 인터페이스 연결
+        // Swift에 JavaScript 인터페이스 연결
         TagWorks.sharedInstance.webViewInterface.addTagworksWebInterface(contentController)
         
         let webConfiguration = WKWebViewConfiguration()
@@ -88,6 +80,11 @@ public class WebPopupViewController: UIViewController {
         webView = WKWebView(frame: .zero, configuration: webConfiguration)
         
         super.init(nibName: nil, bundle: nil)
+        
+        parseStyle(from: jsonDic)
+        self.viewHtmlString = jsonDic["view"] as? String
+        
+        popupStyle = WebPopupStyle(styleJson: self.styleDic)
         
 //        self.displayDelayDate = ""
         // 팝업 창 스타일을 위한 설정
@@ -121,6 +118,21 @@ public class WebPopupViewController: UIViewController {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    // Response 정보로부터 style 정보를 가져옴.
+//    private func parseStyle(from tempDic: [String: Any]) -> [String: Any] {
+    private func parseStyle(from tempDic: [String: Any]) {
+        guard let styleString = tempDic["style"] as? String,
+              let data = styleString.data(using: .utf8),
+              let style = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] else {
+            TagWorks.log("❌ 팝업 스타일 정보를 파싱할 수 없습니다.")
+            return
+        }
+        
+        self.styleDic = style
+        TagWorks.log("팝업 스타일 정보:\n\(style.map { "• \($0.key): \($0.value)" }.joined(separator: "\n"))")
+//        return style
     }
 
     func initializeViews() {
@@ -171,8 +183,20 @@ public class WebPopupViewController: UIViewController {
         webViewManager = WebViewManager(webView: webView)
         webViewManager.webViewDelegate = TagWorksPopup.sharedInstance
         
-//        webView.loadHTMLString(self.viewHtmlString, baseURL: nil)
-        webView.loadHTMLString(self.viewHtmlString, baseURL: URL(string: self.requestUrl.stringByAddingPercentEncoding))
+        if let popupType = self.jsonDic["ex_meth"] as? String {
+            if popupType == "survey" {
+                if let url = self.jsonDic["url"] as? String {
+                    let request = URLRequest(url: URL(string: url)!)
+                    webView.load(request)
+                    return
+                }
+            }
+        }
+        
+        if let htmlString = self.viewHtmlString {
+            // baseURL - HTML 내에서 CSS 파일이나 리소스를 사용할 때 상대 경로가 되는 기준 경로
+            webView.loadHTMLString(htmlString, baseURL: URL(string: self.requestUrl.urlEncodedForQuery))
+        }
     }
     
     override public func viewDidLoad() {
@@ -207,7 +231,7 @@ public class WebPopupViewController: UIViewController {
     // MARK: 중앙 다이얼로그 팝업
     @objc func showCenterPopup() {
         // 팝업을 위한 웹뷰 생성
-        createWebView(type: InAppPopupType.centerPopup)
+        createWebView(type: InAppPopupType.center.rawValue)
         
         if popupStyle.popupTitleUse == "1" {
             createTitleView()
@@ -222,8 +246,8 @@ public class WebPopupViewController: UIViewController {
     // MARK: 바텀시트 다이얼로그 팝업
     @objc func showBottomPopup() {
         // 팝업을 위한 웹뷰 생성
-        createWebView(type: InAppPopupType.bottomPopup)
-//        
+        createWebView(type: InAppPopupType.bottom.rawValue)
+//
         if popupStyle.popupTitleUse == "1" {
             createTitleView()
         }
@@ -238,7 +262,7 @@ public class WebPopupViewController: UIViewController {
     @objc func showPagePopup() {
         
         // 팝업을 위한 웹뷰 생성
-        createWebView(type: InAppPopupType.pagePopup)
+        createWebView(type: InAppPopupType.page.rawValue)
         
         if popupStyle.popupTitleUse == "1" {
             createTitleView()
@@ -257,7 +281,7 @@ public class WebPopupViewController: UIViewController {
 //        "webViewRadius":15,
         
         switch (type) {
-            case InAppPopupType.centerPopup:
+            case InAppPopupType.center.rawValue:
                 let containerViewWidth = popupStyle.screenWidth - popupStyle.popupSideMargin * 2
                 let newWebViewHeight: CGFloat = popupStyle.getCalcNewWebViewHeight(currentWidth: containerViewWidth)
                 var newTitleViewHeight: CGFloat = popupStyle.getCalcNewTitleViewHeight(currentWidth: containerViewWidth)
@@ -284,7 +308,7 @@ public class WebPopupViewController: UIViewController {
                     webView.heightAnchor.constraint(equalToConstant: newWebViewHeight)
                 ])
                 break
-            case InAppPopupType.bottomPopup:
+            case InAppPopupType.bottom.rawValue:
                 let containerViewWidth = popupStyle.screenWidth
                 let newWebViewHeight: CGFloat = popupStyle.getCalcNewWebViewHeight(currentWidth: containerViewWidth)
                 var newTitleViewHeight: CGFloat = popupStyle.getCalcNewTitleViewHeight(currentWidth: containerViewWidth)
@@ -327,7 +351,7 @@ public class WebPopupViewController: UIViewController {
                     ])
                 }
                 break
-            case InAppPopupType.pagePopup:
+            case InAppPopupType.page.rawValue:
                 let containerViewWidth = popupStyle.screenWidth
                 var newTitleViewHeight: CGFloat = popupStyle.getCalcNewTitleViewHeight(currentWidth: containerViewWidth)
                 if popupStyle.popupTitleUse == "0" {
@@ -379,14 +403,14 @@ public class WebPopupViewController: UIViewController {
             webView.layer.masksToBounds = true
             if #available(iOS 11.0, *) {
                 webView.layer.cornerRadius = ratioRadius
-                if type == InAppPopupType.centerPopup {
+                if type == InAppPopupType.center.rawValue {
                     webView.layer.maskedCorners = popupStyle.closeBtnPosition == "top" ? [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMaxYCorner ]
                                                                                        : [.layerMaxXMinYCorner, .layerMinXMinYCorner] // Top right corner, Top left corner respectively
                 } else {
                     webView.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner] // Top right corner, Top left corner respectively
                 }
             } else {
-                if type == InAppPopupType.centerPopup {
+                if type == InAppPopupType.center.rawValue {
                     webView.roundCorners(corners: popupStyle.closeBtnPosition == "top" ? [.topLeft, .topRight, .bottomLeft, .bottomRight] : [.topLeft, .topRight], radius: ratioRadius)
                 } else {
                     webView.roundCorners(corners: [.topLeft, .topRight], radius: ratioRadius)  // 상단 왼쪽, 상단 오른쪽 모서리만 둥글게
@@ -417,7 +441,6 @@ public class WebPopupViewController: UIViewController {
 //        "webViewRadius":15,
         
         // 라벨 만들기
-//        let label = PaddedLabel()
         let label = titleLabel
         label.frame = CGRect(x: 0, y: 0, width: 100, height: 10)
 
@@ -463,25 +486,44 @@ public class WebPopupViewController: UIViewController {
     
     private func createPopupButton() {
         var buttonCount: Int = 1
-        var buttonType = InAppPopupButtonType.close
+//        var buttonType = InAppPopupButtonType.close
+        
+        if popupStyle.closeBtnGrpType == "2" {
+            buttonCount = 2
+            self.closeOptionButton.isHidden = false
+            
+            if popupStyle.closeOptBtnType == "1" {
+                // 오늘 하루 보지 않기
+//                buttonType = InAppPopupButtonType.closeAndNoShowToday
+                closeOptionButton.setTitle("오늘 하루 보지 않기", for: .normal)
+            } else if popupStyle.closeOptBtnType == "7" {
+                // 일주일간 보지 않기
+//                buttonType = InAppPopupButtonType.closeAndNoShowSeven
+                closeOptionButton.setTitle("일주일간 보지 않기", for: .normal)
+            } else if popupStyle.closeOptBtnType == "0" {
+                // 다시 보지 않기
+//                buttonType = InAppPopupButtonType.closeAndNoMoreShow
+                closeOptionButton.setTitle("다시 보지 않기", for: .normal)
+            }
+        }
+        
+        let ratioFontSize = popupStyle.ratioCloseBtnGrpFontSize(currentWidth: webView.bounds.width)
+        let ratioHalfFontSize = popupStyle.ratioCloseBtnGrpFontSize(currentWidth: webView.bounds.width / 2)
+        
+        closeButton.backgroundColor = UIColor(hex: popupStyle.closeBtnBgColor)
+        closeButton.setTitle("닫기", for: .normal)
+        closeButton.setTitleColor(UIColor(hex: popupStyle.closeBtnFontColor), for: .normal)
+        closeButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: buttonCount == 1 ? ratioFontSize : ratioHalfFontSize)
+        closeButton.addTarget(self, action: #selector(closePopup), for: .touchUpInside)
+        
+        closeOptionButton.backgroundColor = UIColor(hex: popupStyle.closeOptBtnBgColor)
+        closeOptionButton.setTitleColor(UIColor(hex: popupStyle.closeOptBtnFontColor), for: .normal)
+        closeOptionButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: ratioHalfFontSize)
+        closeOptionButton.addTarget(self, action: #selector(closePopupOption), for: .touchUpInside)
+        
         
         // 하단에 닫기 버튼이 존재
         if popupStyle.closeBtnPosition == "bottom" {
-            if popupStyle.closeBtnGrpType == "2" {
-                buttonCount = 2
-                self.closeOptionButton.isHidden = false
-                
-                if popupStyle.closeOptBtnType == "1" {
-                    // 오늘 하루 보지 않기
-                    buttonType = InAppPopupButtonType.closeAndNoShowToday
-                } else if popupStyle.closeOptBtnType == "7" {
-                    // 일주일간 보지 않기
-                    buttonType = InAppPopupButtonType.closeAndNoShowSeven
-                } else if popupStyle.closeOptBtnType == "0" {
-                    // 다시 보지 않기
-                    buttonType = InAppPopupButtonType.closeAndNoMoreShow
-                }
-            }
             
             // 버튼 레이아웃
             let newButtonHeight = popupStyle.getCalcNewCloseBtnGrpHeight(currentWidth: webView.bounds.width)
@@ -515,35 +557,7 @@ public class WebPopupViewController: UIViewController {
                 default:
                     break
             }
-            
-            let ratioFontSize = popupStyle.ratioCloseBtnGrpFontSize(currentWidth: webView.bounds.width)
-            let ratioHalfFontSize = popupStyle.ratioCloseBtnGrpFontSize(currentWidth: webView.bounds.width / 2)
-            
-            closeButton.backgroundColor = UIColor(hex: popupStyle.closeBtnBgColor)
-            closeButton.setTitle("닫기", for: .normal)
-            closeButton.setTitleColor(UIColor(hex: popupStyle.closeBtnFontColor), for: .normal)
-            closeButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: buttonCount == 1 ? ratioFontSize : ratioHalfFontSize)
-            closeButton.addTarget(self, action: #selector(closePopup), for: .touchUpInside)
-            
-            closeOptionButton.backgroundColor = UIColor(hex: popupStyle.closeOptBtnBgColor)
-            closeOptionButton.setTitleColor(UIColor(hex: popupStyle.closeOptBtnFontColor), for: .normal)
-            closeOptionButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: ratioHalfFontSize)
-            closeOptionButton.addTarget(self, action: #selector(closePopupOption), for: .touchUpInside)
-            
-            switch (buttonType) {
-                case InAppPopupButtonType.closeAndNoShowToday:
-                    closeOptionButton.setTitle("오늘 하루 보지 않기", for: .normal)
-                    break
-                case InAppPopupButtonType.closeAndNoMoreShow:
-                    closeOptionButton.setTitle("다시 보지 않기", for: .normal)
-                    break
-                case InAppPopupButtonType.closeAndNoShowSeven:
-                    closeOptionButton.setTitle("일주일간 보지 않기", for: .normal)
-                    break
-                default:
-                    break;
-            }
-            
+
             closeOptionButton.layoutIfNeeded()
             closeButton.layoutIfNeeded()
             
@@ -562,30 +576,66 @@ public class WebPopupViewController: UIViewController {
                 }
             }
         }
-        // 닫기 버튼이 위에 노출
+        // 닫기 버튼이 위에 노출 (웹뷰 또는 타이틀바 위에)
         else if popupStyle.closeBtnPosition == "top" {
+            
+            closeOptionButton.backgroundColor = UIColor.clear
+            closeOptionButton.contentHorizontalAlignment = .left   // 왼쪽 정렬
+            closeOptionButton.setTitleColor(UIColor(hex: "#7B7B7B"), for: .normal)
+            
             // 버튼 레이아웃
             let newButtonHeight = popupStyle.getCalcNewTopCloseBtnHeight(currentWidth: webView.bounds.width)
-            // 팝업 제약 조건 설정
-            NSLayoutConstraint.activate([
-                // 닫기 버튼의 LayoutConstraint
-                closeButton.trailingAnchor.constraint(equalTo: webView.trailingAnchor),
-                closeButton.bottomAnchor.constraint(equalTo: popupStyle.popupTitleUse == "1" ? titleLabel.topAnchor : webView.topAnchor, constant: -16),
-                closeButton.widthAnchor.constraint(equalToConstant: newButtonHeight),
-                closeButton.heightAnchor.constraint(equalToConstant: newButtonHeight)
-            ])
+            switch (buttonCount) {
+                case 1:
+                    // 팝업 제약 조건 설정
+                    NSLayoutConstraint.activate([
+                        // 닫기 버튼의 LayoutConstraint
+                        closeButton.trailingAnchor.constraint(equalTo: webView.trailingAnchor, constant: -12),
+                        closeButton.bottomAnchor.constraint(equalTo: popupStyle.popupTitleUse == "1" ? titleLabel.topAnchor : webView.topAnchor, constant: -16),
+                        closeButton.widthAnchor.constraint(equalToConstant: newButtonHeight),
+                        closeButton.heightAnchor.constraint(equalToConstant: newButtonHeight)
+                    ])
+                    break
+                case 2:
+                    // 팝업 제약 조건 설정
+                    NSLayoutConstraint.activate([
+                        // 오늘 다시 보지 않기 LayoutConstraint
+                        closeOptionButton.leadingAnchor.constraint(equalTo: webView.leadingAnchor, constant: 16),
+                        closeOptionButton.bottomAnchor.constraint(equalTo: popupStyle.popupTitleUse == "1" ? titleLabel.topAnchor : webView.topAnchor, constant: -16),
+                        closeOptionButton.widthAnchor.constraint(equalTo: webView.widthAnchor, multiplier: 0.5),
+//                        closeOptionButton.topAnchor.constraint(equalTo: webView.bottomAnchor),
+                        closeOptionButton.heightAnchor.constraint(equalToConstant: newButtonHeight),
+                        
+                        // 닫기 버튼의 LayoutConstraint
+                        closeButton.trailingAnchor.constraint(equalTo: webView.trailingAnchor, constant: -12),
+                        closeButton.bottomAnchor.constraint(equalTo: popupStyle.popupTitleUse == "1" ? titleLabel.topAnchor : webView.topAnchor, constant: -16),
+                        closeButton.widthAnchor.constraint(equalToConstant: newButtonHeight),
+                        closeButton.heightAnchor.constraint(equalToConstant: newButtonHeight)
+                    ])
+                    break
+                default:
+                    break
+            }
+
+            closeOptionButton.layoutIfNeeded()
+            closeButton.layoutIfNeeded()
             
             closeButton.backgroundColor = .clear
             let bundle = Bundle(for: WebPopupViewController.self)
-            let image = UIImage(named: "close_white_416.png", in: bundle, compatibleWith: nil)
+//            let image = UIImage(named: "close_white_416.png", in: bundle, compatibleWith: nil)
+            let imageName = popupStyle.closeBtnType == "btn1" ? "close-bg-cross.png" : "close-single-cross.png"
+            let image = UIImage(named: imageName, in: bundle, compatibleWith: nil)
             
             closeButton.setImage(image, for: .normal)
             closeButton.addTarget(self, action: #selector(closePopup), for: .touchUpInside)
         }
         // 닫기 버튼이 웹뷰 또는 타이틀 바 안에 노출
         else if popupStyle.closeBtnPosition == "intop" {
+            // 옵션 여부 상관 없이 닫기 버튼만 보임.
+            self.closeOptionButton.isHidden = true
+            
             // 버튼 레이아웃
-            let newButtonHeight = popupStyle.getCalcNewCloseBtnGrpHeight(currentWidth: webView.bounds.width)
+            let newButtonHeight = popupStyle.getCalcNewTopCloseBtnHeight(currentWidth: webView.bounds.width)
 //            let newButtonHeight = 26.0
             // 팝업 제약 조건 설정
             NSLayoutConstraint.activate([
@@ -601,9 +651,12 @@ public class WebPopupViewController: UIViewController {
             closeButton.bringSubviewToFront(self.containerView)
             closeButton.backgroundColor = .clear
             let bundle = Bundle(for: WebPopupViewController.self)
-            let image = UIImage(named: "close_96.png", in: bundle, compatibleWith: nil)
+            let imageName = popupStyle.closeBtnType == "btn1" ? "close-bg-cross.png" : "close-single-cross.png"
+            let image = UIImage(named: imageName, in: bundle, compatibleWith: nil)
+            // let image = UIImage(named: "close-single-cross.png", in: bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
             
             closeButton.setImage(image, for: .normal)
+//            closeButton.tintColor = .white
             closeButton.addTarget(self, action: #selector(closePopup), for: .touchUpInside)
         }
     }
@@ -627,24 +680,23 @@ public class WebPopupViewController: UIViewController {
     
     // 옵션 버튼으로 창을 닫을 때
     @objc private func closePopupOption() {
-        // var buttonType = InAppPopupButtonType.close
         
         if popupStyle.closeBtnGrpType == "2" {
             if popupStyle.closeOptBtnType == "1" {
                 // 오늘 하루 보지 않기
-                // buttonType = InAppPopupButtonType.closeAndNoShowToday
                 let displayNotShowDayDate = CommonUtil.addedDelayDays(days: 1)
                 self.displayShowDate = CommonUtil.dateToString(displayNotShowDayDate)
                 self.displayDelayDate = ""
             } else if popupStyle.closeOptBtnType == "7" {
                 // 일주일간 보지 않기
-                // buttonType = InAppPopupButtonType.closeAndNoShowSeven
                 let displayNotShowDayDate = CommonUtil.addedDelayDays(days: 7)
                 self.displayShowDate = CommonUtil.dateToString(displayNotShowDayDate)
                 self.displayDelayDate = ""
             } else if popupStyle.closeOptBtnType == "0" {
                 // 다시 보지 않기
-                // buttonType = InAppPopupButtonType.closeAndNoMoreShow
+                let displayNotShowDayDate = CommonUtil.addedDelayDays(days: LONG_MAX)
+                self.displayShowDate = CommonUtil.dateToString(displayNotShowDayDate)
+                self.displayDelayDate = ""
             }
         }
         

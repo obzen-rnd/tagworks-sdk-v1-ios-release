@@ -44,7 +44,7 @@ extension UIApplication {
                                            "willEnterForeground": false,
                                            "willTerminate": true,
                                            
-                                           "openURL": false,
+                                           "openURL": true,
                                            "deviceTokenRegistered": false,
                                            "deviceTokenRegistFailed": false,
                                            "universalLink": false,
@@ -123,6 +123,7 @@ extension UIApplication {
                 argType: (UIApplication.self, URL.self, [UIApplication.OpenURLOptionsKey: Any].self)) { target, sel, app, url, options in
                 
                     print("🌐 AppDelegate Open URL: \(url)")
+                    SwizzlingManager.sharedInstance.applicationSwizzle(target as! UIApplicationDelegate, "openURL", url)
             }
         }
         

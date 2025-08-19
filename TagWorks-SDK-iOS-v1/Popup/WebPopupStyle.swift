@@ -14,9 +14,10 @@ class WebPopupStyle: NSObject {
     let dupDisplayDelay: Int            // 동일 팝업 노출 방지를 위한 설정값 (seconds)
     let popupTitleUse: String           // 타이틀바 사용 여부
     let popupType: String!              // 팝업 타입
-    let closeBtnGrpType: String!        // 닫기 버튼 타입 (1: Only 닫기, 2: 옵션 포함 닫기)
     let autoCloseSec: Int!              // 자동 닫기 시간(초)
+    let closeBtnGrpType: String!        // 닫기 버튼 타입 (1: Only 닫기, 2: 옵션 포함 닫기)
     let closeBtnPosition: String        // 닫기 버튼 위치 (bottom, top, intop)
+    let closeBtnType: String!           // btn1: bg X, btn2: only X - closeBtnPosition 이 "top" 또는 "intop" 인 경우에만 사용, "bottom"일 경우에도 아무값이나 보내줌.
     
     // 바디
     let webViewWidth: CGFloat!
@@ -37,15 +38,20 @@ class WebPopupStyle: NSObject {
     // 버튼
     let closeBtnGrpHeight: CGFloat!
     let closeBtnGrpFontSize: Int!
+    let closeBtnFontColor: String!
+    let closeBtnBgColor: String!
     let closeOptBtnType: String!
     let closeOptBtnFontColor: String!
     let closeOptBtnBgColor: String!
-    let closeBtnFontColor: String!
-    let closeBtnBgColor: String!
     
     // 필요한 변수 설정
     let popupSideMargin: CGFloat = 30
     let topCloseBtnHeight: CGFloat = 20
+//    var topCloseBtnHeight: CGFloat {
+//        get {
+//            return closeBtnGrpHeight / 2
+//        }
+//    }
     let screenWidth: CGFloat = UIScreen.main.bounds.width
     let screenHeight: CGFloat = UIScreen.main.bounds.height
     
@@ -58,26 +64,6 @@ class WebPopupStyle: NSObject {
             return 1
         }
     }
-    
-    // 타이틀뷰의 ratio 계산
-//    var popupTitleAspectRatio: CGFloat {
-//        get {
-//            if let webViewWidth = webViewWidth, let popupTitleHeight = popupTitleHeight {
-//                return (popupTitleHeight / webViewWidth)
-//            }
-//            return 1
-//        }
-//    }
-//    
-//    // 닫기 버튼 그룹의 ratio 계산
-//    var closeBtnGrpAspectRatio: CGFloat {
-//        get {
-//            if let webViewWidth = webViewWidth, let closeBtnGrpHeight = closeBtnGrpHeight {
-//                return (closeBtnGrpHeight / webViewWidth)
-//            }
-//            return 1
-//        }
-//    }
     
     func getCalcNewWebViewHeight(currentWidth: CGFloat) -> CGFloat {
         return currentWidth * webViewAspectRatio
@@ -130,6 +116,7 @@ class WebPopupStyle: NSObject {
         closeBtnGrpType = "1"
         autoCloseSec = 0
         closeBtnPosition = "bottom"
+        closeBtnType = "btn2"
         
         webViewWidth = 320
         webViewHeight = 350
@@ -163,7 +150,8 @@ class WebPopupStyle: NSObject {
         closeBtnGrpType = styleJson["closeBtnGrpType"] as? String ?? "1"
         autoCloseSec = styleJson["autoCloseSec"] as? Int ?? 0
         closeBtnPosition = styleJson["closeBtnPosition"] as? String ?? "bottom"
-//        closeBtnPosition = "bottom"
+//        closeBtnPosition = "intop"
+        closeBtnType = styleJson["closeBtnType"] as? String ?? "btn2"
         
         webViewWidth = styleJson["webViewWidth"] as? CGFloat ?? 320
         webViewHeight = styleJson["webViewHeight"] as? CGFloat ?? 350
@@ -181,11 +169,12 @@ class WebPopupStyle: NSObject {
         
         closeBtnGrpHeight = styleJson["closeBtnGrpHeight"] as? CGFloat ?? 30
         closeBtnGrpFontSize = styleJson["closeBtnGrpFontSize"] as? Int ?? 10
+        closeBtnFontColor = styleJson["closeBtnFontColor"] as? String ?? "#414141"
+        closeBtnBgColor = styleJson["closeBtnBgColor"] as? String ?? "#ffffff"
         closeOptBtnType = styleJson["closeOptBtnType"] as? String ?? "1"
         closeOptBtnFontColor = styleJson["closeOptBtnFontColor"] as? String ?? "#ffffff"
         closeOptBtnBgColor = styleJson["closeOptBtnBgColor"] as? String ?? "#ff5018"
-        closeBtnFontColor = styleJson["closeBtnFontColor"] as? String ?? "#414141"
-        closeBtnBgColor = styleJson["closeBtnBgColor"] as? String ?? "#ffffff"
+        
         
         super.init()
     }

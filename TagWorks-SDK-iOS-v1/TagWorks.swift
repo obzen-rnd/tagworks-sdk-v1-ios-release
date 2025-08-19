@@ -10,6 +10,13 @@ import Foundation
 import AdSupport
 import AppTrackingTransparency
 
+extension TagWorks {
+    static func log(_ message: String) {
+        let version = CommonUtil.getSDKVersion() ?? "Unknown"
+        print("💁‍♂️[TagWorks v\(version)] \(message)")
+    }
+}
+
 /// TagWorks 클래스는 SDK 모듈내에서 가장 최상위에 존재하는 클래스입니다.
 @objc final public class TagWorks: NSObject {
     
@@ -52,13 +59,15 @@ import AppTrackingTransparency
     @objc public var visitorId: String {
         get {
             if let existingId = tagWorksBase?.visitorId {
-                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] exist visitorId : \(existingId)")
+//                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] exist visitorId : \(existingId)")
+                TagWorks.log("exist visitorId : \(existingId)")
 //                UIPasteboard.general.string = existingId
                 return existingId
             }
             let id = UUID().uuidString.lowercased()
             tagWorksBase?.visitorId = id
-            print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] new visitorId : \(id)")
+//            print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] new visitorId : \(id)")
+            TagWorks.log("new visitorId : \(id)")
             return id
         }
         set {
@@ -108,6 +117,14 @@ import AppTrackingTransparency
         self.adId = uuid
     }
     
+    // 푸시 토큰 저장 용도
+    @objc public var pushToken: String?
+    
+    // 단말기의 푸시 토큰을 받아옵니다.
+    @objc public func setDevicePushToken(_ token: String) {
+        self.pushToken = token
+    }
+    
     // 필수 설정값 end
     //-----------------------------------------
     
@@ -118,7 +135,7 @@ import AppTrackingTransparency
     
     /// 수집되는 어플리케이션의 기본 Url 주소입니다.
     /// * 수집대상이 되는 어플리케이션의 bundleIdentifier 주소를 기본으로 하며, 별도 지정시 지정된 값으로 수집됩니다.
-    @objc var contentUrl: URL?
+    @objc public var contentUrl: URL?
     
     /// 수집되는 어플리케이션의 현재 Url 주소입니다.
     /// * PageView 이벤트 호출시 contentUrl + 지정된 Url 경로 순으로 수집됩니다.
@@ -188,6 +205,8 @@ import AppTrackingTransparency
     // 객체를 weak로 참조하기에 메모리 릭 발생 위험 없음.
     private var registeredTagButtons: NSHashTable<UIButton> = NSHashTable.weakObjects()
     
+    var deferredDeeplinkURL: URL?
+    
     // MARK: - 클래스 객체 함수
     
     // MARK: InstanceConfig (초기 버전부터 버전별 Config 사용)
@@ -214,7 +233,8 @@ import AppTrackingTransparency
                           appVersion: appVersion,
                           appName: appName,
                           isUseDynamicParameter: false,
-                          isEnabledAdId: false)
+                          isEnabledAdId: false,
+                          deeplinkServerUrl: nil)
     }
     
     /// 이벤트 전송에 필요한 필수 항목 입력
@@ -241,7 +261,8 @@ import AppTrackingTransparency
                           appVersion: appVersion,
                           appName: appName,
                           isUseDynamicParameter: false,
-                          isEnabledAdId: false)
+                          isEnabledAdId: false,
+                          deeplinkServerUrl: nil)
     }
     
     /// 이벤트 전송에 필요한 필수 항목 입력
@@ -271,7 +292,8 @@ import AppTrackingTransparency
                           appVersion: appVersion,
                           appName: appName,
                           isUseDynamicParameter: isUseDynamicParameter,
-                          isEnabledAdId: isEnabledAdId)
+                          isEnabledAdId: isEnabledAdId,
+                          deeplinkServerUrl: nil)
     }
     
     /// 이벤트 전송에 필요한 필수 항목 입력
@@ -289,7 +311,8 @@ import AppTrackingTransparency
                                         appVersion: String? = nil,
                                         appName: String? = nil,
                                         isUseDynamicParameter: Bool = true,
-                                        isEnabledAdId: Bool = false) {
+                                        isEnabledAdId: Bool = false,
+                                        deeplinkServerUrl: URL? = nil) {
         
         setInstanceConfig(siteId: siteId,
                           baseUrl: baseUrl,
@@ -300,8 +323,74 @@ import AppTrackingTransparency
                           appVersion: appVersion,
                           appName: appName,
                           isUseDynamicParameter: isUseDynamicParameter,
-                          isEnabledAdId: isEnabledAdId)
+                          isEnabledAdId: isEnabledAdId,
+                          deeplinkServerUrl: nil)
     }
+    
+//    /// 이벤트 전송에 필요한 필수 항목 입력
+//    ///  1.1.28 버전 이후 제거 - 파라미터에 userAgent 값 제거
+//    ///  isUseDynamicParameter 디폴트 값을 true로 설정
+//    /// - Parameters:
+//    ///   - siteId: 수집 대상이 되는 사이트(고객사) 식별자
+//    ///   - baseUrl: 수집 로그 발송을 위한 서버 URL
+//    ///   - userAgent: 수집 대상의 userAgent 객체 String
+//    @objc public func setInstanceConfig(siteId: String,
+//                                        baseUrl: URL,
+//                                        isUseIntervals: Bool,
+//                                        dispatchIntervalWithSeconds: TimeInterval = 3.0,
+//                                        sessionTimeOutWithSeconds: TimeInterval = 5.0,
+//                                        isManualDispatch: Bool = false,
+//                                        appVersion: String? = nil,
+//                                        appName: String? = nil,
+//                                        isUseDynamicParameter: Bool = true,
+//                                        isEnabledAdId: Bool = false) {
+//        self.siteId = siteId
+//        self.isUseIntervals = isUseIntervals
+//        self.isManualDispatch = isManualDispatch
+//        var interval = dispatchIntervalWithSeconds
+//        if interval <= 1 {
+//            interval = 1
+//        } else if interval >= 10 {
+//            interval = 10
+//        }
+//        self.dispatchInterval = interval
+//        self.queue = DefaultQueue()
+////        self.dispatcher = DefaultDispatcher(serializer: EventSerializer(), timeOut: sessionTimeOutWithSeconds, baseUrl: baseUrl, userAgent: userAgent)
+//        self.dispatcher = DefaultDispatcher(serializer: EventSerializer(), timeOut: sessionTimeOutWithSeconds, baseUrl: baseUrl, userAgent: nil)
+//        self.appVersion = appVersion
+//        self.appName = appName
+//        self.isUseDynamicParameter = isUseDynamicParameter
+//        self.tagWorksBase = TagWorksBase(suitName: "\(siteId)\(baseUrl.absoluteString)")
+//        self.contentUrl = URL(string: "APP://\(AppInfo.getApplicationInfo().bundleIdentifier ?? "")/")
+//        self.isEnabledAdId = isEnabledAdId
+//        
+//        self.webViewInterface.delegate = self
+//        
+//        // 앱 크래쉬 자동 탐지
+//        CrashLogManager.sharedInstance.setupGlobalSignalHandler()
+//        
+//        // 광고 식별자 사용 여부 설정에 따라 자동으로 광고 식별자 가져옴
+//        if isEnabledAdId {
+//            requestIDFA() { idfa in
+//                self.adId = idfa
+//            }
+//        }
+//        
+//        // 로컬큐에 이벤트 스트링이 존재할 때 서버 전송
+//        let _ = sendLocalQueueEvent()
+//        
+//        // UserDefalut에 저장된 에러 로그 서버 발송
+//        sendErrorReport()
+//        sendCrashReport()
+//        
+//        // 스위즐링
+//        SwizzlingManager.sharedInstance.lifecycleTracking()
+//        
+//        // 디퍼드 딥링크 체크 - 추후 개방
+//        DispatchQueue.main.async {
+//            self.checkIsAppFirstLaunch()
+//        }
+//    }
     
     /// 이벤트 전송에 필요한 필수 항목 입력
     ///  1.1.28 버전 이후 제거 - 파라미터에 userAgent 값 제거
@@ -319,7 +408,8 @@ import AppTrackingTransparency
                                         appVersion: String? = nil,
                                         appName: String? = nil,
                                         isUseDynamicParameter: Bool = true,
-                                        isEnabledAdId: Bool = false) {
+                                        isEnabledAdId: Bool = false,
+                                        deeplinkServerUrl: URL? = nil) {
         self.siteId = siteId
         self.isUseIntervals = isUseIntervals
         self.isManualDispatch = isManualDispatch
@@ -339,6 +429,7 @@ import AppTrackingTransparency
         self.tagWorksBase = TagWorksBase(suitName: "\(siteId)\(baseUrl.absoluteString)")
         self.contentUrl = URL(string: "APP://\(AppInfo.getApplicationInfo().bundleIdentifier ?? "")/")
         self.isEnabledAdId = isEnabledAdId
+        self.deferredDeeplinkURL = deeplinkServerUrl
         
         self.webViewInterface.delegate = self
         
@@ -363,9 +454,9 @@ import AppTrackingTransparency
         SwizzlingManager.sharedInstance.lifecycleTracking()
         
         // 디퍼드 딥링크 체크 - 추후 개방
-//        DispatchQueue.main.async {
-//            self.checkIsAppFirstLaunch()
-//        }
+        DispatchQueue.main.async {
+            self.checkIsAppFirstLaunch()
+        }
     }
     
     @objc public func setManualDispatch(_ isManual: Bool) {
@@ -425,6 +516,33 @@ import AppTrackingTransparency
         }
     }
     
+    // MARK: 푸시 토큰 저장 및 일주일 마다 전송 체크
+    func savePushTokenIfNeeded(token: String) -> String? {
+        let previousToken = tagWorksBase?.savedPushToken
+        
+        // 토큰이 바뀌었으면 즉시 서버 전송
+        if previousToken != token {
+            tagWorksBase?.savedPushToken = token
+            tagWorksBase?.lastSentPushTokenDate = Date()
+            return token
+        }
+        
+        // 이전 전송 기록 확인
+        if let lastSent = tagWorksBase?.lastSentPushTokenDate {
+            // 7일 경과 여부 체크
+            if Calendar.current.dateComponents([.day], from: lastSent, to: Date()).day ?? 0 >= 7 {
+                tagWorksBase?.lastSentPushTokenDate = Date()
+                return token
+            }
+        } else {
+            // 이전 전송 기록이 없다면 전송
+            tagWorksBase?.lastSentPushTokenDate = Date()
+            return token
+        }
+        
+        return nil
+    }
+    
     // MARK: 딥링크 관련 함수
     /// 앱 설치 시 최초 실행 여부에 따라 디퍼드 딥링크 정보 수신
     private func checkIsAppFirstLaunch() {
@@ -474,41 +592,42 @@ import AppTrackingTransparency
     
     /// 이벤트 로그 발생 주기 타이머를 시작합니다.
     private func startDispatchTimer() {
-        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] startDispatchTimer!!")
+        TagWorks.log("startDispatchTimer!!")
+        
+//        guard dispatchInterval >= 0  else { return }
+        guard dispatchInterval > 0  else { return }
+        
         guard Thread.isMainThread else {
-            DispatchQueue.main.sync {
-                self.startDispatchTimer()
+            DispatchQueue.main.sync { [weak self] in
+                self?.startDispatchTimer()
             }
             return
         }
-        guard dispatchInterval >= 0  else { return }
-        if let dispatchTimer = dispatchTimer {
-            dispatchTimer.invalidate()
-            self.dispatchTimer = nil
-        }
         
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            self.dispatchTimer = Timer.scheduledTimer(timeInterval: self.dispatchInterval,
-                                                      target: self,
-                                                      selector: #selector(self.dispatch),
-                                                      userInfo: nil,
-                                                      repeats: false)
-        }
+        // 💡 기존 타이머가 있으면 무효화
+        dispatchTimer?.invalidate()
+        dispatchTimer = nil
+        
+        // 💡 새 타이머 설정 (이미 메인 스레드이므로 async 생략 가능)
+        dispatchTimer = Timer.scheduledTimer(timeInterval: dispatchInterval,
+                                             target: self,
+                                             selector: #selector(dispatch),
+                                             userInfo: nil,
+                                             repeats: false)
     }
     
     private func stopDispatchTimer() {
-        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] stopDispatchTimer!!")
+        TagWorks.log("stopDispatchTimer!!")
+        
         guard Thread.isMainThread else {
-            DispatchQueue.main.sync {
-                self.stopDispatchTimer()
+            DispatchQueue.main.async { [weak self] in
+                self?.stopDispatchTimer()
             }
             return
         }
-        guard let dispatchTimer = dispatchTimer else { return }
         
-        dispatchTimer.invalidate()
-        self.dispatchTimer = nil
+        dispatchTimer?.invalidate()
+        dispatchTimer = nil
     }
     
     /// ## Queue Event 추가 ##
@@ -517,53 +636,58 @@ import AppTrackingTransparency
     /// - Parameter event: 이벤트 구조체
     internal func addQueue(event: Event) {
         guard Thread.isMainThread else {
-            DispatchQueue.main.sync {
-                self.addQueue(event: event)
+            DispatchQueue.main.async { [weak self] in
+                self?.addQueue(event: event)
             }
             return
         }
+        
         guard !isOptedOut else { return }
         guard var queue = self.queue else { return }
         
         // IBK 여정분석 요청에 따라 큐 사이즈를 200개로 제한 - 2025.02.27
         // by Kevin.
         guard queue.size < 200 else { return }
-        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Added queue event!!")
+
+        TagWorks.log("Added queue event!!")
         logger.verbose("Added queue event: \(event)")
         
-        queue.enqueue(event: event) {
-            if self.queue!.size >= 1 && self.dispatchTimer == nil {
-                if self.isUseIntervals && !self.isManualDispatch {
-                    self.startDispatchTimer()
-                }
+        // 아래 self?.queue를 queue로 바꾸면 절대 안됨!!. 동시에 큐에 쌓이게 될 때 크래시 발생 (동시 메모리 접근 충돌)
+//        queue.enqueue(event: event) { [weak self] in
+//            guard let self = self else { return }
+//            guard self.dispatchTimer == nil else { return }
+//            if (self.queue!.size) >= 1, self.isUseIntervals, !self.isManualDispatch {
+//                self.startDispatchTimer()
+//            }
+//        }
+        queue.enqueue(event: event) { [weak self] queueSize in
+            guard let self = self else { return }
+            guard self.dispatchTimer == nil else { return }
+            if queueSize >= 1, self.isUseIntervals, !self.isManualDispatch {
+                self.startDispatchTimer()
             }
         }
-        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Queue Size : \(queue.size)")
+
+        TagWorks.log("Queue Size : \(queue.size)")
     }
     
     // MARK: ## 이벤트 발송 관련 함수 ##
     
     /// 현재 Queue에 저장되어 있는 이벤트 구조체를 즉시 발송합니다. (수동 처리) - 타이머 사용 안함.
     internal func dispatchAtOnce(event: Event) -> Bool {
-        guard isInitialize() else {
-            return false
-        }
-        
-        guard !isOptedOut else {
+        guard isInitialize(), !isOptedOut else {
             return false
         }
         
         guard let dispatcher = self.dispatcher else { return false }
         DispatchQueue.main.async {
             dispatcher.send(events: [event], success: { [weak self] in
-                guard let self = self else { return }
-                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] dispatchAtOnce Send Success!! \n - \(event)")
-                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] dimension value - \(event.dimensions.map {"{\($0.key), \($0.index), \($0.value), \($0.numValue)}"})")
-                self.isDispatching = false
+                TagWorks.log("dispatchAtOnce Send Success!! \n - \(event)")
+                TagWorks.log("dimension value - \(event.dimensions.map {"{\($0.key), \($0.index), \($0.value), \($0.numValue)}"})")
+                self?.isDispatching = false
             }, failure: { [weak self] error in
-                guard let self = self else { return }
-                self.isDispatching = false
-                self.logger.warning("Failed dispatching events with error \(error)")
+                self?.isDispatching = false
+                self?.logger.warning("Failed dispatching events with error \(error)")
             })
         }
         return true
@@ -584,12 +708,13 @@ import AppTrackingTransparency
         }
         
         guard !isDispatching else {
-            print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] is already dispatching.")
+//            print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] is already dispatching.")
+            TagWorks.log("is already dispatching.")
             logger.verbose("is already dispatching.")
             return false
         }
         guard let queue = self.queue, queue.size > 0 else {
-            print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Dispatch queue is empty.")
+            TagWorks.log("Dispatch queue is empty.")
             logger.info("No need to dispatch. Dispatch queue is empty.")
             return false
         }
@@ -601,94 +726,123 @@ import AppTrackingTransparency
     
     /// 현재 Queue에 저장되어 있는 이벤트 로그를 발송합니다.
     private func dispatchBatch() {
-        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] dispatchBatch start!!!")
+        TagWorks.log("dispatchBatch start!!!")
+        
         guard Thread.isMainThread else {
-            DispatchQueue.main.sync {
-                self.dispatchBatch()
-            }
+            DispatchQueue.main.async { [weak self] in self?.dispatchBatch() }
             return
         }
+        
         guard let queue = self.queue, let dispatcher = self.dispatcher else { return }
         
         queue.first(limit: numberOfEventsDispatchedAtOnce) { [weak self] events in
             guard let self = self else { return }
             
             // 큐에서 가져온 이벤트 항목이 없을 경우, 배치를 끝낼지 여부 체크..
-            guard events.count > 0 else {
-                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] events count zero!!")
+            guard !events.isEmpty else {
                 self.isDispatching = false
-
-                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Finish dispatching events")
-                self.logger.info("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Finished dispatching events")
+                TagWorks.log("events count zero!!")
+                TagWorks.log("Finish dispatching events.")
+                self.logger.info("Finished dispatching events.")
                 
                 // 로컬큐에 저장되어 있는 이벤트 정보 클리어.
                 tagWorksBase?.clearLocalQueue()
-                if localQueueEnabled {
-                    print("[🐹🐹🐹🐹] : \(TagWorks.sharedInstance.tagWorksBase?.eventsLocalQueue ?? "Nothing!!!")")
+                if self.localQueueEnabled {
+                    print("[🐹🐹🐹🐹] : \(tagWorksBase?.eventsLocalQueue ?? "Nothing!!!")")
                 }
                 return
             }
             
+            
             dispatcher.send(events: events, success: { [weak self] in
                 guard let self = self else { return }
-                retryCount = 0
+                self.retryCount = 0
                 DispatchQueue.main.async {
-                    print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] dispatchBatch Send Success!! \n - \(events)")
+                    TagWorks.log("dispatchBatch Send Success!! \n - \(events)")
                     queue.remove(events: events, completion: {
-                        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Dispatched batch of \(events.count) events.")
+                        TagWorks.log("Dispatched batch of \(events.count) events.")
                         self.logger.info("Dispatched batch of \(events.count) events.")
-                        DispatchQueue.main.async {
-                            self.dispatchBatch()
-                        }
+                        self.dispatchBatch()
                     })
                 }
             }, failure: { [weak self] error in
                 guard let self = self else { return }
-//                self.isDispatching = false
+
+                TagWorks.log("dispatchBatch Send Failed!! - Retry Count: \(self.retryCount)")
                 
-                if isDispatchRetry {
-                    retryCount += 1
-                    print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] dispatchBatch Send Failed!! - Retry Count: \(self.retryCount) \n")
-                
-                    if retryCount >= 3 {
-                        // 실패가 발생하더라도 (전송 로스 케이스) 큐에서는 이벤트들을 삭제하고 다음 이벤트들을 전송
-                        // IBK 여정분석 요청 - 2025.03.05 by Kevin
-                        retryCount = 0
-                        DispatchQueue.main.async {
-                            queue.remove(events: events, completion: {
-                                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Removed batch of \(events.count) events.")
-                                self.logger.info("Removed batch of \(events.count) events.")
-                                DispatchQueue.main.async {
-                                    self.dispatchBatch()
-                                }
-                            })
-                        }
-                    } else {
-                        DispatchQueue.main.async {
-                            self.dispatchBatch()
-                        }
-                    }
-                } else {
-                    // Retry 사용 안함
-                    DispatchQueue.main.async {
-                        queue.remove(events: events, completion: {
-                            print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Removed batch of \(events.count) events.")
-                            self.logger.info("Removed batch of \(events.count) events.")
-                            DispatchQueue.main.async {
-                                self.dispatchBatch()
-                            }
-                        })
+                let removeAndContinue = {
+                    queue.remove(events: events) {
+                        TagWorks.log("Removed batch of \(events.count) events.")
+                        self.logger.info("Removed batch of \(events.count) events.")
+                        self.dispatchBatch()
                     }
                 }
                 
-                self.logger.warning("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Failed dispatching events with error - \(error)")
+                DispatchQueue.main.async {
+                    if self.isDispatchRetry {
+                        self.retryCount += 1
+                        if self.retryCount >= 3 {
+                            // 실패가 발생하더라도 (전송 로스 케이스) 큐에서는 이벤트들을 삭제하고 다음 이벤트들을 전송
+                            // IBK 여정분석 요청 - 2025.03.05 by Kevin
+                            self.retryCount = 0
+                            removeAndContinue()
+                        } else {
+                            self.dispatchBatch()
+                        }
+                    } else {
+                        removeAndContinue()
+                    }
+                }
+                
+                TagWorks.log("Failed dispatching events with error - \(error)")
+                self.logger.warning("Failed dispatching events with error - \(error)")
+                
+                
+                
+                
+//                if isDispatchRetry {
+//                    retryCount += 1
+//
+//                    TagWorks.log("dispatchBatch Send Failed!! - Retry Count: \(self.retryCount) \n")
+//                
+//                    if retryCount >= 3 {
+//                        retryCount = 0
+//                        DispatchQueue.main.async {
+//                            queue.remove(events: events, completion: {
+////                                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Removed batch of \(events.count) events.")
+//                                TagWorks.log("Removed batch of \(events.count) events.")
+//                                self.logger.info("Removed batch of \(events.count) events.")
+//                                DispatchQueue.main.async {
+//                                    self.dispatchBatch()
+//                                }
+//                            })
+//                        }
+//                    } else {
+//                        DispatchQueue.main.async {
+//                            self.dispatchBatch()
+//                        }
+//                    }
+//                } else {
+//                    // Retry 사용 안함
+//                    DispatchQueue.main.async {
+//                        queue.remove(events: events, completion: {
+////                            print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Removed batch of \(events.count) events.")
+//                            TagWorks.log("Removed batch of \(events.count) events.")
+//                            self.logger.info("Removed batch of \(events.count) events.")
+//                            DispatchQueue.main.async {
+//                                self.dispatchBatch()
+//                            }
+//                        })
+//                    }
+//                }
+//                
+//                self.logger.warning("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Failed dispatching events with error - \(error)")
             })
         }
     }
     
     
 }
-
 
 // MARK: - 수집 이벤트
 extension TagWorks {
@@ -764,6 +918,15 @@ extension TagWorks {
             currentContentUrlPath = self.contentUrl?.appendingPathComponent(pagePath)
         }
         
+        // 푸시 토큰 전송 처리
+        var devicePushToken: String?
+        if let token = pushToken {
+            // 일주일에 한번씩만 전송하도록 요청 - 장등수 상무님 협의. 2025.08.08 by Kevin.
+            devicePushToken = savePushTokenIfNeeded(token: token)
+            pushToken = nil
+        }
+        
+        var event: Event?
         // LogEvent Type에 따른 분기 처리
         if type == TagWorks.EVENT_TYPE_PAGE {
             // 필수 파라미터만 체크 후 로깅 메세지 처리..
@@ -774,8 +937,8 @@ extension TagWorks {
                 return false
             }
             
-            let event = Event(tagWorks: self, eventType: eventTagName, pageTitle: title, searchKeyword: eventTagParamKeyword, customUserPath: eventTagParamCustomPath, dimensions: eventTagParamDimenstions, errorMsg: eventTagParamErrorMsg)
-            addQueueOrDispatch(event)
+            event = Event(tagWorks: self, eventType: eventTagName, pageTitle: title, searchKeyword: eventTagParamKeyword, customUserPath: eventTagParamCustomPath, dimensions: eventTagParamDimenstions, errorMsg: eventTagParamErrorMsg, pushToken: devicePushToken)
+//            addQueueOrDispatch(event)
             
         } else {
 //            let searchKeyword: String
@@ -793,10 +956,15 @@ extension TagWorks {
             }
 
 //            urlReferer: URL(string: "urlref=카카오톡"),
-            let event = Event(tagWorks: self, eventType: eventTagName, pageTitle: eventTagParamTitle, searchKeyword: eventTagParamKeyword, customUserPath: eventTagParamCustomPath, dimensions: eventTagParamDimenstions, errorMsg: eventTagParamErrorMsg)
+            event = Event(tagWorks: self, eventType: eventTagName, pageTitle: eventTagParamTitle, searchKeyword: eventTagParamKeyword, customUserPath: eventTagParamCustomPath, dimensions: eventTagParamDimenstions, errorMsg: eventTagParamErrorMsg, pushToken: devicePushToken)
             
+//            addQueueOrDispatch(event)
+        }
+        
+        if let event = event {
             addQueueOrDispatch(event)
         }
+
         return true
     }
     
@@ -806,14 +974,16 @@ extension TagWorks {
         guard !isOptedOut else { return false }
         guard let eventString = tagWorksBase?.eventsLocalQueue else { return false }
         
-        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] sendLocalQueueEvent!!")
+        TagWorks.log("sendLocalQueueEvent!!")
+//        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] sendLocalQueueEvent!!")
         self.isDispatching = true
         
         guard let dispatcher = self.dispatcher else { return false }
         DispatchQueue.main.async {
             dispatcher.send(localQueueEvents: eventString, success: { [weak self] in
                 guard let self = self else { return }
-                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] sendLocalQueueEvent Send Success!!")
+                TagWorks.log("sendLocalQueueEvent Send Success!!")
+//                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] sendLocalQueueEvent Send Success!!")
                 self.isDispatching = false
                 // 로컬큐에 저장되어 있는 이벤트 정보 클리어.
                 tagWorksBase?.clearLocalQueue()
@@ -857,11 +1027,13 @@ extension TagWorks {
             
             let event = Event(tagWorks: self, eventType: StandardEventTag.ERROR, dimensions: dataBundle.eventDimensions, errorMsg: dataBundle.dataDictionary[DataBundle.EVENT_TAG_PARAM_ERROR_MSG])
             if !dispatchAtOnce(event: event) {
-                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] sendErrorReport is Failed.")
+                TagWorks.log("sendErrorReport is Failed.")
+//                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] sendErrorReport is Failed.")
 //                return
                 isSuccess = false
             } else {
-                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] sendErrorReport is Sucessed.")
+                TagWorks.log("sendErrorReport is Sucessed.")
+//                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] sendErrorReport is Sucessed.")
             }
             
             if isSuccess {
@@ -893,11 +1065,13 @@ extension TagWorks {
             
             let event = Event(tagWorks: self, eventType: StandardEventTag.ERROR, errorType: errorType, errorData: errorMessage, errorTime: errorTime)
             if !dispatchAtOnce(event: event) {
-                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] sendErrorReport is Failed.")
+                TagWorks.log("sendErrorReport is Failed.")
+//                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] sendErrorReport is Failed.")
 //                return
                 isSuccess = false
             } else {
-                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] sendErrorReport is Sucessed.")
+                TagWorks.log("sendErrorReport is Sucessed.")
+//                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] sendErrorReport is Sucessed.")
             }
             
             if isSuccess {

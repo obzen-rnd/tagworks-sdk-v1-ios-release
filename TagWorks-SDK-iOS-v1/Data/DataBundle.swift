@@ -69,18 +69,12 @@ extension DataBundle {
 
     /// 이벤트에 필요한 파라미터 항목들이 비어 있는지 체크
     @objc public func isParameterEmpty() -> Bool {
-        if dataDictionary.isEmpty {
-            return true
-        }
-        return false
+        return dataDictionary.isEmpty
     }
     
     /// 이벤트에 필요한 Dimension 항목들이 비어 있는지 체크
     @objc public func isDimensionEmpty() -> Bool {
-        if eventDimensions.isEmpty {
-            return true
-        }
-        return false
+        return eventDimensions.isEmpty
     }
     
     /// 이벤트에 필요한 파라미터 항목들의 갯수를 리턴
@@ -97,6 +91,12 @@ extension DataBundle {
 // MARK: - 개별 디멘전
 
 extension DataBundle {
+    
+    // Dimension 중복 제거 유틸
+    private func replaceDimension(in list: inout [Dimension], with newDimension: Dimension) {
+        list.removeAll { $0 == newDimension }
+        list.append(newDimension)
+    }
     
     /*
         Index를 기반으로 디멘젼을 추가하는 방식
@@ -134,11 +134,15 @@ extension DataBundle {
     ///   - index: 추가할 디멘전 index
     ///   - stringValue: 추가할 디멘전 value (d - String 타입)
     @objc public func putDimension(index: Int, stringValue: String) {
-        putDimension(dimension: Dimension(index: index, stringValue: stringValue))
+//        putDimension(dimension: Dimension(index: index, stringValue: stringValue))
+        let dimension = Dimension(index: index, stringValue: stringValue)
+        replaceDimension(in: &eventDimensions, with: dimension)
     }
     
     @objc public func putDimension(index: Int, value: String) {
-        putDimension(dimension: Dimension(index: index, value: value))
+//        putDimension(dimension: Dimension(index: index, value: value))
+        let dimension = Dimension(index: index, value: value)
+        replaceDimension(in: &eventDimensions, with: dimension)
     }
     
     /// 수집 로그의 개별 디멘전을 지정합니다.
@@ -147,7 +151,9 @@ extension DataBundle {
     ///   - index: 추가할 디멘전 index
     ///   - numValue: 추가할 디멘전 value (f - Double 타입)
     @objc public func putDimension(index: Int, numValue: Double) {
-        putDimension(dimension: Dimension(index: index, numValue: numValue))
+//        putDimension(dimension: Dimension(index: index, numValue: numValue))
+        let dimension = Dimension(index: index, numValue: numValue)
+        replaceDimension(in: &eventDimensions, with: dimension)
     }
     
     /// 이벤트 디멘전을 가져옵니다.
@@ -173,11 +179,14 @@ extension DataBundle {
     /// 해당 index의 Dimension을 삭제
     /// - Parameter index: 삭제할 디멘전 index
     @objc public func removeDimension(WithType type: Int, index: Int) {
-        eventDimensions.removeAll(where: {$0.index == index && $0.type == type})
+        eventDimensions.removeAll(where: { $0.index == index && $0.type == type })
     }
     
     @objc public func removeDimensionWithArrayIndex(_ index: Int) {
-        eventDimensions.remove(at: index)
+        // IndexOutOfRange Crash 방지
+        if eventDimensions.indices.contains(index) {
+            eventDimensions.remove(at: index)
+        }
     }
         
     @objc public func removeAllDimension() {

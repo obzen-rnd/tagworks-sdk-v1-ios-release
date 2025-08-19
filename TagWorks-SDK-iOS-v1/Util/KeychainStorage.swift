@@ -20,7 +20,8 @@ final public class KeychainStorage {
     public var lastErrorStatus: OSStatus = noErr {
         didSet {
             if lastErrorStatus != noErr {
-                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Keychain error occurred: \(lastErrorDescription)")
+                TagWorks.log("Keychain error occurred: \(lastErrorDescription)")
+//                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Keychain error occurred: \(lastErrorDescription)")
             }
         }
     }

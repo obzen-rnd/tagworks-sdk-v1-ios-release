@@ -27,7 +27,8 @@ internal struct TagWorksBase {
         if result == false {
             if #available(iOS 11.3, *) {
                 let secCopyError = SecCopyErrorMessageString(keychainStorage.lastErrorStatus, nil)!
-                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Keychain migrate error: \(secCopyError)")
+                TagWorks.log("Keychain migrate error: \(secCopyError)")
+//                print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Keychain migrate error: \(secCopyError)")
             }
         }
         
@@ -150,6 +151,26 @@ internal struct TagWorksBase {
         }
         set {
             userDefaults.setValue(newValue, forKey: UserDefaultKey.appInstallTime)
+            userDefaults.synchronize()
+        }
+    }
+    
+    internal var savedPushToken: String? {
+        get {
+            return userDefaults.string(forKey: UserDefaultKey.pushTokenKey)
+        }
+        set {
+            userDefaults.setValue(newValue, forKey: UserDefaultKey.pushTokenKey)
+            userDefaults.synchronize()
+        }
+    }
+    
+    internal var lastSentPushTokenDate: Date? {
+        get {
+            return userDefaults.object(forKey: UserDefaultKey.lastSentPushTokenDateKey) as? Date
+        }
+        set {
+            userDefaults.setValue(newValue, forKey: UserDefaultKey.lastSentPushTokenDateKey)
             userDefaults.synchronize()
         }
     }

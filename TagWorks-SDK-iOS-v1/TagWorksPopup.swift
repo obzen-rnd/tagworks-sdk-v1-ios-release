@@ -53,27 +53,72 @@ import WebKit
             onCmsUrl: onCmsUrl, cust_id: cust_id, rcmd_area_cd: rcmd_area_cd, vstor_id: vstor_id, cntn_id: cntn_id
         ) { success, data in
             if success {
-                let parameters: [String: Any] = [
-                    "cust_id": cust_id,
-                    "rcmd_area_cd": rcmd_area_cd,
-                    "vstor_id": vstor_id,
-                    "cntn_id": cntn_id
-                ]
-                let requestUrl = onCmsUrl + "?" + parameters.map { key, value in
-                    return "\(key)=\(value)"
-                }.joined(separator: "&")
                 
                 DispatchQueue.main.async {
                     self.popupViewController = WebPopupViewController(
                         cust_id: cust_id,
                         rcmd_area_cd: rcmd_area_cd,
-                        requestUrl: requestUrl,
+                        requestUrl: onCmsUrl,
                         jsonData: data as! [String: Any])
                     
                     // 뒷 배경이 보이도록 설정
-                    self.popupViewController?.modalPresentationStyle =
-                        .overCurrentContext
+                    self.popupViewController?.modalPresentationStyle = .overCurrentContext
                     
+                    // 슬라이딩 팝업 여부 설정
+                    if let tempDic = data as? [String: Any] {
+                        let styleString = tempDic["style"] as? String
+                        var styleDic: [String: Any] = [:]
+                        if let styleString = styleString {
+                            styleDic =
+                            try! JSONSerialization.jsonObject(with: styleString.data(using: .utf8)!, options: []) as! [String: Any]
+                        }
+                        
+                        if styleDic["popupType"] as! String == "S" {
+                            // 바텀 슬라이드
+                            self.isPopupAnimating = true
+                        } else if styleDic["popupType"] as! String == "C" {
+                            // 센터 팝업
+                            self.isPopupAnimating = false
+                        } else {
+                            // 전체페이지
+                            self.isPopupAnimating = true
+                        }
+                    }
+                }
+            } else {
+                // success == false 인 경우,
+            }
+        }
+    }
+    
+    @objc public func onCMSPopup(
+        onCmsUrl: String,
+        cntn_id: String,
+        cust_id: String,
+        rcmd_area_cd: String,
+        owner: UIViewController
+    ) {
+        currentViewController = owner
+        
+        let vstor_id = TagWorks.sharedInstance.visitorId
+        let cntn_id = cntn_id
+        let restApiManager = RestApiManager()
+        restApiManager.onCMSBridgePopup(
+            onCmsUrl: onCmsUrl, cust_id: cust_id, rcmd_area_cd: rcmd_area_cd, vstor_id: vstor_id, cntn_id: cntn_id
+        ) { success, data in
+            if success {
+                
+                DispatchQueue.main.async {
+                    self.popupViewController = WebPopupViewController(
+                        cust_id: cust_id,
+                        rcmd_area_cd: rcmd_area_cd,
+                        requestUrl: onCmsUrl,
+                        jsonData: data as! [String: Any])
+                    
+                    // 뒷 배경이 보이도록 설정
+                    self.popupViewController?.modalPresentationStyle = .overCurrentContext
+                    
+                    // 슬라이딩 팝업 여부 설정
                     if let tempDic = data as? [String: Any] {
                         let styleString = tempDic["style"] as? String
                         var styleDic: [String: Any] = [:]

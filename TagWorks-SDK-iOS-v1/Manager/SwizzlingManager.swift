@@ -50,7 +50,7 @@ public final class SwizzlingManager {
         }
     }
     
-    func applicationSwizzle(_ application: UIApplicationDelegate, _ event: String) {
+    func applicationSwizzle(_ application: UIApplicationDelegate, _ event: String, _ param: Any? = nil) {
         if TagWorks.sharedInstance.autoTrackingApplication {
             print("🍎[TagWorks v\(CommonUtil.getSDKVersion()!)] \(event): \(type(of: application))")
             
@@ -84,6 +84,12 @@ public final class SwizzlingManager {
                     _ = TagWorks.sharedInstance.dispatch()
                 }
                 return
+            } else if event == "openURL" {
+                guard let url = param as? URL else { return }
+                
+                // TagWorks SDK로 딥링크 정보 전달
+                TagWorks.sharedInstance.launchWithOptions(url: url, userInfo: nil)
+                return
             }
             
             if triggerValue != nil {
@@ -95,7 +101,7 @@ public final class SwizzlingManager {
     }
     
     @available(iOS 13.0, *)
-    func sceneSwizzle(_ scene: UISceneDelegate, _ event: String) {
+    func sceneSwizzle(_ scene: UISceneDelegate, _ event: String, _ param: Any? = nil) {
         if TagWorks.sharedInstance.autoTrackingScene {
             print("🍎[TagWorks v\(CommonUtil.getSDKVersion()!)] \(event): \(type(of: scene))")
             
@@ -127,6 +133,12 @@ public final class SwizzlingManager {
                 if TagWorks.sharedInstance.isUseIntervals == true {
                     _ = TagWorks.sharedInstance.dispatch()
                 }
+                return
+            } else if event == "openURLContexts" {
+                guard let url = param as? URL else { return }
+                
+                // TagWorks SDK로 딥링크 정보 전달
+                TagWorks.sharedInstance.launchWithOptions(url: url, userInfo: nil)
                 return
             }
             

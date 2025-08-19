@@ -9,7 +9,14 @@ import Foundation
 
 /// 사용자 정의 디멘전 저장을 위한 클래스입니다.
 /// Dimension은 서버에서 정의해 놓은 Map 형태의 테이블이 존재하기에 그에 따름.
+// @objcMembers 해당 Anotation 선언 시 클래스 내의 모든 변수와 함수에 자동으로 @objc를 붙인 것과 동일
+// 구조체(struct)나 열거형(enum)에는 사용할 수 없으며, 모두 노출되므로 보안 주의 필요
 public final class Dimension: NSObject, Codable {
+    
+    @objc public enum DimensionType: Int {
+        case indexed = 0
+        case dynamic = 1
+    }
     
     /// 사용자 정의 디멘전의 index
     @objc public let index: Int

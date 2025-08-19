@@ -44,14 +44,37 @@ public final class DefaultQueue: NSObject, Queue {
         completion?()
     }
     
+    public func enqueue(events: [Event], completion: @escaping (_ newSize: Int) -> Void) {
+        items.append(contentsOf: events)
+        
+        // 값 설정 여부에 따라 userDefault에 저장할지 결정
+        if TagWorks.sharedInstance.localQueueEnabled {
+            var jsonBody: Data
+            do {
+                jsonBody = try serializer.toJsonData(for: items, isLocalQueue: true)
+                
+                TagWorks.sharedInstance.tagWorksBase?.eventsLocalQueue = String(data: jsonBody, encoding: .utf8) ?? ""
+                print("[🐹🐹🐹🐹] : \(TagWorks.sharedInstance.tagWorksBase?.eventsLocalQueue ?? "Nothing!!!")")
+            } catch {
+                completion(items.count)
+                return
+            }
+        }
+        completion(items.count)
+    }
+    
     /// queue에서 이벤트 구조체를 제거합니다.
     /// - Parameters:
     ///   - events: 이벤트 구조체 컬렉션
     ///   - completion: 완료 CallBack
     public func remove(events: [Event], completion: @escaping () -> Void) {
+        let beforeCount = items.count
         items = items.filter( {event in !events.contains(where: { target in target.uuid == event.uuid })})
+        
+        let removedCount = beforeCount - items.count
+        TagWorks.log("Queue: remove() - removed[\(removedCount)] remains[\(items.count)]")
+        
         completion()
-        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] Queue: remove() - remains[\(items.count)]")
     }
     
     /// queue에서 이벤트 구조체를 반환합니다.

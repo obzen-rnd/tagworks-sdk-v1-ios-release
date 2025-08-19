@@ -143,7 +143,8 @@ extension DeeplinkManager {
     /// 리턴값 : TagManager의 딥링크 여부 (oz_dlk_id 가 존재하는지 여부)
     // 예) obzenapp://prod/20054?oz_landing=key1%3Dvlaue1&oz_dlk_id=dlk1646856&oz_ref_channel=TG1128092&oz_camp_id=0
     func parserDeeplinkUrl(_ url: URL) -> Bool {
-        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] 🔗 파싱할 딥링크 URL: \(url.absoluteString)")
+        TagWorks.log("🔗 파싱할 딥링크 URL: \(url.absoluteString)")
+//        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] 🔗 파싱할 딥링크 URL: \(url.absoluteString)")
         
         // URL을 Component별로 분리
         guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return false }
@@ -151,45 +152,30 @@ extension DeeplinkManager {
         let deeplinkScheme = components.scheme ?? ""
         let deeplinkHost = components.host ?? ""
         let deeplinkPath = components.path
-        var deeplinkLandingParam = ""
         
         let queryItems = components.queryItems ?? []
         
         // "oz_landing" - 앱내 상세페이지 이동 시 필요한 파라미터
-        if let landingParam = queryItems.first(where: { $0.name == "oz_landing"})?.value {
-            if landingParam != "none" {
-                deeplinkLandingParam = landingParam
-            } else {
-                deeplinkLandingParam = ""
-            }
-        } else {
-            deeplinkLandingParam = ""
-        }
+        let landingParam = queryItems.first(where: { $0.name == "oz_landing" })?.value
+        let deeplinkLandingParam = (landingParam != "none") ? (landingParam ?? "") : ""
         
-        self.landingPageURL = "\(deeplinkScheme)://\(deeplinkHost)\(deeplinkPath)?\(deeplinkLandingParam)"
+        if deeplinkLandingParam.isEmpty {
+            self.landingPageURL = "\(deeplinkScheme)://\(deeplinkHost)\(deeplinkPath)"
+        } else {
+            self.landingPageURL = "\(deeplinkScheme)://\(deeplinkHost)\(deeplinkPath)?\(deeplinkLandingParam)"
+        }
         
         // "oz_ref_channel" - Referrer 정보
-        if let channelId = queryItems.first(where: { $0.name == "oz_ref_channel"})?.value {
-            self.refChannelId = channelId
-        } else {
-            self.refChannelId = ""
-        }
+        self.refChannelId = queryItems.first(where: { $0.name == "oz_ref_channel" })?.value ?? ""
         
         // "oz_dk_id" - Deeplink ID 정보
-        if let deeplinkId = queryItems.first(where: { $0.name == "oz_dlk_id"})?.value {
-            self.deeplinkId = deeplinkId
-        } else {
-            self.deeplinkId = ""
-        }
+        self.deeplinkId = queryItems.first(where: { $0.name == "oz_dlk_id" })?.value ?? ""
         
         // "oz_camp_id" - Campaign ID 정보
-        if let campId = queryItems.first(where: { $0.name == "oz_camp_id"})?.value {
-            self.campaignId = campId
-        } else {
-            self.campaignId = ""
-        }
+        self.campaignId = queryItems.first(where: { $0.name == "oz_camp_id" })?.value ?? ""
         
-        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] 🔗 딥링크 URL 파싱 정보: \(self.landingPageURL ?? ""), \(self.refChannelId ?? ""), \(self.deeplinkId ?? ""), \(self.campaignId ?? "")")
+        TagWorks.log("🔗 딥링크 URL 파싱 정보: \(self.landingPageURL ?? ""), \(self.refChannelId ?? ""), \(self.deeplinkId ?? ""), \(self.campaignId ?? "")")
+//        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] 🔗 딥링크 URL 파싱 정보: \(self.landingPageURL ?? ""), \(self.refChannelId ?? ""), \(self.deeplinkId ?? ""), \(self.campaignId ?? "")")
         
         if self.deeplinkId != nil && self.deeplinkId!.isEmpty == false {
             return true
@@ -254,7 +240,7 @@ extension DeeplinkManager {
                 if isDeferredDeeplink == true {
                     // 디퍼드 딥링크 정보 존재할 때
                     self.isDeferredDeeplinkOpened = true
-                    self.isDeeplinkOpened = false
+                    self.isDeeplinkOpened = true
                     
                     // 딥링크 정보 URL을 파싱
                     if self.parserDeeplinkUrl(URL(string: deeplinkInfo)!) == true {
@@ -276,7 +262,8 @@ extension DeeplinkManager {
     
     /// 딥링크 실행 시 처리..
     func handleDeeplink(_ url: URL, isDeferredDeeplink: Bool = false) {
-        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] 🔗 받은 딥링크 URL: \(url)")
+        TagWorks.log("🔗 받은 딥링크 URL: \(url)")
+//        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] 🔗 받은 딥링크 URL: \(url)")
         isDeferredDeeplinkOpened = false
         isDeeplinkOpened = true
         
@@ -308,7 +295,7 @@ extension DeeplinkManager {
                           isReinstall: self.isReinstall == true ? "1" : "0",
                           campaignId: self.campaignId,
                           refChannel: self.refChannelId,
-                          landingPageUrl: self.landingPageURL?.stringByAddingPercentEncodingWithContainEqual
+                          landingPageUrl: self.landingPageURL?.urlEncodedForQueryWithEqual
         )
         TagWorks.sharedInstance.addQueueOrDispatch(event)
     }
@@ -319,7 +306,7 @@ extension DeeplinkManager {
 //        let schemeUrl = "\(scheme)://\(host)\(path)?\(landingParam)"
         let landingUrl = self.landingPageURL ?? ""
         
-        print("🔗 App에 전달할 랜딩페이지 URL: \(landingUrl)")
+        print("🔗[TagWorks v\(CommonUtil.getSDKVersion()!)] App에 전달할 랜딩페이지 URL: \(landingUrl)")
         
         if let deeplinkCallback = self.deeplinkCallback {
             if self.deeplinkId != nil && self.deeplinkId!.isEmpty == false {

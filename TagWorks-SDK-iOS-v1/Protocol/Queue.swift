@@ -19,6 +19,8 @@ public protocol Queue {
     ///   - completion: 완료 CallBack
     mutating func enqueue(events: [Event], completion: (() -> Void)?)
     
+    mutating func enqueue(events: [Event], completion: @escaping (_ newSize: Int) -> Void)
+    
     /// queue에서 이벤트 구조체를 제거합니다.
     /// - Parameters:
     ///   - events: 이벤트 구조체 컬렉션
@@ -39,6 +41,10 @@ extension Queue {
     ///   - event: 이벤트 구조체
     ///   - completion: 완료 CallBack
     mutating func enqueue(event: Event, completion: (() ->Void)? = nil) {
+        enqueue(events: [event], completion: completion)
+    }
+    
+    mutating func enqueue(event: Event, completion: @escaping (_ newSize: Int) -> Void) {
         enqueue(events: [event], completion: completion)
     }
 }

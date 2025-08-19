@@ -35,7 +35,7 @@ private func getBacktrace() -> String {
     return symbols.joined(separator: "\n")
 }
 
-func saveCrashExceptipn(_ exception: NSException) {
+func saveCrashException(_ exception: NSException) {
     let stackTrace = "Reason: \(String(describing: exception.reason))\nStackTrace:\n\(exception.callStackSymbols.joined(separator: "\n"))"
     TagWorks.sharedInstance.saveCrashReport(errorType: "Exception", errorMessage: stackTrace)
 }
@@ -76,7 +76,7 @@ public final class CrashLogManager {
         
         // 예외 핸들러 등록 (Objective-C 에서 발생하는 오류)
         NSSetUncaughtExceptionHandler { exception in
-            saveCrashExceptipn(exception)
+            saveCrashException(exception)
         }
         
         // 주요 fatalError 핸들러 등록
@@ -101,8 +101,9 @@ public final class CrashLogManager {
     func saveErrorStackTrace(errorType: String, errorMessage: String, isTagWorks: Bool = false) {
         guard TagWorks.sharedInstance.isInitialize() else { return }
         
-        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] saveErrorStackTrace! isTagWorks: \(isTagWorks)")
-        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] saveErrorStackTrace! errorType: \(errorType)")
+        TagWorks.log("saveErrorStackTrace! isTagWorks: \(isTagWorks), errorType: \(errorType)")
+//        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] saveErrorStackTrace! isTagWorks: \(isTagWorks)")
+//        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] saveErrorStackTrace! errorType: \(errorType)")
 //        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] saveErrorStackTrace! errorMessage: \(errorMessage)")
 //        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] \(String(describing: tagWorksBase?.crashErrorLog))")
         

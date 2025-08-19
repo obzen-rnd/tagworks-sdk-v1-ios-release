@@ -31,7 +31,7 @@ extension UIWindowScene {
                                            "didEnterBackground": true,
                                            "didDisconnect": true,
                                            
-                                           "openURLContexts": false,
+                                           "openURLContexts": true,
                                            "universalLink": false]
         
         UIApplication.shared.connectedScenes.forEach { scene in
@@ -127,9 +127,15 @@ extension UIWindowScene {
                     selector: #selector(UIWindowSceneDelegate.scene(_:openURLContexts:)),
                     argType: (UIScene.self, Set<UIOpenURLContext>.self)) { target, sel, scene, urlContexts in
                     
-                    urlContexts.forEach { ctx in
-                        print("🔓 SceneDelegate URL opened: \(ctx.url.absoluteString)")
-                    }
+                        if let urlContext = urlContexts.first {
+//                            print("🔓 SceneDelegate URL opened: \(urlContext.url.absoluteString)")
+                            SwizzlingManager.sharedInstance.sceneSwizzle(target as! UISceneDelegate, "openURLContexts", urlContext.url)
+                        }
+                        
+//                    urlContexts.forEach { ctx in
+//                        print("🔓 SceneDelegate URL opened: \(ctx.url.absoluteString)")
+//                        SwizzlingManager.sharedInstance.sceneSwizzle(target as! UISceneDelegate, "openURLContexts")
+//                    }
                 }
             }
             

@@ -28,12 +28,23 @@ protocol WebInterfaceDelegate: AnyObject {
     /// - WKUserContentController 내에 인터페이스 이름과 메세지를 받을 target을 지정한 뒤 해당 객체를 리턴
     @objc public func getContentController() -> WKUserContentController {
         let contentController = WKUserContentController()
+        // 자바스크립트 정의
+        let jsSource = "window.__TAGWORKS_SDK_READY = true;"
+        let userScript = WKUserScript(source: jsSource, injectionTime: .atDocumentStart, forMainFrameOnly: false)
+        contentController.addUserScript(userScript)
+        
         contentController.add(self, name: messageHandlerName)
+        contentController.add(self, name: omCmsPopupHandlerName)
         return contentController
     }
     
     /// WKWebView의 WKWebViewConfiguration에서 사용할 WKUserContentController 객체를 전달받아 Script Interface 연결
     @objc public func addTagworksWebInterface(_ contentController: WKUserContentController) {
+        // 자바스크립트 정의
+        let jsSource = "window.__TAGWORKS_SDK_READY = true;"
+        let userScript = WKUserScript(source: jsSource, injectionTime: .atDocumentStart, forMainFrameOnly: false)
+        contentController.addUserScript(userScript)
+        
         contentController.add(self, name: messageHandlerName)
         contentController.add(self, name: omCmsPopupHandlerName)
     }
@@ -43,11 +54,9 @@ protocol WebInterfaceDelegate: AnyObject {
     /// 실제로 WebView Javascript에서 호출한 메세지 핸들러를 처리하는 부분
     /// 웹뷰에서만 쓰는 고유 Key 값 : tag_id (서버에서는 바이패스)
     public func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        print("💁‍♂️[TagWorks v\(CommonUtil.getSDKVersion()!)] WebInterface: \(message.name): \(message.body)")
+        TagWorks.log("WebInterface: \(message.name): \(message.body)")
         
-        if (!TagWorks.sharedInstance.isInitialize()) {
-            return
-        }
+        guard TagWorks.sharedInstance.isInitialize() else { return }
         
         if message.name == messageHandlerName {
             // WebInterface 로그 출력
@@ -56,7 +65,8 @@ protocol WebInterfaceDelegate: AnyObject {
             
             // parameter 파싱 후 event 생성
             if let dics: [String: Any] = message.body as? Dictionary {
-//                dics["url"] = "http://192.168.20.53:8070/jrecommend/oncms/T_RA1254312_shop.html?a=1&bn=2"
+                // url 테스트
+                // dics["url"] = "http://192.168.20.53:8070/jrecommend/oncms/T_RA1254312_shop.html?a=1&bn=2"
                 webInterfaceDidReceiveDictionary(dics)
             }
         } else if message.name == omCmsPopupHandlerName {

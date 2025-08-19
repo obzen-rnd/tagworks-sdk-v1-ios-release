@@ -78,9 +78,9 @@ fileprivate extension Event {
         if let errorTime = self.errorTime {
             eventCommonItems.append(URLQueryItem(name: EventParams.errorTime, value: errorTime))
         }
-        if let evtPlatform = self.evtPlatform {
-            eventCommonItems.append(URLQueryItem(name: EventParams.eventPlatform, value: evtPlatform))
-        }
+        
+        eventCommonItems.append(URLQueryItem(name: EventParams.eventPlatform, value: evtPlatform))
+        
         if let adId = self.adId {
             eventCommonItems.append(URLQueryItem(name: EventParams.adId, value: adId))
         }
@@ -108,6 +108,9 @@ fileprivate extension Event {
         }
         if let landingPageUrl = self.landingPageUrl {
             eventCommonItems.append(URLQueryItem(name: EventParams.landingPageUrl, value: landingPageUrl))
+        }
+        if let pushToken = self.pushToken {
+            eventCommonItems.append(URLQueryItem(name: EventParams.pushToken, value: pushToken))
         }
         
         eventCommonItems.append(URLQueryItem(name: EventParams.deviceType, value: "app"))
@@ -149,15 +152,6 @@ fileprivate extension Event {
                     }
                 }
             }
-            
-            
-//            customDimensionItems = dimensions.map {
-//                if $0.type == Dimension.generalType {
-//                    URLQueryItem(name: EventParams.customDimensionD + "\($0.index)", value: $0.value)
-//                } else {
-//                    URLQueryItem(name: EventParams.customDimensionF + "\($0.index)", value: String($0.numValue))
-//                }
-//            }
         } else {
             // 동적 파라미터
             if !self.dimensions.isEmpty {
@@ -223,13 +217,7 @@ fileprivate extension Event {
                 }
             }
         }
-//        let customDimensionItems = dimensions.map {
-//            if $0.type == Dimension.generalType {
-//                URLQueryItem(name: EventParams.customDimensionD + "\($0.index)", value: $0.value)
-//            } else {
-//                URLQueryItem(name: EventParams.customDimensionF + "\($0.index)", value: String($0.numValue))
-//            }
-//        }
+
         let eventsAsQueryItems = customDimensionItems
         let serializedEvents = eventsAsQueryItems.reduce(into: [String:String]()) {
             $0[$1.name] = $1.value
@@ -275,8 +263,6 @@ fileprivate extension Event {
             }
         }
         
-//        let stDimension = [EventParams.dynamicDimensionString: stringDimensions]
-//        let nuDimension = [EventParams.dynamicDimensionNumeric: numericDimensions]
         result[EventParams.dynamicDimensionString] = stringDimensions
         result[EventParams.dynamicDimensionNumeric] = numericDimensions
         
@@ -305,30 +291,30 @@ fileprivate extension Event {
                 let serializeDimensionString = TagWorks.sharedInstance.isUseDynamicParameter ? serializeDynamicCommonDimensions() : serializeCommonDimensions()
                 let eventString = e_c + "∞" + serializeDimensionString + "∞" + serializeAppInfo()
                 return [
-                    URLQueryItem(name: URLQueryParams.siteId, value: siteId.stringByAddingPercentEncoding),
-                    URLQueryItem(name: URLQueryParams.userId, value: userId?.stringByAddingPercentEncoding),
+                    URLQueryItem(name: URLQueryParams.siteId, value: siteId.urlEncodedForQuery),
+                    URLQueryItem(name: URLQueryParams.userId, value: userId?.urlEncodedForQuery),
 //                    URLQueryItem(name: URLQueryParams.url, value: url?.absoluteString.stringByAddingPercentEncoding),
 //                    URLQueryItem(name: URLQueryParams.urlReferer, value: urlReferer?.absoluteString.stringByAddingPercentEncoding),
-                    URLQueryItem(name: URLQueryParams.url, value: (url?.absoluteString.decodeUrl())?.stringByAddingPercentEncodingWithContainEqual),
-                    URLQueryItem(name: URLQueryParams.urlReferer, value: (urlReferer?.absoluteString.decodeUrl())?.stringByAddingPercentEncodingWithContainEqual),
-                    URLQueryItem(name: URLQueryParams.language, value: language?.addingPercentEncoding(withAllowedCharacters: .alphanumerics)?.stringByAddingPercentEncoding),
+                    URLQueryItem(name: URLQueryParams.url, value: (url?.absoluteString.urlDecoded())?.urlEncodedForQueryWithEqual),
+                    URLQueryItem(name: URLQueryParams.urlReferer, value: (urlReferer?.absoluteString.urlDecoded())?.urlEncodedForQueryWithEqual),
+                    URLQueryItem(name: URLQueryParams.language, value: language?.addingPercentEncoding(withAllowedCharacters: .alphanumerics)?.urlEncodedForQuery),
                     URLQueryItem(name: URLQueryParams.clientDateTime, value: CommonUtil.Formatter.iso8601DateFormatter.string(from: clientDateTime)),
                     URLQueryItem(name: URLQueryParams.screenSize, value: String(format: "%1.0fx%1.0f", screenResolution.width, screenResolution.height)),
-                    URLQueryItem(name: URLQueryParams.event, value: eventString.stringByAddingPercentEncoding),
+                    URLQueryItem(name: URLQueryParams.event, value: eventString.urlEncodedForQuery),
                 ]
             }
             
             return [
-                URLQueryItem(name: URLQueryParams.siteId, value: siteId.stringByAddingPercentEncoding),
-                URLQueryItem(name: URLQueryParams.userId, value: userId?.stringByAddingPercentEncoding),
+                URLQueryItem(name: URLQueryParams.siteId, value: siteId.urlEncodedForQuery),
+                URLQueryItem(name: URLQueryParams.userId, value: userId?.urlEncodedForQuery),
 //                URLQueryItem(name: URLQueryParams.url, value: url?.absoluteString.stringByAddingPercentEncoding),
 //                URLQueryItem(name: URLQueryParams.urlReferer, value: urlReferer?.absoluteString.stringByAddingPercentEncoding),
-                URLQueryItem(name: URLQueryParams.url, value: (url?.absoluteString.decodeUrl())?.stringByAddingPercentEncodingWithContainEqual),
-                URLQueryItem(name: URLQueryParams.urlReferer, value: (urlReferer?.absoluteString.decodeUrl())?.stringByAddingPercentEncodingWithContainEqual),
-                URLQueryItem(name: URLQueryParams.language, value: language?.addingPercentEncoding(withAllowedCharacters: .alphanumerics)?.stringByAddingPercentEncoding),
+                URLQueryItem(name: URLQueryParams.url, value: (url?.absoluteString.urlDecoded())?.urlEncodedForQueryWithEqual),
+                URLQueryItem(name: URLQueryParams.urlReferer, value: (urlReferer?.absoluteString.urlDecoded())?.urlEncodedForQueryWithEqual),
+                URLQueryItem(name: URLQueryParams.language, value: language?.addingPercentEncoding(withAllowedCharacters: .alphanumerics)?.urlEncodedForQuery),
                 URLQueryItem(name: URLQueryParams.clientDateTime, value: CommonUtil.Formatter.iso8601DateFormatter.string(from: clientDateTime)),
                 URLQueryItem(name: URLQueryParams.screenSize, value: String(format: "%1.0fx%1.0f", screenResolution.width, screenResolution.height)),
-                URLQueryItem(name: URLQueryParams.event, value: serializeEventString().stringByAddingPercentEncoding)
+                URLQueryItem(name: URLQueryParams.event, value: serializeEventString().urlEncodedForQuery)
             ]
         }
     }
@@ -342,35 +328,27 @@ fileprivate extension Event {
                 let serializeDimensionString = TagWorks.sharedInstance.isUseDynamicParameter ? serializeDynamicCommonDimensions() : serializeCommonDimensions()
                 let eventString = e_c + "∞" + serializeDimensionString + "∞" + serializeAppInfo() + "∞" + "obz_unsent≡1"
                 return [
-                    URLQueryItem(name: URLQueryParams.siteId, value: siteId.stringByAddingPercentEncoding),
-                    URLQueryItem(name: URLQueryParams.userId, value: userId?.stringByAddingPercentEncoding),
-                    URLQueryItem(name: URLQueryParams.url, value: (url?.absoluteString.decodeUrl())?.stringByAddingPercentEncodingWithContainEqual),
-                    URLQueryItem(name: URLQueryParams.urlReferer, value: (urlReferer?.absoluteString.decodeUrl())?.stringByAddingPercentEncodingWithContainEqual),
-                    URLQueryItem(name: URLQueryParams.language, value: language?.addingPercentEncoding(withAllowedCharacters: .alphanumerics)?.stringByAddingPercentEncoding),
+                    URLQueryItem(name: URLQueryParams.siteId, value: siteId.urlEncodedForQuery),
+                    URLQueryItem(name: URLQueryParams.userId, value: userId?.urlEncodedForQuery),
+                    URLQueryItem(name: URLQueryParams.url, value: (url?.absoluteString.urlDecoded())?.urlEncodedForQueryWithEqual),
+                    URLQueryItem(name: URLQueryParams.urlReferer, value: (urlReferer?.absoluteString.urlDecoded())?.urlEncodedForQueryWithEqual),
+                    URLQueryItem(name: URLQueryParams.language, value: language?.addingPercentEncoding(withAllowedCharacters: .alphanumerics)?.urlEncodedForQuery),
                     URLQueryItem(name: URLQueryParams.clientDateTime, value: CommonUtil.Formatter.iso8601DateFormatter.string(from: clientDateTime)),
                     URLQueryItem(name: URLQueryParams.screenSize, value: String(format: "%1.0fx%1.0f", screenResolution.width, screenResolution.height)),
-                    URLQueryItem(name: URLQueryParams.event, value: eventString.stringByAddingPercentEncoding),
+                    URLQueryItem(name: URLQueryParams.event, value: eventString.urlEncodedForQuery),
                 ]
             }
             
             return [
-                URLQueryItem(name: URLQueryParams.siteId, value: siteId.stringByAddingPercentEncoding),
-                URLQueryItem(name: URLQueryParams.userId, value: userId?.stringByAddingPercentEncoding),
-                URLQueryItem(name: URLQueryParams.url, value: (url?.absoluteString.decodeUrl())?.stringByAddingPercentEncodingWithContainEqual),
-                URLQueryItem(name: URLQueryParams.urlReferer, value: (urlReferer?.absoluteString.decodeUrl())?.stringByAddingPercentEncodingWithContainEqual),
-                URLQueryItem(name: URLQueryParams.language, value: language?.addingPercentEncoding(withAllowedCharacters: .alphanumerics)?.stringByAddingPercentEncoding),
+                URLQueryItem(name: URLQueryParams.siteId, value: siteId.urlEncodedForQuery),
+                URLQueryItem(name: URLQueryParams.userId, value: userId?.urlEncodedForQuery),
+                URLQueryItem(name: URLQueryParams.url, value: (url?.absoluteString.urlDecoded())?.urlEncodedForQueryWithEqual),
+                URLQueryItem(name: URLQueryParams.urlReferer, value: (urlReferer?.absoluteString.urlDecoded())?.urlEncodedForQueryWithEqual),
+                URLQueryItem(name: URLQueryParams.language, value: language?.addingPercentEncoding(withAllowedCharacters: .alphanumerics)?.urlEncodedForQuery),
                 URLQueryItem(name: URLQueryParams.clientDateTime, value: CommonUtil.Formatter.iso8601DateFormatter.string(from: clientDateTime)),
                 URLQueryItem(name: URLQueryParams.screenSize, value: String(format: "%1.0fx%1.0f", screenResolution.width, screenResolution.height)),
-                URLQueryItem(name: URLQueryParams.event, value: (serializeEventString() + "∞" + "obz_unsent≡1").stringByAddingPercentEncoding)
+                URLQueryItem(name: URLQueryParams.event, value: (serializeEventString() + "∞" + "obz_unsent≡1").urlEncodedForQuery)
             ]
         }
     }
-}
-
-fileprivate extension CharacterSet {
-    
-//    /// URLQuery 파라미터에 허용되는 특수문자를 반환합니다.
-//    static var urlQueryParameterAllowed: CharacterSet {
-//        return CharacterSet.urlQueryAllowed.subtracting(CharacterSet(charactersIn: ###"&/?;',+"!^()=@*$"###))
-//    }
 }

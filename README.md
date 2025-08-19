@@ -9,7 +9,7 @@
   <span style="font-size: 24px;">개발자 메뉴얼</span>
   <br><br>
   <br><br>
-  ver. 1.1.28
+  ver. 1.1.29
 </p>
 
 
@@ -29,7 +29,7 @@
 
 ![TagWorks SDK iOS](https://capsule-render.vercel.app/api?type=Soft&color=gradient&height=150&section=header&text=TagWorks-SDK-iOS&fontSize=50&animation=fadeOut)
 
-![Generic badge](https://img.shields.io/badge/version-v1.1.28-green.svg)
+![Generic badge](https://img.shields.io/badge/version-v1.1.29-green.svg)
 ![Generic badge](https://img.shields.io/badge/license-ApacheLicense2.0-blue.svg)
 ![Generic badge](https://img.shields.io/badge/Platform-iOS-red.svg)
 ![Generic badge](https://img.shields.io/badge/support-swift-yellow.svg)
@@ -57,7 +57,7 @@
       - [EVENT\_TAG\_NAME 에 대응하는 값으로 사용할 수 있는 Standard 태그](#event_tag_name-에-대응하는-값으로-사용할-수-있는-standard-태그)
   - [로그 전송](#로그-전송)
   - [Web View 연동](#web-view-연동)
-  - [딥링크 (유입 경로 추적)](#딥링크-유입-경로-추적)
+  - [유입 경로 설정 (단순 URL 저장)](#유입-경로-설정-단순-url-저장)
   - [Crash Error Report (앱 크래시 발생 시 크래시 로그 저장 및 발송)](#crash-error-report-앱-크래시-발생-시-크래시-로그-저장-및-발송)
     - [메소드 파라미터 설명](#메소드-파라미터-설명)
 - [InAppMessage](#inappmessage)
@@ -66,13 +66,20 @@
   - [onCMS Banner](#oncms-banner)
     - [onCMS Banner를 노출하기 위해 필요한 파라미터](#oncms-banner를-노출하기-위해-필요한-파라미터)
       - [주의 사항](#주의-사항)
+- [딥링크 서비스](#딥링크-서비스)
+    - [✅ TagWorks Deeplink Service는 다음과 같은 기능을 제공합니다.](#-tagworks-deeplink-service는-다음과-같은-기능을-제공합니다)
+  - [딥링크(Deferred 딥링크)](#딥링크deferred-딥링크)
+    - [딥링크 설정](#딥링크-설정)
+      - [1. 앱 내 스키마 등록 (App 프로젝트 설정)](#1-앱-내-스키마-등록-app-프로젝트-설정)
+      - [2. TagWorks SDK 초기화 및 실행 파라미터 설정](#2-tagworks-sdk-초기화-및-실행-파라미터-설정)
+    - [딥링크 처리 방법](#딥링크-처리-방법)
 
 <br>
 <div style="page-break-after: always;"></div>
 
-# Mobile Tag 수집
+# Mobile Tag 수집 
 
-- Mobile iOS Platform에서 OBZEN의 로그 수집을 하기 위한 용도의 SDK
+- Mobile iOS Platform에서 OBZEN TagManager의 로그 수집을 하기 위한 용도의 SDK
 - Native 영역에서의 발생 로그 뿐만 아니라 Webview Interface 연결을 통한 웹뷰 로그도 함께 수집 가능합니다.
 - UIViewController 기준의 화면 전환 및 앱 상태 (백그라운드/포어그라운드) 전환 시 로그를 자동 수집하는 기능을 지원합니다.
 - 앱 내에서 발생하는 크래시 로그도 자동으로 수집하는 기능을 지원합니다.
@@ -160,6 +167,13 @@ pod install --repo-update
 <br>
 
 ## SDK 초기화 설정
+-   TagWorks SDK 인스턴스를 초기화 하기 위해 SDK 설정값들을 지정합니다.
+-   초기화 이후에는 **TagWorks.sharedInstance**를 통한 Singleton Instance를 제공하며, 전역에서 접근이 가능합니다.
+-   **AppDelegate**의 **application(_:,didFinishLaunchingWithOptions:)** 메서드 최상단에 초기화 메소드를 호출합니다.
+
+
+<br>
+<br>
 
 | 옵션              | 타입     | 기본값   | 설명                                                      |
 | ---------------- | ------- | ------ | -------------------------------------------------------  |
@@ -177,7 +191,6 @@ pod install --repo-update
 
 <br>
 
--   AppDelegate의 application(_:,didFinishLaunchingWithOptions:) 메서드 최상단에 초기화 메소드를 호출합니다.
 -   **siteId** 및 **baseUrl** 을 설정하지 않는 경우 서버로의 로그 수집이 이루어지지 않습니다.
 -   **isUseIntervals** 값을 false로 설정할 경우에는 dispatchIntervalWithSeconds 값이 무시되고 항상 즉시 발송됩니다. <br> true로 설정할 경우에는 dispatchIntervalWithSeconds 값에 지정된 초를 주기로 데이터를 발송합니다.
 -   **dispatchIntervalWithSeconds** 는 큐에 저장된 행동 정보 데이터를 지정한 초만큼 주기로 발송하기 때문에, 지정한 시간 사이에 어플리케이션이 종료되는 경우 발송 할 수 없으니 적절한 시간으로 지정해야 합니다.
@@ -185,7 +198,6 @@ pod install --repo-update
 -   **isUseDynamicParameter** 값을 true로 설정할 경우 Dimension의 key값을 문자형으로 사용하고, false로 설정할 경우 key값을 정수형으로 사용해야 합니다.
     - **isUseDynamicParameter** 에 <span style="color:rgb(223, 95, 56)">설정한 값에 따른 해당 메소드와는 다른 Dimension 메소드를 사용 시 데이터가 올바르게 전송되지 않을 수 있습니다.</span>
 -   <span style="color:rgb(223, 95, 56)">App에 광고식별자 사용 권한 설정이 되어 있는 경우</span>, isEnabledAdId 값을 true로 설정하면 SDK에서 자동으로 광고식별자를 수집합니다.
--   **TagWorks.sharedInstance** 객체를 통하여 Singleton Instance를 제공하며, 전역에서 호출 가능합니다.
 
 
 <br>
@@ -194,10 +206,9 @@ pod install --repo-update
 
 ```swift
 // 둘 중 추가한 방법에 따라 SDK import
-// SPM 또는 CocoaPod 으로 라이브러리 추가한 경우
+// 1. CocoaPod 으로 라이브러리 추가한 경우
 import TagWorks_SDK_iOS
-
-// 릴리즈 프레임워크 파일로 추가한 경우
+// 2. SPM 또는 직접 파일로 추가한 경우
 import TagWorks_SDK_iOS_v1
 
 
@@ -207,7 +218,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // TagWorks instance 설정
         TagWorks.sharedInstance.setInstanceConfig(siteId: "00,XXXXXXXX",
-                                                  baseUrl: URL(string: "http://obzen.com/obzenTagWorks")!,
+                                                  baseUrl: URL(string: "Proxy 로그 수집 서버 URL")!,
                                                   isUseIntervals: false,
                                                   dispatchIntervalWithSeconds: 3,
                                                   sessionTimeOutWithSeconds: 5,
@@ -215,7 +226,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                                                   appVersion: "앱 버전",
                                                   appName: "앱 이름",
                                                   isUseDynamicParameter: true,
-                                                  isEnabledAdId: false)
+                                                  isEnabledAdId: false,
+                                                  deeplinkServerUrl: URL(string: "Deeplink Bridge Server URL")!)
         ...
     }
 }
@@ -237,12 +249,12 @@ if TagWorks.sharedInstance.isInitialize() == false {
 ```objc
 // 셋 중 추가한 방법에 따라 SDK import
 // 1. SPM으로 라이브러리 추가한 경우
-@import TagWorks_SDK_iOS;
+@import TagWorks_SDK_iOS_v1;
 
 // 2. CocoaPod 으로 추가한 경우
 #import <TagWorks_SDK_iOS/TagWorks_SDK_iOS-Swift.h>
 
-// 3. 릴리즈 프레임워크 파일로 추가한 경우
+// 3. 직접 파일로 추가한 경우
 #import <TagWorks_SDK_iOS_v1/TagWorks_SDK_iOS_v1-Swift.h>
 
 
@@ -252,14 +264,15 @@ if TagWorks.sharedInstance.isInitialize() == false {
     // TagWorks instance 설정
     TagWorks *tagWorksInstance = TagWorks.sharedInstance;
     [tagWorksInstance setInstanceConfigWithSiteId:@"00,XXXXXXXX"
-                                          baseUrl:[NSURL URLWithString:@"http://obzen.com/obzenTagWorks"]
+                                          baseUrl:[NSURL URLWithString:@"Proxy 로그 수집 서버 URL"]
                                    isUseIntervals:NO
                       dispatchIntervalWithSeconds:3
                         sessionTimeOutWithSeconds:5
                                        appVersion:@"앱 버전"
                                           appName:@"앱 이름"
                             isUseDynamicParameter:YES
-                                    isEnabledAdId:NO];
+                                    isEnabledAdId:NO
+                                deeplinkServerUrl:[NSURL URLWithString:@"Deeplink Bridge Server URL"]];
     ...
 }
 ```
@@ -857,7 +870,7 @@ WKWebView *webView = [[WKWebView alloc] initWithFrame:CGRectZero configuration:c
 
 <br>
 
-## 딥링크 (유입 경로 추적)
+## 유입 경로 설정 (단순 URL 저장)
 
 - Referrer 정보가 포함되어 있는 스키마 URL로 부터 앱이 실행이 된 경우, 해당 스키마 URL 정보를 서버로 수집이 가능합니다.
 - 앱에서 해당 URL 정보를 받아오는 메서드 내부에 다음과 같은 TagWorks SDK 인터페이스를 호출합니다.
@@ -981,3 +994,146 @@ TagWorksPopup.sharedInstance.onCMSPopupBanner(
                                             bannerView: bannerView
                                    defaultPngImageName: @"default_image"];
 ```
+<br>
+<br>
+
+# 딥링크 서비스 
+- TagWorks Deeplink Service는 앱 설치 및 실행 시 딥링크를 처리하고, 지연된 딥링크(Deferred Deeplink)를 지원하는 고급 딥링크 처리 시스템입니다.
+- 딥링크 서비스를 이용하여 유입 분석 및 성과 측정이 가능합니다.
+- <mark>유니버셜 링크는 지원하지 않습니다.</mark>
+  
+### ✅ TagWorks Deeplink Service는 다음과 같은 기능을 제공합니다.
+- **즉시 딥링크 처리** : 앱이 실행될 때 딥링크 URL을 즉시 처리
+- **지연된 딥링크 처리** : 앱 설치 후 첫 실행 시 딥링크 정보를 서버에서 조회하여 처리
+- **자동 이벤트 로깅** : 딥링크 관련 이벤트를 자동으로 수집 서버에 전송
+- **설치 시간 기반 필터링** : 앱 설치 후 3일 이내에만 지연된 딥링크 처리
+
+## 딥링크(Deferred 딥링크)
+- TagManager로부터 생성한 마케팅 URL로부터 앱으로의 유입 경로 및 설치 정보를 분석할 수 있습니다.
+- 딥링크를 처리하기 위해서는 <mark>SDK 초기화 메서드 호출이 필히 선행되어야 하며,</mark> SDK 초기화 시 `deeplinkServerUrl:` 파라미터에 올바른 딥링크 Bridge 서버 URL이 필요합니다.
+- 앱이 실행되는 진입점인 **AppDelegate**의 **application(_:,didFinishLaunchingWithOptions:)** 메서드 최상단에서 SDK 초기화 메서드를 호출 후 바로 **launchWithOptions(url:userInfo:)** 메서드를 호출해야 합니다.
+- 앱 내에서 딥링크 랜딩페이지로 이동을 하기 위해서는 **registerDeeplinkCallback(_:)** 메서드를 통해 콜백으로 호출되는 랜딩페이지 URL을 통해 이동할 수 있습니다.
+
+<br>
+
+### 딥링크 설정
+---
+
+#### 1. 앱 내 스키마 등록 (App 프로젝트 설정)
+- 앱 타겟의 Info.plist 항목에 URL types 항목을 추가합니다.
+
+> **Info.plist** 
+
+```xml
+<key>CFBundleURLTypes</key>
+<array>
+  <dict>
+    <key>CFBundleURLName</key>
+    <string>com.example.myapp</string>
+    <key>CFBundleURLSchemes</key>
+    <array>
+      <string>myappscheme</string>
+    </array>
+  </dict>
+</array>
+```
+
+| 파라미터                | 설명                                               | 필수 여부 |
+|-----------------------|---------------------------------------------------|-----------|
+| `CFBundleURLName`     | 스키마를 구분할 수 있는 식별자. 보통 BundleId에 식별자를 추가 | 필수 |
+| `CFBundleURLSchemes`  | 딥링크로 사용할 스키마 (커스텀 스키마) | 필수 |
+|  |
+
+#### 2. TagWorks SDK 초기화 및 실행 파라미터 설정
+
+> **Swift**
+
+```swift
+// AppDelegate.swift
+func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    // TagWorks instance 초기화 설정
+    TagWorks.sharedInstance.setInstanceConfig(
+      ...
+      deeplinkServerUrl: URL(string: "Deeplink Bridge Server URL")! // 딥링크 서버 URL 설정
+      )
+
+    // #.딥링크로 앱이 실행될 때 실행 파라미터 전달
+    let launchUrl = launchOptions?[.url] as? URL
+    if launchUrl != nil {
+        TagWorks.sharedInstance.launchWithOptions(url: launchUrl, userInfo: nil)
+    }
+    ...
+    ...
+}
+```
+
+> **Objective-C**
+```obj-c
+// AppDelegate.m
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    // TagWorks instance 초기화 설정
+    TagWorks *tagWorksInstance = TagWorks.sharedInstance;
+    [tagWorksInstance setInstanceConfigWithSiteId:@"00,XXXXXXXX"
+                                          ...
+                                deeplinkServerUrl:[NSURL URLWithString:@"Deeplink Bridge Server URL"]];   // 딥링크 서버 URL 설정
+
+    // #.딥링크로 앱이 실행될 때 실행 파라미터 전달
+    NSURL *launchUrl = launchOptions[UIApplicationLaunchOptionsURLKey];
+    if (launchUrl != nil) {
+        [[TagWorks sharedInstance] launchWithOptionsWithUrl:launchUrl userInfo:nil];
+    }
+    ...
+    ...
+}
+```
+
+### 딥링크 처리 방법
+- registerDeeplinkCallback() 메서드 호출을 통해 딥링크를 처리한 후 콜백으로 넘어오는 deeplinkURL을 이용해 유저를 설정한 목적지로 보낼 수 있습니다.
+- TagManager에 등록된 딥링크가 아닌 경우, 해당 메서드를 통해 콜백으로 넘어오는 isTagWorksDeeplink 값은 false를 리턴합니다. 해당 값을 이용해 TagManager 딥링크가 아닌 다른 딥링크를 처리할 수 있습니다.
+- 앱 설치 후 3일 이내에만 지연된 딥링크 처리가 가능합니다.
+
+> **Swift**
+
+```swift
+// #.딥링크 URL을 SDK로부터 콜백을 받아 처리 (상세 페이지로 이동을 시키고자 하는 메서드 내에서 호출)  
+TagWorks.sharedInstance.registerDeeplinkCallback({ isTagWorksDeeplink, deeplinkURL in
+  if isTagWorksDeeplink {
+    // TagWorks Deeplink 인 경우에만 딥링크 처리
+    // URL을 Component별로 분리
+    guard let components = URLComponents(url: deeplinkURL, resolvingAgainstBaseURL: false) else { return }
+
+    let deeplinkScheme = components.scheme ?? ""
+    let deeplinkHost = components.host ?? ""
+    let deeplinkPath = components.path
+    let queryItems = components.queryItems ?? []
+
+    // 상세 페이지로 이동처리.
+    ...
+  }
+})
+```
+> **Objective-C**
+```obj-c
+// #.딥링크 URL을 SDK로부터 콜백을 받아 처리 (상세 페이지로 이동을 시키고자 하는 메서드 내에서 호출)
+[[TagWorks sharedInstance] registerDeeplinkCallback:^(BOOL isTagWorksDeeplink, NSURL *deeplinkURL) {
+  if (isTagWorksDeeplink) {
+      // TagWorks Deeplink인 경우에만 처리
+
+      NSURLComponents *components = [NSURLComponents componentsWithURL:deeplinkURL resolvingAgainstBaseURL:NO];
+      if (!components) {
+          return;
+      }
+
+      NSString *deeplinkScheme = components.scheme ?: @"";
+      NSString *deeplinkHost = components.host ?: @"";
+      NSString *deeplinkPath = components.path ?: @"";
+      NSArray<NSURLQueryItem *> *queryItems = components.queryItems ?: @[];
+
+      // 상세 페이지 이동 처리
+      ...
+  }
+}];
+```
+
+<br>
+<br>
