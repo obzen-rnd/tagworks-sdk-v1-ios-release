@@ -61,6 +61,49 @@ internal extension UIView {
         let frameInWindow = self.convert(self.bounds, to: window)
         return window.bounds.intersects(frameInWindow)
     }
+    
+    // Toast 메세지 출력
+    func showToast(message: String, duration: Double = 2.0) {
+        let toastLabel = UILabel()
+        toastLabel.text = message
+        toastLabel.textColor = .white
+        toastLabel.backgroundColor = UIColor.black.withAlphaComponent(0.7)
+        toastLabel.textAlignment = .center
+        toastLabel.font = UIFont.systemFont(ofSize: 14)
+        toastLabel.numberOfLines = 0
+        toastLabel.alpha = 0.0
+        toastLabel.layer.cornerRadius = 12
+        toastLabel.clipsToBounds = true
+        
+        // 최대 크기
+        let maxSize = CGSize(width: self.bounds.width - 40, height: self.bounds.height)
+        var expectedSize = toastLabel.sizeThatFits(maxSize)
+        
+        // 패딩 값 명확히 지정
+        let paddingH: CGFloat = 40
+        let paddingV: CGFloat = 20
+        expectedSize.width += paddingH
+        expectedSize.height += paddingV
+        
+        toastLabel.frame = CGRect(
+            x: (self.bounds.width - expectedSize.width) / 2,
+            y: self.bounds.height - expectedSize.height - 60,
+            width: expectedSize.width,
+            height: expectedSize.height
+        )
+        
+        self.addSubview(toastLabel)
+        
+        UIView.animate(withDuration: 0.3, animations: {
+            toastLabel.alpha = 1.0
+        }) { _ in
+            UIView.animate(withDuration: 0.3, delay: duration, options: .curveEaseOut, animations: {
+                toastLabel.alpha = 0.0
+            }) { _ in
+                toastLabel.removeFromSuperview()
+            }
+        }
+    }
 
     // MARK: - Swizzling
     static func swizzleDidMoveToWindowForTracking() {

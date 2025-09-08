@@ -51,14 +51,19 @@ final public class CommonUtil {
     }
     
     public static func getSDKVersion() -> String? {
-        // 현재 프레임워크의 번들을 가져옵니다.
-        let frameworkBundle = Bundle(for: CommonUtil.self)
+//        // 현재 프레임워크의 번들을 가져옵니다. => 이 방식으로 하면
+//        let frameworkBundle = Bundle(for: CommonUtil.self)
+//        
+//        // 버전 정보 가져오기
+//        if let version = frameworkBundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String {
+//            return version
+//        }
         
-        // 버전 정보 가져오기
-        if let version = frameworkBundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String {
-            return version
+        // 현재 프레임워크의 번들을 가져옵니다.
+        if let frameworkBundle = Bundle(identifier: "com.obzen.TagWorks-SDK-iOS-v1") {
+            return frameworkBundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.0"
         }
-        return nil
+        return "1.0.0"
     }
     
     // 화면 크기에 맞춰 비율을 적용하여 높이를 리턴하는 함수
@@ -416,4 +421,22 @@ public class AES256Util {
     func uniqueString(from key: String) -> String {
         return key.sha256()
     }
+}
+
+// 
+final class ResourceBundle {
+    static let shared: Bundle? = {
+        #if SWIFT_PACKAGE
+        // Swift Package Manager
+        return Bundle.module
+        #else
+        // 1. Pod/Framework 리소스 번들 찾기
+        let frameworkBundle = Bundle(for: WebPopupViewController.self)
+        if let url = frameworkBundle.url(forResource: "TagWorksSDKResources", withExtension: "bundle") {
+            return Bundle(url: url)
+        }
+        // 2. Framework 안에 직접 포함된 경우
+        return frameworkBundle
+        #endif
+    }()
 }

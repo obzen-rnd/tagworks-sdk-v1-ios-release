@@ -212,7 +212,21 @@ import WebKit
             bannerView.addSubview(defaultWebView!)
             
             if self.onCMSBannerWebView == nil {
-                self.onCMSBannerWebView = WKWebView()
+//                self.onCMSBannerWebView = WKWebView()
+                
+                let contentController = WKUserContentController()
+        //        // Swift에 JavaScript 인터페이스 연결
+                TagWorks.sharedInstance.webViewInterface.addTagworksWebInterface(contentController)
+                
+                let webConfiguration = WKWebViewConfiguration()
+                webConfiguration.userContentController = contentController
+                self.onCMSBannerWebView = WKWebView(frame: .zero, configuration: webConfiguration)
+                
+                if #available(iOS 16.4, *) {
+                    #if DEBUG
+                    self.onCMSBannerWebView?.isInspectable = true  // webview inspector 가능하도록 설정
+                    #endif
+                }
             }
             onCMSBannerWebView!.frame = CGRect(x: 0, y: 0, width: bannerView.bounds.width, height: bannerView.bounds.height)
             //            onCMSBannerWebView.translatesAutoresizingMaskIntoConstraints = false

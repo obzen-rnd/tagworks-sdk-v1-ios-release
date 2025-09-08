@@ -9,7 +9,7 @@
   <span style="font-size: 24px;">개발자 메뉴얼</span>
   <br><br>
   <br><br>
-  ver. 1.1.29
+  ver. 1.1.30
 </p>
 
 
@@ -29,7 +29,7 @@
 
 ![TagWorks SDK iOS](https://capsule-render.vercel.app/api?type=Soft&color=gradient&height=150&section=header&text=TagWorks-SDK-iOS&fontSize=50&animation=fadeOut)
 
-![Generic badge](https://img.shields.io/badge/version-v1.1.29-green.svg)
+![Generic badge](https://img.shields.io/badge/version-v1.1.30-green.svg)
 ![Generic badge](https://img.shields.io/badge/license-ApacheLicense2.0-blue.svg)
 ![Generic badge](https://img.shields.io/badge/Platform-iOS-red.svg)
 ![Generic badge](https://img.shields.io/badge/support-swift-yellow.svg)
@@ -71,7 +71,8 @@
   - [딥링크(Deferred 딥링크)](#딥링크deferred-딥링크)
     - [딥링크 설정](#딥링크-설정)
       - [1. 앱 내 스키마 등록 (App 프로젝트 설정)](#1-앱-내-스키마-등록-app-프로젝트-설정)
-      - [2. TagWorks SDK 초기화 및 실행 파라미터 설정](#2-tagworks-sdk-초기화-및-실행-파라미터-설정)
+      - [2. TagWorks SDK 초기화 및 앱 종료 상태 시 딥링크 URL 처리](#2-tagworks-sdk-초기화-및-앱-종료-상태-시-딥링크-url-처리)
+      - [3. 앱 실행 중인 경우 딥링크 URL 처리](#3-앱-실행-중인-경우-딥링크-url-처리)
     - [딥링크 처리 방법](#딥링크-처리-방법)
 
 <br>
@@ -1011,7 +1012,8 @@ TagWorksPopup.sharedInstance.onCMSPopupBanner(
 ## 딥링크(Deferred 딥링크)
 - TagManager로부터 생성한 마케팅 URL로부터 앱으로의 유입 경로 및 설치 정보를 분석할 수 있습니다.
 - 딥링크를 처리하기 위해서는 <mark>SDK 초기화 메서드 호출이 필히 선행되어야 하며,</mark> SDK 초기화 시 `deeplinkServerUrl:` 파라미터에 올바른 딥링크 Bridge 서버 URL이 필요합니다.
-- 앱이 실행되는 진입점인 **AppDelegate**의 **application(_:,didFinishLaunchingWithOptions:)** 메서드 최상단에서 SDK 초기화 메서드를 호출 후 바로 **launchWithOptions(url:userInfo:)** 메서드를 호출해야 합니다.
+- 앱이 종료 상태에서 딥링크를 통해 앱이 실행이 될 때, 실행되는 진입점인 **AppDelegate**의 **application(_:,didFinishLaunchingWithOptions:)** 메서드 최상단에서 SDK 초기화 메서드를 호출 후 바로 **launchWithOptions(url:userInfo:)** 메서드를 호출해야 합니다.
+- 앱이 실행 중인 상태에서 딥링크를 처리하기 위해서는 application(_:openurl:options:) 또는 scene(_:openURLContexts:) 메서드 구현이 <mark>필수</mark>로 필요합니다. 해당 메서드가 구현이 되어 있어야 SDK에서 자동으로 딥링크를 처리할 수 있습니다. 
 - 앱 내에서 딥링크 랜딩페이지로 이동을 하기 위해서는 **registerDeeplinkCallback(_:)** 메서드를 통해 콜백으로 호출되는 랜딩페이지 URL을 통해 이동할 수 있습니다.
 
 <br>
@@ -1044,7 +1046,7 @@ TagWorksPopup.sharedInstance.onCMSPopupBanner(
 | `CFBundleURLSchemes`  | 딥링크로 사용할 스키마 (커스텀 스키마) | 필수 |
 |  |
 
-#### 2. TagWorks SDK 초기화 및 실행 파라미터 설정
+#### 2. TagWorks SDK 초기화 및 앱 종료 상태 시 딥링크 URL 처리
 
 > **Swift**
 
@@ -1084,6 +1086,34 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
     }
     ...
     ...
+}
+```
+
+#### 3. 앱 실행 중인 경우 딥링크 URL 처리
+> **Swift**
+
+```swift
+// AppDelegate.swift (iOS 12 이하)
+func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+    return true
+}
+
+// 또는
+// SceneDelegate.swift (iOS 13 이상)
+func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+}
+```
+
+> **Objective-C**
+```obj-c
+// AppDelegate.m (iOS 12 이하)
+- (BOOL)application:(UIApplication *)application openURL:(nonnull NSURL *)url options:(nonnull NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
+    return YES;
+}
+
+// 또는
+// SceneDelegate.m (iOS 13 이상)
+- (void)scene:(UIScene *)scene openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts {
 }
 ```
 

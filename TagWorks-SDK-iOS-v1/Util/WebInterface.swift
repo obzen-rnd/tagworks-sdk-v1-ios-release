@@ -54,7 +54,7 @@ protocol WebInterfaceDelegate: AnyObject {
     /// 실제로 WebView Javascript에서 호출한 메세지 핸들러를 처리하는 부분
     /// 웹뷰에서만 쓰는 고유 Key 값 : tag_id (서버에서는 바이패스)
     public func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        TagWorks.log("WebInterface: \(message.name): \(message.body)")
+        TagWorks.log("WebInterface - \(message.name): \(message.body)")
         
         guard TagWorks.sharedInstance.isInitialize() else { return }
         
@@ -130,10 +130,12 @@ protocol WebInterfaceDelegate: AnyObject {
     
     // 웹뷰에서 SDK를 통해 OnCMS 팝업을 출력 및 닫도록 시키는 용도
     @objc public func webInterfaceDidReceiveOnCmsPopupDictionary(_ msgDictionary: Dictionary<String, Any>) {
+        // 팝업 춮력
         var onCmsUrl: String?
         var custId: String?
         var rcmdAreaCd: String?
         var command: String?
+        var toastMessage: String?
         
         if msgDictionary.index(forKey: "onCmsUrl") != nil {
             onCmsUrl = msgDictionary["onCmsUrl"] as? String
@@ -146,6 +148,9 @@ protocol WebInterfaceDelegate: AnyObject {
         }
         if msgDictionary.index(forKey: "command") != nil {
             command = msgDictionary["command"] as? String
+        }
+        if msgDictionary.index(forKey: "toastMessage") != nil {
+            toastMessage = msgDictionary["toastMessage"] as? String
         }
         
         var rootVC: UIViewController? {
@@ -160,9 +165,21 @@ protocol WebInterfaceDelegate: AnyObject {
             }
         }
         
+        //
         if command != nil {
             if command == "close" {
                 TagWorksPopup.sharedInstance.webPopupViewControllerDismiss()
+            } else if command == "toast" {
+                let topViewController = UIViewController.topViewController()
+                // alert
+//                let alert = UIAlertController(title: "",
+//                                              message: alertMessage,
+//                                              preferredStyle: .alert)
+//                alert.addAction(UIAlertAction(title: "확인", style: .default, handler: nil))
+//                topViewController?.present(alert, animated: true, completion: nil)
+                
+                // toast
+                topViewController?.view.showToast(message: toastMessage ?? "")
             }
         } else {
             TagWorksPopup.sharedInstance.onCMSPopup(onCmsUrl: onCmsUrl ?? "", cust_id: custId ?? "", rcmd_area_cd: rcmdAreaCd ?? "", owner: rootVC!)

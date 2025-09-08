@@ -185,6 +185,7 @@ public class WebPopupViewController: UIViewController {
         
         if let popupType = self.jsonDic["ex_meth"] as? String {
             if popupType == "survey" {
+                TagWorks.log("Survey URL 정보: \(String(describing: self.jsonDic["url"]))")
                 if let url = self.jsonDic["url"] as? String {
                     let request = URLRequest(url: URL(string: url)!)
                     webView.load(request)
@@ -621,12 +622,13 @@ public class WebPopupViewController: UIViewController {
             closeButton.layoutIfNeeded()
             
             closeButton.backgroundColor = .clear
-            let bundle = Bundle(for: WebPopupViewController.self)
+//            let bundle = Bundle(for: WebPopupViewController.self)
 //            let image = UIImage(named: "close_white_416.png", in: bundle, compatibleWith: nil)
             let imageName = popupStyle.closeBtnType == "btn1" ? "close-bg-cross.png" : "close-single-cross.png"
-            let image = UIImage(named: imageName, in: bundle, compatibleWith: nil)
+            let image = UIImage(named: imageName, in: ResourceBundle.shared, compatibleWith: nil)
             
             closeButton.setImage(image, for: .normal)
+            closeButton.setTitle("", for: .normal)
             closeButton.addTarget(self, action: #selector(closePopup), for: .touchUpInside)
         }
         // 닫기 버튼이 웹뷰 또는 타이틀 바 안에 노출
@@ -650,12 +652,14 @@ public class WebPopupViewController: UIViewController {
             
             closeButton.bringSubviewToFront(self.containerView)
             closeButton.backgroundColor = .clear
-            let bundle = Bundle(for: WebPopupViewController.self)
+            
+//            let bundle = Bundle(for: WebPopupViewController.self)
             let imageName = popupStyle.closeBtnType == "btn1" ? "close-bg-cross.png" : "close-single-cross.png"
-            let image = UIImage(named: imageName, in: bundle, compatibleWith: nil)
+            let image = UIImage(named: imageName, in: ResourceBundle.shared, compatibleWith: nil)
             // let image = UIImage(named: "close-single-cross.png", in: bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
             
             closeButton.setImage(image, for: .normal)
+            closeButton.setTitle("", for: .normal)
 //            closeButton.tintColor = .white
             closeButton.addTarget(self, action: #selector(closePopup), for: .touchUpInside)
         }

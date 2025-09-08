@@ -15,16 +15,19 @@ Pod::Spec.new do |spec|
   #  summary should be tweet-length, and the description more in depth.
   #
 
-  spec.name          = "TagWorks-SDK-iOS"
-  spec.version       = "1.1.29"
-  spec.summary       = "TagWorks SDK for iOS"
-  spec.swift_version = "5.0"
+  spec.name             = "TagWorks-SDK-iOS"
+  spec.version          = "1.1.30"
+  spec.summary          = "TagWorks SDK for iOS"
+  spec.swift_version    = "5.0"
+  # 핵심 설정
+  spec.static_framework = false   # 반드시 framework로 설치되도록 (기본값 false)
 
   # This description is used to generate tags and improve search results.
   #   * Think: What does it do? Why did you write it? What is the focus?
   #   * Try to keep it short, snappy and to the point.
   #   * Write the description between the DESC delimiters below.
   #   * Finally, don't worry about the indent, CocoaPods strips it!
+
   spec.description  = "Obzen TagWorks Mobile SDK for iOS"
   spec.homepage     = "https://obzen.com"
 
@@ -110,6 +113,9 @@ Pod::Spec.new do |spec|
 
   # spec.resource  = "icon.png"
   # spec.resources = "Resources/*.png"
+  spec.resource_bundles = {
+    'TagWorksSDKResources' => ['TagWorks-SDK-iOS-v1/Resources/**/*']
+  }
 
   # spec.preserve_paths = "FilesToSave", "MoreFilesToSave"
 

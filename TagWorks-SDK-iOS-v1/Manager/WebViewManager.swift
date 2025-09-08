@@ -15,12 +15,12 @@ protocol WebViewManagerDelegate: AnyObject {
     func showDetailWebViewContoller(url: URL)
 }
 
-class WebViewManager: NSObject, WKNavigationDelegate {
+public class WebViewManager: NSObject, WKNavigationDelegate {
 
     private var webView: WKWebView?
-    public var webViewDelegate: WebViewManagerDelegate?
+    var webViewDelegate: WebViewManagerDelegate?
     
-    init(webView: WKWebView) {
+    public init(webView: WKWebView) {
         super.init()
         self.webView = webView
         self.webView?.navigationDelegate = self
@@ -56,29 +56,29 @@ class WebViewManager: NSObject, WKNavigationDelegate {
     // MARK: - WKNavigationDelegate
     
     // 웹 페이지 로딩이 완료되었을 때 호출되는 메서드
-    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+    public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         print("🟢 [TagWorks] 웹 페이지 로딩 완료: \(webView.url?.absoluteString ?? "unknown")")
         webViewDelegate?.webViewDidFinishLoad(webView)
     }
     
     // 오류 발생 시 호출되는 메서드
-    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+    public func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         print("🔴 [TagWorks] 웹 페이지 로딩 실패: \(error.localizedDescription)")
         webViewDelegate?.webViewDidFailLoad(webView, withError: error)
     }
     
     // 네비게이션 시작 시 호출되는 메서드 (선택 사항)
-    func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+    public func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
         print("🟡 [TagWorks] 웹 페이지 로딩 시작: \(webView.url?.absoluteString ?? "unknown")")
     }
     
     // 웹 페이지 로딩 중 오류 처리 (선택 사항)
-    func webView(_ webView: WKWebView, didReceiveServerRedirectForProvisionalNavigation navigation: WKNavigation!) {
+    public func webView(_ webView: WKWebView, didReceiveServerRedirectForProvisionalNavigation navigation: WKNavigation!) {
         print("↪️ [TagWorks] 서버 리디렉션 발생")
     }
     
     // 웹뷰 내에서 URL 클릭을 감지하고 처리하는 델리게이트 메서드
-    func webView(_ webView: WKWebView,
+    public func webView(_ webView: WKWebView,
                  decidePolicyFor navigationAction: WKNavigationAction,
                  decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         
@@ -103,7 +103,7 @@ class WebViewManager: NSObject, WKNavigationDelegate {
         decisionHandler(.allow)
     }
     
-    func webView(_ webView: WKWebView,
+    public func webView(_ webView: WKWebView,
                  decidePolicyFor navigationResponse: WKNavigationResponse,
                  decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
         
