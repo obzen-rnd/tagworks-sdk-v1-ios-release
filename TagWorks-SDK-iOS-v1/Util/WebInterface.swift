@@ -88,6 +88,7 @@ protocol WebInterfaceDelegate: AnyObject {
         var eventCategory: String?
         var url: String?
         var urlRef: String?
+        let tagWorksVisitorId: String = TagWorks.sharedInstance.visitorId
         
         if msgDictionary.index(forKey: "idsite") != nil {
             idSite = msgDictionary["idsite"] as? String
@@ -95,7 +96,8 @@ protocol WebInterfaceDelegate: AnyObject {
         if msgDictionary.index(forKey: "e_c") != nil {
             eventCategory = msgDictionary["e_c"] as? String
             // 웹뷰의 visitorId를 App의 visitorId로 교체
-            eventCategory = eventCategory?.replacingOccurrences(of: "{{vstor_id}}", with: (delegate as! TagWorks).visitorId)
+//            eventCategory = eventCategory?.replacingOccurrences(of: "{{vstor_id}}", with: (delegate as! TagWorks).visitorId)
+            eventCategory = eventCategory?.replacingOccurrences(of: "{{vstor_id}}", with: tagWorksVisitorId)
         }
         if msgDictionary.index(forKey: "url") != nil {
             url = msgDictionary["url"] as? String
