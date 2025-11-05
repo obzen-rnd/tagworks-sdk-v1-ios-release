@@ -164,6 +164,43 @@ extension TagWorks {
     @objc public var isDebugLogPrint: Bool = false
     @objc public var isDebugLogPost: Bool = false
     
+    /// 디폴트는 출력을 하지 않으나, 이슈 발생 시 true로 셋팅 하여 디버깅 로그를 통해 SDK 플로우를 디버깅
+    @objc public var testMode: Bool = false {
+        didSet {
+            if testMode {
+//                FloatingDebugButton.sharedInstance.show {
+//                    return "FloatingDebugButton is enabled."
+//                }
+                FloatingDebugMenu.sharedInstance.show(actions: [
+                    ("로그 전송", {
+                        let bundle = DataBundle()
+                        bundle.putString(DataBundle.EVENT_TAG_NAME, "테스트_로그")
+                        bundle.putString(DataBundle.EVENT_TAG_PARAM_TITLE, "테스트_로그")
+                        let result = TagWorks.sharedInstance.logEvent(TagWorks.EVENT_TYPE_USER_EVENT, bundle: bundle)
+                        
+                        let alert = UIAlertController(title: "로그 전송 결과", message: result ? "전송 성공" : "전송 실패", preferredStyle: .alert)
+                        alert.addAction(UIAlertAction(title: "확인", style: .default))
+                        
+                        UIApplication.shared.windows.first?.rootViewController?.present(alert, animated: true)
+                    }),
+                    ("설정 보기", {
+                        let message = "siteId: \(self.siteId ?? "")\n\n로그수집 서버: \(self.dispatcher?.baseUrl?.absoluteString ?? "")\n\n딥링크 서버: \(self.deferredDeeplinkURL?.absoluteString ?? "")"
+                        let alert = UIAlertController(title: "SDK 설정값 확인", message: message, preferredStyle: .alert)
+                        alert.addAction(UIAlertAction(title: "확인", style: .default))
+                        
+                        UIApplication.shared.windows.first?.rootViewController?.present(alert, animated: true)
+                    }),
+                    ("디바이스 방문자 식별번호", {
+                        let alert = UIAlertController(title: "visitor_id", message: self.visitorId, preferredStyle: .alert)
+                        alert.addAction(UIAlertAction(title: "확인", style: .default))
+                        
+                        UIApplication.shared.windows.first?.rootViewController?.present(alert, animated: true)
+                    }),
+                ])
+            }
+        }
+    }
+    
     @objc public var isManualDispatch: Bool = false
     
     @objc public var isUseDynamicParameter: Bool = false

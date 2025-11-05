@@ -98,6 +98,7 @@
 		9862455E2DE99743006D8FB0 /* SwizzlingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9862455D2DE99743006D8FB0 /* SwizzlingManager.swift */; };
 		9869AE8E2E13AD080050968C /* DeeplinkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9869AE8D2E13AD080050968C /* DeeplinkManager.swift */; };
 		987ED1612E2E393A00A92D32 /* close_96.png in Resources */ = {isa = PBXBuildFile; fileRef = 987ED1602E2E393A00A92D32 /* close_96.png */; };
+		988A87622EB9D94300D46FF0 /* FloatingDebugButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 988A87612EB9D94300D46FF0 /* FloatingDebugButton.swift */; };
 		989930F02DF6DF020057D37C /* UIWindowScene+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 989930EF2DF6DF020057D37C /* UIWindowScene+Extensions.swift */; };
 		989930F22DF8135E0057D37C /* BackgroundTaskManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 989930F12DF8135E0057D37C /* BackgroundTaskManager.swift */; };
 		98A273FE2D8BA1AA0072A10C /* DetailWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98A273FD2D8BA1AA0072A10C /* DetailWebViewController.swift */; };
@@ -236,6 +237,7 @@
 		9862455D2DE99743006D8FB0 /* SwizzlingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwizzlingManager.swift; sourceTree = "<group>"; };
 		9869AE8D2E13AD080050968C /* DeeplinkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeeplinkManager.swift; sourceTree = "<group>"; };
 		987ED1602E2E393A00A92D32 /* close_96.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = close_96.png; sourceTree = "<group>"; };
+		988A87612EB9D94300D46FF0 /* FloatingDebugButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingDebugButton.swift; sourceTree = "<group>"; };
 		989930EF2DF6DF020057D37C /* UIWindowScene+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIWindowScene+Extensions.swift"; sourceTree = "<group>"; };
 		989930F12DF8135E0057D37C /* BackgroundTaskManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundTaskManager.swift; sourceTree = "<group>"; };
 		98A273FD2D8BA1AA0072A10C /* DetailWebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailWebViewController.swift; sourceTree = "<group>"; };
@@ -523,6 +525,7 @@
 				98CE851D2C50CDF500245400 /* EventSerializer.swift */,
 				98CE85592C50F56000245400 /* WebInterface.swift */,
 				98CE859D2C523EFB00245400 /* KeychainStorage.swift */,
+				988A87612EB9D94300D46FF0 /* FloatingDebugButton.swift */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -795,6 +798,7 @@
 				98CE852F2C50CDF500245400 /* LogLevel.swift in Sources */,
 				98CE852C2C50CDF500245400 /* TagWorks.swift in Sources */,
 				98CE85322C50CDF500245400 /* DefaultQueue.swift in Sources */,
+				988A87622EB9D94300D46FF0 /* FloatingDebugButton.swift in Sources */,
 				98CE85392C50CDF500245400 /* DataBundle.swift in Sources */,
 				98CE859E2C523EFB00245400 /* KeychainStorage.swift in Sources */,
 				98CE853E2C50CDF500245400 /* TagWorksBase.swift in Sources */,
@@ -952,11 +956,11 @@
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.1.30;
+				CURRENT_PROJECT_VERSION = 1.1.31;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = SD2JH29386;
 				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1.1.30;
+				DYLIB_CURRENT_VERSION = 1.1.31;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
@@ -969,7 +973,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.30;
+				MARKETING_VERSION = 1.1.31;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
 				OTHER_LDFLAGS = "$(inherited)";
@@ -990,11 +994,11 @@
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.1.30;
+				CURRENT_PROJECT_VERSION = 1.1.31;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = SD2JH29386;
 				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1.1.30;
+				DYLIB_CURRENT_VERSION = 1.1.31;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
@@ -1007,7 +1011,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.30;
+				MARKETING_VERSION = 1.1.31;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
 				OTHER_LDFLAGS = "$(inherited)";
